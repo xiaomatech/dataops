@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration supports_adding_forbidden="true">
+    <property>
+        <name>das_autocreate_db</name>
+        <value>true</value>
+        <description>If enabled, data analytics studio will create a database on install.</description>
+        <display-name>Create Data Analytics Studio database</display-name>
+        <value-attributes>
+            <type>boolean</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>data_analytics_studio_database_host</name>
+        <value></value>
+        <description>Data Analytics Studio database host, used if das_autocreate_db is false</description>
+        <display-name>Data Analytics Studio database hostname</display-name>
+        <on-ambari-upgrade add="true"/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+    </property>
+    <property>
+        <name>data_analytics_studio_database_port</name>
+        <value>5432</value>
+        <description>Data Analytics Studio database port</description>
+        <display-name>Data Analytics Studio database port</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>data_analytics_studio_database_name</name>
+        <value>das</value>
+        <description>Data Analytics Studio database name</description>
+        <display-name>Data Analytics Studio database name</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>data_analytics_studio_database_username</name>
+        <value>das</value>
+        <description>Data Analytics Studio database username</description>
+        <display-name>Data Analytics Studio database username</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>data_analytics_studio_database_password</name>
+        <value/>
+        <property-type>PASSWORD</property-type>
+        <description>Data Analytics Studio database password</description>
+        <display-name>Data Analytics Studio database password</display-name>
+        <value-attributes>
+            <overridable>false</overridable>
+            <type>password</type>
+            <keystore>true</keystore>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>postgresql_conf_content</name>
+        <display-name>Data Analytics Studio PostgreSQL Server postgresql.conf file template</display-name>
+        <description>This is the jinja template for postgresql.conf file</description>
+        <value/>
+        <property-type>VALUE_FROM_PROPERTY_FILE</property-type>
+        <value-attributes>
+            <property-file-name>postgresql.conf.j2</property-file-name>
+            <property-file-type>text</property-file-type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>pg_hba_conf_content</name>
+        <display-name>Data Analytics Studio PostgreSQL Server pg_hba.conf file template</display-name>
+        <description>This is the jinja template for pg_hba.conf file</description>
+        <value/>
+        <property-type>VALUE_FROM_PROPERTY_FILE</property-type>
+        <value-attributes>
+            <property-file-name>pg_hba.conf.j2</property-file-name>
+            <property-file-type>text</property-file-type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+</configuration>

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>ROCKETMQ</name>
+            <displayName>RocketMQ</displayName>
+            <comment>Apache RocketMQ</comment>
+            <version>4.4.0</version>
+            <components>
+                <component>
+                    <name>ROCKETMQ_NAMESRV</name>
+                    <displayName>RocketMQ Nameserver</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/namesrv.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>ROCKETMQ_BROKER</name>
+                    <displayName>RocketMQ Broker</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/broker.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+            </components>
+
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+
+        </service>
+    </services>
+</metainfo>

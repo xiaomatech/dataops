@@ -1,0 +1,186 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/wormhole-0.6.2.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>log_dir</name>
+        <value>/var/log/wormhole</value>
+        <description>Log directory for wormhole</description>
+    </property>
+    <property>
+        <name>pid_dir</name>
+        <value>/var/run/wormhole</value>
+        <description>run directory for wormhole</description>
+    </property>
+
+    <property>
+        <name>wormhole_user</name>
+        <value>wormhole</value>
+        <property-type>USER</property-type>
+        <description>Service user for wormhole</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>cluster_id</name>
+        <value>streaming</value>
+        <description>wormhole cluster id</description>
+    </property>
+
+    <property>
+        <name>db_url</name>
+        <value>jdbc:mysql://localhost:3306/wormhole?useUnicode=true&amp;characterEncoding=UTF-8&amp;useSSL=false</value>
+        <description>wormhole database url</description>
+    </property>
+
+    <property>
+        <name>conf_content</name>
+        <display-name>application.conf</display-name>
+        <description>application.conf content</description>
+        <value>
+akka.http.server.request-timeout = 120s
+
+wormholeServer {
+  cluster.id = "{{cluster_id}}"
+  host = "localhost"
+  port = 8989
+  ui.default.language = "Chinese"
+  token.timeout = 1
+  token.secret.key = "iytr174395lclkb?lgj~8u;[=L:ljg"
+  admin.username = "admin"
+  admin.password = "admin"
+}
+
+mysql = {
+  driver = "slick.driver.MySQLDriver$"
+  db = {
+    driver = "com.mysql.jdbc.Driver"
+    user = "root"
+    password = "root"
+    url = "{{db_url}}"
+    numThreads = 4
+    minConnections = 4
+    maxConnections = 10
+    connectionTimeout = 3000
+  }
+}
+
+ldap = {
+  enabled = false
+  user = "{{ldap_user}}"
+  pwd = "{{ldap_pwd}}"
+  url = "{{ldap_url}}"
+  dc = "{{ldap_dc}}"
+  read.timeout = 3000
+  read.timeout = 5000
+  connect = {
+    timeout = 5000
+    pool = true
+  }
+}
+
+spark = {
+  wormholeServer.user = "wormhole"
+  wormhole.client.log.path = "/var/log/wormhole/streams"
+  wormhole.jar.path = "{{install_dir}}/lib/wormhole-ums_1.3-sparkx_2.2.2-0.5.5-beta-jar-with-dependencies.jar"
+  #wormhole.kafka08.jar.path = "{{install_dir}}/lib/wormhole-ums_1.3-sparkx_2.2.0-0.5.5-beta-jar-with-dependencies-kafka08.jar"
+  #wormhole.kafka11.streams = ""
+  wormhole.sparkxinterface.jar.path = "{{install_dir}}/lib/wormhole-sparkxinterface-0.5.5-beta.jar"
+  wormholeServer.ssh.port = 22
+  spark.home = "{{spark_home}}"
+  yarn.queue.name = "streaming"
+  wormhole.hdfs.root.path = "hdfs://{{cluster_name}}/wormhole"
+  yarn.rm1.http.url = "{{rm1_url}}"
+  yarn.rm2.http.url = "{{rm2_url}}"
+}
+
+flink = {
+  home = "{{flink_home}}"
+  yarn.queue.name = "streaming"
+  wormhole.client.log.path = "/var/log/wormhole/flows"
+  #wormhole.jar.path = "{{install_dir}}/lib/wormhole-ums_1.3-flinkx_1.5.5-0.5.5-beta-jar-with-dependencies.jar"
+}
+
+zookeeper = {
+  connection.url = "{{zk_url}}"
+  wormhole.root.path = "/wormhole"
+}
+
+kafka = {
+  brokers.url = "{{kafka_broker_url}}"
+  zookeeper.url = "{{zk_url}}"
+  topic.refactor = 3
+  using.cluster.suffix = true
+  consumer = {
+    feedback.topic = "wormhole_feedback"
+    poll-interval = 20ms
+    poll-timeout = 1s
+    stop-timeout = 30s
+    close-timeout = 20s
+    commit-timeout = 70s
+    wakeup-timeout = 60s
+    max-wakeups = 10
+    session.timeout.ms = 60000
+    heartbeat.interval.ms = 50000
+    max.poll.records = 1000
+    request.timeout.ms = 80000
+    max.partition.fetch.bytes = 10485760
+  }
+}
+
+
+elasticSearch.http = {
+  url = "{{es_url}}"
+  user = ""
+  password = ""
+}
+
+grafana = {
+  url = "{{grafana_url}}"
+  admin.token = "jihefouglokoj"
+}
+
+maintenance = {
+  mysql.feedback.remain.maxDays = 7
+  elasticSearch.feedback.remain.maxDays = 7
+}
+
+
+#Dbus integration, support serveral DBus services, if not set, please comment it
+
+dbus = {
+  api = [
+    {
+      login = {
+        url = "http://{{dbus_host}}:5090/v1/keeper/login"
+        email = ""
+        password = ""
+      }
+      synchronization.namespace.url = "http://{{dbus_host}}:5090/v1/keeper/tables/riderSearch"
+    }
+  ]
+}
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+</configuration>

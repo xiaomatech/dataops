@@ -1,0 +1,57 @@
+{
+  "services": [
+    {
+      "name": "DPPROFILER",
+      "identities": [
+        {
+          "name": "/smokeuser"
+        },
+        {
+          "name": "dpprofiler_user",
+          "principal": {
+            "value": "${dpprofiler-env/dpprofiler.user}${principal_suffix}@${realm}",
+            "type": "user",
+            "configuration": "dpprofiler-env/dpprofiler.kerberos.principal",
+            "local_username": "${dpprofiler-env/dpprofiler.user}"
+          },
+          "keytab": {
+            "file": "${keytab_dir}/dpprofiler.kerberos.keytab",
+            "owner": {
+              "name": "${dpprofiler-env/dpprofiler.user}",
+              "access": "r"
+            },
+            "group": {
+              "name": "${cluster-env/user_group}",
+              "access": ""
+            },
+            "configuration": "dpprofiler-env/dpprofiler.kerberos.keytab"
+          }
+        }
+      ],
+      "components": [
+        {
+          "name": "DP_PROFILER_AGENT",
+          "identities": [
+            {
+              "name": "dpprofiler_spnego",
+              "reference": "/spnego",
+              "principal": {
+                "configuration": "dpprofiler-env/dpprofiler.spnego.kerberos.principal"
+              },
+              "keytab": {
+                "configuration": "dpprofiler-env/dpprofiler.spnego.kerberos.keytab"
+              }
+            }
+          ]
+        }
+      ],
+      "configurations": [
+        {
+          "dpprofiler-env": {
+            "dpprofiler.kerberos.enabled": "true"
+          }
+        }
+      ]
+    }
+  ]
+}

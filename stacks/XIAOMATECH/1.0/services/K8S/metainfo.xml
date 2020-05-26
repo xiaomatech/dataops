@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>K8S</name>
+            <displayName>Kubernetes</displayName>
+            <comment>Kubernetes</comment>
+            <version>1.12</version>
+            <components>
+                <component>
+                    <name>KUBE_APISERVER</name>
+                    <displayName>k8s apiserver</displayName>
+                    <category>MASTER</category>
+                    <cardinality>3+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/apiserver.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>KUBE_CONTROL_MANAGER</name>
+                    <displayName>k8s control manager</displayName>
+                    <category>MASTER</category>
+                    <cardinality>3+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/control-manager.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+
+                <component>
+                    <name>KUBE_NODE</name>
+                    <displayName>k8s Node (kubelet,kube-proxy)</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>3+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/node.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                    <bulkCommands>
+                        <displayName>k8s Nodes</displayName>
+                        <masterComponent>KUBE_APISERVER</masterComponent>
+                    </bulkCommands>
+                    <dependencies>
+                        <dependency>
+                            <name>DOCKER/DOCKER</name>
+                            <scope>host</scope>
+                            <auto-deploy>
+                                <enabled>true</enabled>
+                            </auto-deploy>
+                        </dependency>
+                    </dependencies>
+
+                </component>
+
+
+                <component>
+                    <name>KUBE_SCHEDULER</name>
+                    <displayName>k8s scheduler</displayName>
+                    <category>MASTER</category>
+                    <cardinality>3+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/scheduler.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+
+                <component>
+                    <name>KUBE_ETCD</name>
+                    <displayName>k8s etcd</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>3+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/etcd.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+
+                <component>
+                    <name>KUBE_ETCD_EVENT</name>
+                    <displayName>k8s etcd event</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>3+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/etcd_event.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>KUBE_CLIENT</name>
+                    <displayName>k8s client</displayName>
+                    <category>CLIENT</category>
+                    <cardinality>1</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/client.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+            </components>
+
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+
+            <requiredServices>
+                <service>DOCKER</service>
+            </requiredServices>
+
+        </service>
+    </services>
+</metainfo>

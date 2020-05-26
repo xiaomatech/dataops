@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>XDEEPLEARNING</name>
+            <displayName>XDeepLearning</displayName>
+            <comment>X-DeepLearning(简称XDL)是面向高维稀疏数据场景（如广告/推荐/搜索等）深度优化的一整套解决方案</comment>
+            <version>1.1</version>
+            <components>
+                <component>
+                    <name>XDEEPLEARNING_CLIENT</name>
+                    <displayName>XDeepLearning Client</displayName>
+                    <category>CLIENT</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/xdeeplearning.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+            </components>
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+            <configuration-dependencies>
+                <config-type>xdeeplearning-env</config-type>
+            </configuration-dependencies>
+        </service>
+    </services>
+</metainfo>

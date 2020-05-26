@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/palo-0.8.2-release-20180824.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>palo_log_dir</name>
+        <value>/var/log/palo</value>
+        <description>Log directory for palo</description>
+    </property>
+    <property>
+        <name>palo_pid_dir</name>
+        <value>/var/run/palo</value>
+        <description>run directory for palo</description>
+    </property>
+
+    <property>
+        <name>palo_user</name>
+        <value>palo</value>
+        <property-type>USER</property-type>
+        <description>Service user for Palo</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>palo_env_content</name>
+        <display-name>palo env </display-name>
+        <description>palo env</description>
+        <value>
+            export java_HOME={{java64_home}}
+            export PALO_HOME={{palo_home}}
+            export PID_DIR=/var/run/palo
+        </value>
+        <value-attributes>
+          <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>apache_hdfs_broker_conf</name>
+        <display-name>palo hdfs broker conf</display-name>
+        <description>palo hdfs broker conf</description>
+        <value>
+# the thrift rpc port
+broker_ipc_port=8000
+
+# client session will be deleted if not receive ping after this time
+client_expire_seconds=300%
+        </value>
+        <value-attributes>
+          <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>fe_conf</name>
+        <display-name>palo fe conf</display-name>
+        <description>palo fe conf</description>
+        <value>
+  #####################################################################
+## The uppercase properties are read and exported by bin/start_fe.sh.
+## To see all Frontend configurations,
+## see fe/src/com/baidu/palo/common/Config.java
+#####################################################################
+
+# the output dir of stderr and stdout
+LOG_DIR = {{log_dir}}
+
+DATE = `date +%Y%m%d-%H%M%S`
+JAVA_OPTS="-Xmx16G -XX:+UseMembar -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=7 -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+UseG1GC -XX:+UseParNewGC -XX:+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=0 -XX:+CMSClassUnloadingEnabled -XX:-CMSParallelRemarkEnabled -XX:SoftRefLRUPolicyMSPerMB=0 -Xloggc:$PALO_HOME/log/fe.gc.log.$DATE"
+
+##
+## the lowercase properties are read by main program.
+##
+
+# INFO, WARNING, ERROR, FATAL
+sys_log_level = INFO
+
+# store metadata, create it if it is not exist.
+meta_dir = /data/palo-meta
+
+http_port = 8030
+rpc_port = 9020
+query_port = 9030
+edit_log_port = 9010
+
+# Choose one if there are more than one ip except loopback address.
+# Note that there should at most one ip match this list.
+# If no ip match this rule, will choose one randomly.
+# use CIDR format, e.g. 10.10.10.0/24
+# Default value is empty.
+# priority_networks = 10.10.10.0/24;192.168.0.0/16
+
+# Advanced configurations
+# sys_log_dir = {{log_dir}}
+# sys_log_roll_mode = "SIZE-MB-1024"
+# sys_log_roll_num = 10
+# sys_log_verbose_modules =
+# audit_log_dir =
+# audit_log_modules = {"slow_query", "query"};
+# audit_log_roll_mode = "TIME-DAY"
+# audit_log_roll_num = 10
+# meta_delay_toleration_second = 10
+# qe_max_connection = 1024
+# max_conn_per_user = 100
+# qe_query_timeout_second = 300
+# qe_slow_log_ms = 5000
+        </value>
+        <value-attributes>
+          <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>be_conf</name>
+        <display-name>palo be conf</display-name>
+        <description>palo be conf</description>
+        <value>
+# INFO, WARNING, ERROR, FATAL
+sys_log_level = INFO
+
+# ports for admin, web, heartbeat service
+be_port = 9060
+be_rpc_port = 9070
+webserver_port = 8040
+heartbeat_service_port = 9050
+brpc_port = 8060
+
+# Choose one if there are more than one ip except loopback address.
+# Note that there should at most one ip match this list.
+# If no ip match this rule, will choose one randomly.
+# use CIDR format, e.g. 10.10.10.0/24
+# Default value is empty.
+# priority_networks = 10.10.10.0/24;192.168.0.0/16
+
+# data root path, seperate by ';'
+# you can specify the storage medium of each root path, HDD or SSD
+# you can add capacity limit at the end of each root path, seperate by ','
+# eg:
+# storage_root_path = /data1/palo.HDD,50;/data2/palo.SSD,1;/data2/palo
+# /data1/palo.HDD, capacity limit is 50GB, HDD;
+# /data2/palo.SSD, capacity limit is 1GB, SSD;
+# /data2/palo, capacity limit is disk capacity, HDD(default)
+storage_root_path ={{data_dir}}
+
+# Advanced configurations
+# sys_log_dir = {{log_dir}}
+# sys_log_roll_mode = SIZE-MB-1024
+# sys_log_roll_num = 10
+# sys_log_verbose_modules =
+# log_buffer_level = -1
+# palo_cgroups
+        </value>
+        <value-attributes>
+          <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+</configuration>

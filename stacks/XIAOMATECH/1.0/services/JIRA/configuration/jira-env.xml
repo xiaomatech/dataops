@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property require-input="true">
+        <name>download_url_jira</name>
+        <value>http://assets.example.com/atlassian-jira-software-7.12.1-x64.bin</value>
+        <description>download url</description>
+    </property>
+    <property require-input="true">
+        <name>download_url_confluence</name>
+        <value>http://assets.example.com/atlassian-confluence-6.11.2-x64.bin</value>
+        <description>download url</description>
+    </property>
+
+</configuration>

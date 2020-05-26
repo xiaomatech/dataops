@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>XLEARNING</name>
+            <displayName>XLearning</displayName>
+            <comment>XLearning is running on the Hadoop Yarn and has integrated deep learning frameworks such as
+                TensorFlow, MXNet, Caffe, Theano, PyTorch, Keras, XGBoost. XLearning has the satisfactory scalability
+                and compatibility. https://github.com/Qihoo360/XLearning
+            </comment>
+            <version>1.2</version>
+            <components>
+                <component>
+                    <name>XLEARNING_HISTORYSERVER</name>
+                    <displayName>Xlearning History Server</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1</cardinality>
+                    <commandScript>
+                        <script>scripts/historyserver.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+                <component>
+                    <name>XLEARNING_CLIENT</name>
+                    <displayName>Xlearning Client</displayName>
+                    <category>CLIENT</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/xlearning.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+            </components>
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+            <configuration-dependencies>
+                <config-type>xlearning-env</config-type>
+                <config-type>xlearning-site</config-type>
+            </configuration-dependencies>
+            <restartRequiredAfterChange>true</restartRequiredAfterChange>
+        </service>
+    </services>
+</metainfo>

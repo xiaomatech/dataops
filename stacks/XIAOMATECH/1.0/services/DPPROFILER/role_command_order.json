@@ -1,0 +1,13 @@
+{
+  "_comment": "Record format:",
+  "_comment": "blockedRole-blockedCommand: [blockerRole1-blockerCommand1, blockerRole2-blockerCommand2, ...]",
+  "general_deps": {
+    "_comment": "dependencies for all cases",
+    "DP_PROFILER_AGENT-START": [
+      "NAMENODE-START",
+      "DATANODE-START",
+      "RANGER_ADMIN-START",
+      "ATLAS_SERVER-START"
+    ]
+  }
+}

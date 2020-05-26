@@ -1,0 +1,272 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/azkaban-web-server-0.1.0-SNAPSHOT.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property require-input="true">
+        <name>download_url_executor</name>
+        <value>http://assets.example.com/azkaban-exec-server-0.1.0-SNAPSHOT.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+
+    <property>
+        <name>db_host</name>
+        <value>localhost</value>
+        <description>database host</description>
+    </property>
+
+    <property>
+        <name>db_user</name>
+        <value>azkaban</value>
+        <description>database user</description>
+    </property>
+
+    <property>
+        <name>db_password</name>
+        <value></value>
+        <value-attributes>
+            <type>password</type>
+        </value-attributes>
+        <description>database password</description>
+    </property>
+
+    <property>
+        <name>azkaban_user</name>
+        <value>azkaban</value>
+        <property-type>USER</property-type>
+        <description>Service user for azkaban</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>azkaban_web_content</name>
+        <display-name>azkaban.properties template</display-name>
+        <description>Custom azkaban.properties</description>
+        <value>
+#Azkaban Personalization Settings
+azkaban.name=Scheduler
+azkaban.label=Example Scheduler
+azkaban.color=#EEC900
+azkaban.default.servlet.path=/index
+web.resource.dir=web/
+default.timezone.id=Asia/Shanghai
+
+#Azkaban UserManager class
+#user.manager.class=azkaban.user.XmlUserManager
+#user.manager.xml.file=conf/azkaban-users.xml
+
+#ldap
+user.manager.class=net.researchgate.azkaban.LdapUserManager
+user.manager.ldap.host=ldap.example.com
+user.manager.ldap.port=636
+user.manager.ldap.useSsl=true
+user.manager.ldap.userBase=dc=example,dc=com
+user.manager.ldap.userIdProperty=uid
+user.manager.ldap.emailProperty=mail
+user.manager.ldap.bindAccount=cn=read-only-admin,dc=example,dc=com
+user.manager.ldap.bindPassword=password
+user.manager.ldap.allowedGroups=azkaban-ldap-group
+user.manager.ldap.groupSearchBase=ou=Groups,dc=example,dc=com
+user.manager.ldap.embeddedGroups=true
+
+#Loader for projects
+executor.global.properties=conf/global.properties
+azkaban.project.dir=projects
+# Velocity dev mode
+velocity.dev.mode=false
+#database config
+database.type=mysql
+mysql.port=3306
+mysql.host={{db_host}}
+mysql.database=azkaban
+mysql.user={{db_user}}
+mysql.password={{db_password}}
+mysql.numconnections=100
+
+# Velocity dev mode
+velocity.dev.mode=false
+
+# Azkaban Jetty server properties.
+jetty.hostname={{hostname}}
+jetty.maxThreads=25
+jetty.ssl.port=8443
+jetty.port=8081
+
+
+# Azkaban Executor settings
+executor.maxThreads=70
+executor.port=12321
+executor.flow.threads=60
+
+# mail settings
+mail.sender=
+mail.host=
+mail.user=
+mail.password=
+job.failure.email=
+job.success.email=
+
+lockdown.create.projects=false
+
+cache.directory=cache
+# JMX stats
+jetty.connector.stats=true
+executor.connector.stats=true
+#
+jetty.use.ssl=false
+jetty.maxThreads=25
+jetty.port=8080
+
+#Multiple Executor
+azkaban.use.multiple.executors=true
+azkaban.executorselector.filters=StaticRemainingFlowSize,MinimumFreeMemory,CpuStatus
+azkaban.executorselector.comparator.NumberOfAssignedFlowComparator=1
+azkaban.executorselector.comparator.Memory=1
+azkaban.executorselector.comparator.LastDispatched=1
+azkaban.executorselector.comparator.CpuUsage=1
+#
+
+        </value>
+        <value-attributes>
+            <type>content</type>
+            <show-property-name>false</show-property-name>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>azkaban_executor_content</name>
+        <display-name>azkaban.properties template</display-name>
+        <description>Custom azkaban.properties</description>
+        <value>
+#Azkaban
+default.timezone.id=Asia/Shanghai
+
+# Azkaban plugin Plugins
+azkaban.jobtype.plugin.dir=plugins/jobtypes
+
+#Loader for projects
+executor.global.properties=conf/global.properties
+azkaban.project.dir=projects
+
+cache.directory=cache
+# JMX stats
+jetty.connector.stats=true
+executor.connector.stats=true
+
+# Azkaban Jetty server properties.
+jetty.use.ssl=false
+jetty.maxThreads=25
+jetty.port=8081
+
+#database config
+database.type=mysql
+mysql.port=3306
+mysql.host={{db_host}}
+mysql.database=azkaban
+mysql.user={{db_user}}
+mysql.password={{db_password}}
+mysql.numconnections=100
+
+# Azkaban Executor settings
+executor.maxThreads=70
+executor.port=12321
+executor.flow.threads=60
+        </value>
+        <value-attributes>
+            <type>content</type>
+            <show-property-name>false</show-property-name>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>global_content</name>
+        <display-name>global.properties template</display-name>
+        <description>Custom global.properties</description>
+        <value>
+#
+
+        </value>
+        <value-attributes>
+            <type>content</type>
+            <show-property-name>false</show-property-name>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>log4j_content</name>
+        <display-name>log4j.properties template</display-name>
+        <description>Custom log4j.properties</description>
+        <value>
+log4j.rootLogger=INFO, Console
+log4j.logger.azkaban=INFO, server
+log4j.appender.server=org.apache.log4j.RollingFileAppender
+log4j.appender.server.layout=org.apache.log4j.PatternLayout
+log4j.appender.server.File=logs/azkaban-webserver.log
+log4j.appender.server.layout.ConversionPattern=%d{yyyy/MM/dd HH:mm:ss.SSS Z} %p [%c{1}] [Azkaban] %m%n
+log4j.appender.server.MaxFileSize=102400MB
+log4j.appender.server.MaxBackupIndex=2
+log4j.appender.Console=org.apache.log4j.ConsoleAppender
+log4j.appender.Console.layout=org.apache.log4j.PatternLayout
+log4j.appender.Console.layout.ConversionPattern=%d{yyyy/MM/dd HH:mm:ss.SSS Z} %p [%c{1}] [Azkaban] %m%n
+        </value>
+        <value-attributes>
+            <type>content</type>
+            <show-property-name>false</show-property-name>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>azkaban_user_content</name>
+        <display-name>azkaban-users.xml template</display-name>
+        <description>Custom azkaban-users.xml</description>
+        <value>
+            <![CDATA[
+<azkaban-users>
+
+    <role name="r_admin" permissions="ADMIN"/>
+    <group name="g_admin" roles="r_admin"/>
+    <user username="admin" password="admin" groups="g_admin"/>
+
+    <role name="r_dev" permissions="READ,WRITE,CREATEPROJECTS"/>
+    <group name="g_dev" roles="r_dev"/>
+    <user username="dev" password="dev" groups="g_dev"/>
+
+    <role name="r_read" permissions="READ"/>
+    <group name="g_read" roles="r_read"/>
+
+    <role name="r_metrics" permissions="METRICS"/>
+    <user username="metrics" password="metrics" roles="r_admin"/>
+
+</azkaban-users>
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+            <show-property-name>false</show-property-name>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+</configuration>

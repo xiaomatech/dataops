@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/xlearning-gpu-beta.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>xlearning_user</name>
+        <value>xlearning</value>
+        <property-type>USER</property-type>
+        <description>Service user for xlearning</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>xlearning_log_dir</name>
+        <value>/var/log/xlearning</value>
+        <description>Log directory for xlearning</description>
+    </property>
+
+    <property>
+        <name>env_content</name>
+        <display-name>xlearning-env.sh template</display-name>
+        <description>This is the jinja template for xlearning-env.sh file</description>
+        <value><![CDATA[
+unset CLASSPATH
+unset HADOOP_CLASSPATH
+
+export XLEARNING_HOME="$(cd "`dirname "$0"`"/..; pwd)"
+
+export JAVA_HOME={{java64_home}}
+export HADOOP_CONF_DIR={{hadoop_conf_dir}}
+
+export XLEARNING_CONF_DIR=$XLEARNING_HOME/conf/
+export XLEARNING_CLASSPATH="$XLEARNING_CONF_DIR:$HADOOP_CONF_DIR"
+
+for f in $XLEARNING_HOME/lib/*.jar; do
+export XLEARNING_CLASSPATH=$XLEARNING_CLASSPATH:$f
+done
+
+export XLEARNING_CLIENT_OPTS="-Xmx1024m"
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>log_content</name>
+        <display-name>log4j.properties template</display-name>
+        <description>This is the jinja template for log4j.properties file</description>
+        <value><![CDATA[
+log4j.rootCategory=INFO, console
+log4j.appender.console=org.apache.log4j.ConsoleAppender
+log4j.appender.console.target=System.err
+log4j.appender.console.layout=org.apache.log4j.PatternLayout
+log4j.appender.console.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n
+log4j.logger.org.apache.zookeeper=ERROR
+log4j.logger.org.apache.hadoop.hdfs.distributedavatarfilesystem=ERROR
+log4j.logger.org.apache.hadoop.util.NativeCodeLoader=ERROR
+# Settings to quiet third party logs that are too verbose
+
+# Settings the HistoryServer logs
+log4j.logger.net.qihoo.xlearning.jobhistory=DEBUG,RFA
+log4j.additivity.net.qihoo.xlearning.jobhistory=false
+log4j.appender.RFA=org.apache.log4j.RollingFileAppender
+log4j.appender.RFA.File=/var/log/XLearning/XLearningHistoryServer.log
+log4j.appender.RFA.Encoding=UTF-8
+log4j.appender.RFA.Append=true
+log4j.appender.RFA.MaxFileSize=100MB
+log4j.appender.RFA.MaxBackupIndex=5
+log4j.appender.RFA.layout=org.apache.log4j.PatternLayout
+log4j.appender.RFA.layout.ConversionPattern=%d{yy/MM/dd HH:mm:ss} %p %c{1}: %m%n
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+</configuration>

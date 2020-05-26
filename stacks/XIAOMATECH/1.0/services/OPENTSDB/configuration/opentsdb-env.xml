@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/opentsdb-2.3.1.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>opentsdb_pid_dir</name>
+        <value>/var/run/opentsdb</value>
+        <description>Process ID Directory</description>
+    </property>
+
+    <property>
+        <name>opentsdb_log_dir</name>
+        <value>/var/log/opentsdb</value>
+        <description>opentsdb Log Dir</description>
+    </property>
+
+    <property>
+        <name>opentsdb_user</name>
+        <value>opentsdb</value>
+        <property-type>USER</property-type>
+        <description>User opentsdb daemon runs as</description>
+    </property>
+
+    <property>
+        <name>opentsdb_principal</name>
+        <description>Kerberos principal name for the opentsdb.</description>
+        <property-type>KERBEROS_PRINCIPAL</property-type>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>opentsdb_keytab</name>
+        <description>Location of the kerberos keytab file for the opentsdb.</description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>init_content</name>
+        <display-name>opentsdb init template</display-name>
+        <description>opentsdb init template</description>
+        <value/>
+        <property-type>VALUE_FROM_PROPERTY_FILE</property-type>
+        <value-attributes>
+            <property-file-name>opentsdb.j2</property-file-name>
+            <property-file-type>text</property-file-type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>content</name>
+        <display-name>opentsdb.conf template</display-name>
+        <description>opentsdb.conf template</description>
+        <value/>
+        <property-type>VALUE_FROM_PROPERTY_FILE</property-type>
+        <value-attributes>
+            <property-file-name>opentsdb.conf.j2</property-file-name>
+            <property-file-type>text</property-file-type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>log_content</name>
+        <display-name>logback.xml template</display-name>
+        <description>logback.xml template</description>
+        <value/>
+        <property-type>VALUE_FROM_PROPERTY_FILE</property-type>
+        <value-attributes>
+            <property-file-name>logback.xml.j2</property-file-name>
+            <property-file-type>text</property-file-type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>jaas_content</name>
+        <display-name>opentsdb jaas template</display-name>
+        <description>opentsdb jaas template</description>
+        <value/>
+        <property-type>VALUE_FROM_PROPERTY_FILE</property-type>
+        <value-attributes>
+            <property-file-name>opentsdb_jaas.conf.j2</property-file-name>
+            <property-file-type>text</property-file-type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+</configuration>  

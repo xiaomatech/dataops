@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export AIRFLOW_CONFIG={{airflow_config_path}}
+export AIRFLOW_HOME={{install_dir}}
+export SCHEDULER_RUNS={{scheduler_runs}}

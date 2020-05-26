@@ -1,0 +1,16 @@
+
+StormClient {
+   com.sun.security.auth.module.Krb5LoginModule required
+   useTicketCache=true
+   renewTicket=true
+   serviceName="{{nimbus_bare_jaas_principal}}";
+};
+
+{% if kafka_bare_jaas_principal %}
+KafkaClient {
+   com.sun.security.auth.module.Krb5LoginModule required
+   useTicketCache=true
+   renewTicket=true
+   serviceName="{{kafka_bare_jaas_principal}}";
+};
+{% endif %}

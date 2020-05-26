@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>LOGSTASH</name>
+            <displayName>Logstash</displayName>
+            <comment>Centralize, Transform and Stash Your Data</comment>
+            <version>7.2.0</version>
+            <components>
+                <component>
+                    <name>LOGSTASH</name>
+                    <displayName>Logstash Indexer</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/logstash.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                    <bulkCommands>
+                        <displayName>logstashs</displayName>
+                        <masterComponent>LOGSTASH</masterComponent>
+                    </bulkCommands>
+                </component>
+            </components>
+
+            <osSpecifics>
+                <osSpecific>
+                    <osFamily>any</osFamily>
+                    <packages>
+                        <package>
+                            <name>logstash</name>
+                        </package>
+                        <package>
+                            <name>GeoIP-data</name>
+                        </package>
+                    </packages>
+                </osSpecific>
+            </osSpecifics>
+
+            <configuration-dependencies>
+                <config-type>logstash-env</config-type>
+            </configuration-dependencies>
+        </service>
+    </services>
+</metainfo>

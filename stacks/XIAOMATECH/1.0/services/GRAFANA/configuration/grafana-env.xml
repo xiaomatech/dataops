@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>grafana_user</name>
+        <value>grafana</value>
+        <property-type>USER</property-type>
+        <description>Service user for grafana</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>content</name>
+        <display-name>content</display-name>
+        <description>content</description>
+        <value><![CDATA[
+[server]
+http_port = 80
+
+[paths]
+data = /var/lib/grafana
+logs = /var/log/grafana
+plugins = /var/lib/grafana/plugins
+provisioning = /etc/grafana/provisioning
+
+[security]
+admin_user = admin
+admin_password = admin
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>grafana_plugins</name>
+        <display-name>plugin list</display-name>
+        <description>plugin</description>
+        <value>vertamedia-clickhouse-datasource,praj-ams-datasourc,abhisant-druid-datasource,camptocamp-prometheus-alertmanager-datasource,grafana-worldmap-panel,digrich-bubblechart-panel,briangann-datatable-panel,jdbranham-diagram-panel,citilogics-geoloop-panel,grafana-piechart-panel,grafana-clock-panel</value>
+    </property>
+
+</configuration>

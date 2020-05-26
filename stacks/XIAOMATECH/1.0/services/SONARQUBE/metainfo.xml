@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>SONARQUBE</name>
+            <displayName>SonarQube</displayName>
+            <comment>SonarQube</comment>
+            <version>3.2</version>
+            <components>
+                <component>
+                    <name>SONARQUBE</name>
+                    <displayName>SonarQube</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/sonar.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+            </components>
+
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+
+        </service>
+    </services>
+</metainfo>

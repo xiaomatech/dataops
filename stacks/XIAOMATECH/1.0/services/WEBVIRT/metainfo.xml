@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>WEBVIRT</name>
+            <displayName>webvirtmgr</displayName>
+            <comment>webvirtmgr  kvm managent system
+            </comment>
+            <version>2</version>
+            <components>
+                <component>
+                    <name>WEBVIRT</name>
+                    <displayName>webvirtcloud</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1</cardinality>
+                    <commandScript>
+                        <script>scripts/webvirt.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>LIBVIRT</name>
+                    <displayName>libvirt</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/libvirt.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+            </components>
+
+            <requiredServices>
+                <service>NGINX</service>
+            </requiredServices>
+
+
+             <osSpecifics>
+                <osSpecific>
+                    <osFamily>any</osFamily>
+                    <packages>
+                        <package>
+                            <name>webvirtmgr</name>
+                        </package>
+                    </packages>
+                </osSpecific>
+            </osSpecifics>
+
+            <restartRequiredAfterChange>false</restartRequiredAfterChange>
+        </service>
+    </services>
+</metainfo>

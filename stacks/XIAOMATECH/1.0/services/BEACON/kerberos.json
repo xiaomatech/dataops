@@ -1,0 +1,65 @@
+{
+  "services": [
+    {
+      "name": "BEACON",
+      "identities": [
+        {
+          "name": "beacon_spnego",
+          "reference": "/spnego"
+        }
+      ],
+      "auth_to_local_properties": [
+        "beacon-security-site/beacon.kerberos.namerules.auth_to_local"
+      ],
+      "configurations": [
+        {
+          "beacon-security-site": {
+            "beacon.kerberos.authentication.enabled": "true",
+            "beacon.kerberos.authentication.type": "kerberos",
+            "beacon.kerberos.token.valid.seconds": "30",
+            "beacon.kerberos.cookie.domain": "{{hostname}}",
+            "beacon.kerberos.cookie.path": "/"
+          }
+        }
+      ],
+      "components": [
+        {
+          "name": "BEACON_SERVER",
+          "identities": [
+            {
+              "name": "beacon_server",
+              "principal": {
+                "value": "beacon/_HOST@${realm}",
+                "type": "service",
+                "configuration": "beacon-security-site/beacon.kerberos.principal",
+                "local_username": "${beacon-env/beacon_user}"
+              },
+              "keytab": {
+                "file": "${keytab_dir}/beacon.service.keytab",
+                "owner": {
+                  "name": "${beacon-env/beacon_user}",
+                  "access": "r"
+                },
+                "group": {
+                  "name": "${beacon-env/beacon_group}",
+                  "access": "r"
+                },
+                "configuration": "beacon-security-site/beacon.kerberos.keytab"
+              }
+            },
+            {
+              "name": "beacon_server_spnego",
+              "reference": "/spnego",
+              "principal": {
+                "configuration": "beacon-security-site/beacon.kerberos.spnego.principal"
+              },
+              "keytab": {
+                "configuration": "beacon-security-site/beacon.kerberos.spnego.keytab"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

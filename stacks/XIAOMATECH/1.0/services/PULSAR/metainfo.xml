@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>PULSAR</name>
+            <displayName>Pulsar</displayName>
+            <comment>Apache Pulsar</comment>
+            <version>2.4</version>
+            <components>
+                <component>
+                    <name>PULSAR_CONFIGURATION_STORE</name>
+                    <displayName>PULSAR configuration store</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/configuration_store.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>PULSAR_BROKER</name>
+                    <displayName>PULSAR broker</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/broker.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>PULSAR_BOOKIE</name>
+                    <displayName>pulsar bookie</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/bookie.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>PULSAR_DISCOVERY</name>
+                    <displayName>pulsar discovery</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/discovery.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>PULSAR_WEBSOCKET</name>
+                    <displayName>pulsar websocket</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/websocket.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>PULSAR_FUNCTIONS_WORKER</name>
+                    <displayName>pulsar functions worker</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/functions_worker.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>PULSAR_PROXY</name>
+                    <displayName>pulsar proxy</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/proxy.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+            </components>
+
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+
+        </service>
+    </services>
+</metainfo>

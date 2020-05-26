@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<reposinfo>
+  <os family="redhat7">
+    <repo>
+      <baseurl>http://assets.example.com/7/</baseurl>
+      <repoid>XIAOMATECH-1.0</repoid>
+      <reponame>XIAOMATECH</reponame>
+    </repo>
+  </os>
+</reposinfo>

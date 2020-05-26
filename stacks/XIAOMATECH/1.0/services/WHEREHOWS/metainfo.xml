@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>WHEREHOWS</name>
+            <displayName>wherehows</displayName>
+            <comment>Data Discovery and Lineage for Big Data Ecosystem</comment>
+            <version>1.0.0</version>
+            <components>
+                <component>
+                    <name>WHEREHOWS-FRONTEND</name>
+                    <displayName>Wherehows Frontend</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/frontend.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                    <customCommands>
+                        <customCommand>
+                            <name>INITDB</name>
+                            <commandScript>
+                                <script>scripts/frontend.py</script>
+                                <scriptType>PYTHON</scriptType>
+                                <timeout>600</timeout>
+                            </commandScript>
+                        </customCommand>
+                    </customCommands>
+                </component>
+                <component>
+                    <name>WHEREHOWS-BACKEND</name>
+                    <displayName>Wherehows Backend</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/backend.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+            </components>
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+
+            <requiredServices>
+                <service>ELASTICSEARCH</service>
+            </requiredServices>
+
+            <configuration-dependencies>
+                <config-type>wherehows-env</config-type>
+            </configuration-dependencies>
+            <restartRequiredAfterChange>true</restartRequiredAfterChange>
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+        </service>
+    </services>
+</metainfo>

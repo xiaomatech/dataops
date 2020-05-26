@@ -1,0 +1,460 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>privileges</name>
+        <value><![CDATA[
+uninstall plugin validate_password;
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+DELETE FROM mysql.user WHERE user='';
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'E_u5Ve-s2_k_a78343';
+
+CREATE USER 'admin'@'%' IDENTIFIED BY 'E_u5Ve-s2_k_a78343';
+GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION;
+
+CREATE USER 'repl'@'%' IDENTIFIED BY 'E_u5Ve-s2_k_a78343';
+GRANT SELECT, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'repl'@'%';
+
+CREATE USER 'monitor'@'%' IDENTIFIED BY 'E_u5Ve-s2_k_a78343';
+GRANT SELECT, REPLICATION CLIENT, SHOW DATABASES, SUPER, PROCESS ON *.* TO  'monitor'@'%';
+
+CREATE USER 'read'@'%' IDENTIFIED BY 'E_u5Ve-s2_k_a78343';
+GRANT SELECT, SHOW VIEW,SHOW DATABASES  ON *.* TO 'read'@'%';
+
+CREATE USER 'backup'@'%' IDENTIFIED BY 'E_u5Ve-s2_k_a78343';
+GRANT RELOAD, LOCK TABLES, PROCESS, REPLICATION CLIENT, SELECT  ON *.* TO 'backup'@'%';
+
+CREATE USER 'mgr'@'%' IDENTIFIED BY 'E_u5Ve-s2_k_a78343';
+GRANT ALL PRIVILEGES ON mysql_innodb_cluster_metadata.* TO mgr@'%' WITH GRANT OPTION;
+GRANT RELOAD, SHUTDOWN, PROCESS, FILE, SUPER, REPLICATION SLAVE, REPLICATION CLIENT, CREATE USER ON *.* TO mgr@'%' WITH GRANT OPTION;
+GRANT SELECT ON *.* TO mgr@'%' WITH GRANT OPTION;
+
+FLUSH PRIVILEGES;
+
+]]>
+        </value>
+        <description>database privileges</description>
+    </property>
+
+    <property>
+        <name>conf_content</name>
+        <display-name>my.cnf content</display-name>
+        <description>my.cnf content</description>
+        <value><![CDATA[
+[client]
+default-character-set = utf8
+user       = read
+password   = E_u5Ve-s2_k_a78343
+            
+[mysql]
+prompt = \\u@\\h port:\\p \\d \\r:\\m:\\s>
+default-character-set = utf8
+no-auto-rehash
+
+[mysqld_multi]
+mysqld     = /usr/sbin/mysqld
+mysqladmin = /usr/bin/mysqladmin
+log        = /var/log/mysqld_multi.log
+user       = admin
+password   = E_u5Ve-s2_k_a78343
+
+
+[mysqld@3306]
+socket     = /var/run/mysqld/3306.sock
+port       = 3306
+pid-file   = /var/run/mysqld/3306.pid
+datadir    = /data0/mysql
+log_error  = /data1/log/mysql/error_3306.log
+log-bin	   = /data0/binlog
+relay-log  = /data0/relaylog
+innodb-undo-directory = /data0/undolog
+innodb-data-home-dir = /data0/binlog
+innodb-log-group-home-dir=/data0/redolog
+server_id  = {{unique_id}}3306
+#tokudb_data_dir = /data0/#tokudbdata
+#tokudb_log_dir  = /data0/#tokudblog
+#tokudb_tmp_dir  = /data0/#tokudbtmp
+rocksdb_datadir = /data0/rocksdbdata
+rocksdb_wal_dir = /data0/rocksdbwal
+rocksdb_tmpdir =  /data0/rocksdbtmp
+group_replication_local_address= "{{hostname}}:3306"
+
+[mysqld@3307]
+socket     = /var/run/mysqld/3307.sock
+port       = 3307
+pid-file   = /var/run/mysqld/3307.pid
+datadir    = /data1/mysql
+log_error  = /data1/log/mysql/error_3307.log
+log-bin	   = /data1/binlog
+relay-log  = /data1/relaylog
+innodb-undo-directory = /data1/undolog
+innodb-data-home-dir = /data1/binlog
+innodb-log-group-home-dir=/data1/redolog
+server_id  = {{unique_id}}3307
+#tokudb_data_dir = /data1/#tokudbdata
+#tokudb_log_dir  = /data1/#tokudblog
+#tokudb_tmp_dir  = /data1/#tokudbtmp
+rocksdb_datadir = /data1/rocksdbdata
+rocksdb_wal_dir = /data1/rocksdbwal
+rocksdb_tmpdir =  /data1/rocksdbtmp
+group_replication_local_address= "{{hostname}}:3307"
+
+[mysqld@3308]
+socket     = /var/run/mysqld/3308.sock
+port       = 3308
+pid-file   = /var/run/mysqld/3308.pid
+datadir    = /data2/mysql
+log_error  = /data1/log/mysql/error_3308.log
+log-bin	   = /data2/binlog
+relay-log  = /data2/relaylog
+innodb-undo-directory = /data2/undolog
+innodb-data-home-dir = /data2/binlog
+innodb-log-group-home-dir=/data2/redolog
+server_id  = {{unique_id}}3308
+#tokudb_data_dir = /data2/#tokudbdata
+#tokudb_log_dir  = /data2/#tokudblog
+#tokudb_tmp_dir  = /data2/#tokudbtmp
+rocksdb_datadir = /data2/rocksdbdata
+rocksdb_wal_dir = /data2/rocksdbwal
+rocksdb_tmpdir =  /data2/rocksdbtmp
+group_replication_local_address= "{{hostname}}:3308"
+
+[mysqld@3309]
+socket     = /var/run/mysqld/3309.sock
+port       = 3309
+pid-file   = /var/run/mysqld/3309.pid
+datadir    = /data3/mysql
+log_error  = /data1/log/mysql/error_3309.log
+log-bin	   = /data3/binlog
+relay-log  = /data3/relaylog
+innodb-undo-directory = /data3/undolog
+innodb-data-home-dir = /data3/binlog
+innodb-log-group-home-dir=/data3/redolog
+server_id  = {{unique_id}}3309
+#tokudb_data_dir = /data3/#tokudbdata
+#tokudb_log_dir  = /data3/#tokudblog
+#tokudb_tmp_dir  = /data3/#tokudbtmp
+rocksdb_datadir = /data3/rocksdbdata
+rocksdb_wal_dir = /data3/rocksdbwal
+rocksdb_tmpdir =  /data3/rocksdbtmp
+group_replication_local_address= "{{hostname}}:3309"
+
+[mysqld]
+bind-address = {{hostname}}
+user = mysql
+sql_mode = "STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER"
+host_cache_size=200
+autocommit = 1
+transaction_isolation = READ-COMMITTED
+explicit_defaults_for_timestamp = 1
+max_allowed_packet = 64M
+event_scheduler = 1
+character_set_server = utf8mb4
+
+slow_query_log_file = /data1/log/mysql/slow.log
+audit_log_file = /data1/log/mysql/audit.log
+
+# connection #
+interactive_timeout = 1800
+wait_timeout = 1800
+lock_wait_timeout = 1800
+max_connect_errors = 1000000
+skip-external-locking = 1
+old_passwords = 0
+lower_case_table_names = 1
+open_files_limit = 65535
+max_connections = 4096
+max_user_connections= 512
+thread_cache_size = 256
+table_definition_cache = 4096
+table_open_cache = 4096
+table_open_cache_instances = 64
+thread_stack = 524288
+
+max_binlog_size = 500M
+max_binlog_cache_size = 2G
+binlog_format=ROW
+
+# session memory setting #
+read_buffer_size = 16M
+read_rnd_buffer_size = 32M
+sort_buffer_size = 32M
+tmp_table_size = 64M
+join_buffer_size = 128M
+
+# log settings #
+log_queries_not_using_indexes = 1
+log_throttle_queries_not_using_indexes = 10
+expire_logs_days = 30
+long_query_time = 2
+min_examined_row_limit = 100
+binlog-rows-query-log-events = 1
+log-bin-trust-function-creators = 1
+expire-logs-days = 90
+log-slave-updates = 1
+
+# innodb settings #
+innodb_buffer_pool_size = {{innodb_buffer_pool_size}}G
+innodb_log_file_size = {{innodb_log_file_size}}G
+innodb_page_size = 16384
+innodb_buffer_pool_instances = {{innodb_buffer_pool_instances}}
+innodb_buffer_pool_load_at_startup = 1
+innodb_buffer_pool_dump_at_shutdown = 1
+innodb_lru_scan_depth = 4096
+innodb_lock_wait_timeout = 5
+innodb_io_capacity = 10000
+innodb_io_capacity_max = 20000
+innodb_flush_method = O_DIRECT_NO_FSYNC
+innodb_undo_logs = 128
+innodb_undo_tablespaces = 3
+innodb_flush_neighbors = 0
+innodb_log_files_in_group = 2
+innodb_log_buffer_size = 16M
+innodb_purge_threads = 4
+innodb_large_prefix = 1
+innodb_thread_concurrency = 64
+innodb_print_all_deadlocks = 1
+innodb_strict_mode = 1
+innodb_sort_buffer_size = 64M
+innodb_write_io_threads = 16
+innodb_read_io_threads = 16
+innodb_file_per_table = 1
+innodb_stats_persistent_sample_pages = 64
+innodb_autoinc_lock_mode = 2
+innodb_use_native_aio=1
+
+default-storage-engine = INNODB
+innodb_file_per_table = 1
+innodb_open_files = 6000
+innodb_flush_log_at_trx_commit = 2
+innodb_data_file_path = ibdata1:5G;ibdata2:5G:autoextend
+innodb-print-all-deadlocks = 1
+innodb_adaptive_flushing=1
+innodb_max_dirty_pages_pct = 60
+innodb_sync_spin_loops = 100
+innodb_spin_wait_delay = 30
+
+innodb_online_alter_log_max_size = 1G
+
+
+#### query cache ####
+query_cache_size = 0
+query_cache_limit = 1K
+query_cache_min_res_unit = 1K
+query_cache_type=0
+#myisam
+concurrent_insert = 2
+myisam_sort_buffer_size = 100M
+explicit-defaults-for-timestamp = 1
+
+# replication setting #
+master_info_repository = TABLE
+relay_log_info_repository = TABLE
+sync_binlog = 1
+gtid_mode = on
+enforce_gtid_consistency = 1
+log_slave_updates = 1
+binlog_format = ROW
+binlog_row_image = FULL
+binlog_rows_query_log_events = 1
+relay_log_recovery = 1
+binlog_gtid_simple_recovery = 1
+slave_skip_errors = ddl_exist_errors
+slave-rows-search-algorithms = 'INDEX_SCAN,HASH_SCAN'
+
+
+plugin_load = "group_replication.so;validate_password.so;semisync_master.so;semisync_slave.so;audit_log.so;ha_rocksdb.so;rewriter.so" #ha_tokudb.so
+rpl_semi_sync_master_enabled = 1
+rpl_semi_sync_master_timeout = 3000
+rpl_semi_sync_slave_enabled = 1
+
+# password plugin #
+validate_password_policy=MEDIUM
+validate_password_length = 8
+validate-password=FORCE
+
+
+#audit log
+audit_log_format=JSON
+audit_log_policy=ALL
+audit_log_file=/var/log/mysql/audit.log
+audit_log_rotate_on_size=1024M
+audit_log_rotations=10
+
+# new innodb setting #
+loose_innodb_numa_interleave=1
+innodb_buffer_pool_dump_pct = 40
+innodb_page_cleaners = 16
+innodb_undo_log_truncate = 1
+innodb_max_undo_log_size = 2G
+innodb_purge_rseg_truncate_frequency = 128
+# new replication setting #
+slave-parallel-type = LOGICAL_CLOCK
+slave-parallel-workers = 16
+slave_preserve_commit_order=1
+slave_transaction_retries=128
+# other change setting #
+binlog_gtid_simple_recovery=1
+log_timestamps=system
+show_compatibility_56=on
+relay_log_purge = 1
+binlog-gtid-simple-recovery = 1
+slave-skip-errors = ddl_exist_errors
+disabled-storage-engines = "BLACKHOLE,MyISAM,CSV,ARCHIVE,FEDERATED"
+
+#percona-thread pool
+thread_handling=pool-of-threads
+thread_pool_high_prio_tickets = 1
+thread_pool_oversubscribe =3
+thread_pool_stall_limit = 100
+thread_pool_size = {{innodb_buffer_pool_instances}}
+thread_pool_max_threads = 8192
+thread_pool_idle_timeout = 60
+innodb_track_changed_pages = 1
+            
+#tokudb_row_format = #tokudb_snappy
+#tokudb_cache_size = 28G
+#tokudb_commit_sync = 0
+#tokudb_directio = 1
+#tokudb_fsync_log_period = 1000
+#tokudb_read_block_size = 128K
+#tokudb_read_buf_size = 128K
+#tokudb_write_status_frequency =1
+#tokudb_read_status_frequency = 1
+#tokudb_buffer_pool_ratio = 60
+#tokudb_enable_fast_update = 1
+#tokudb_enable_fast_upsert = 1
+##tokudb_backup_dir='/data/backup/#tokudb'
+##tokudb_backup_allowed_prefix='/data/backup'
+#tokudb_check_jemalloc=0
+
+rocksdb_max_open_files=-1
+rocksdb_max_background_jobs=16
+rocksdb_max_total_wal_size=4G
+rocksdb_block_size=16384
+rocksdb_table_cache_numshardbits=6
+rocksdb_bytes_per_sync=16777216
+rocksdb_wal_bytes_per_sync=4194304
+rocksdb_compaction_sequential_deletes_count_sd=1
+rocksdb_compaction_sequential_deletes=199999
+rocksdb_compaction_sequential_deletes_window=200000
+rocksdb_default_cf_options="write_buffer_size=256m;target_file_size_base=32m;max_bytes_for_level_base=512m;max_write_buffer_number=4;level0_file_num_compaction_trigger=4;level0_slowdown_writes_trigger=20;level0_stop_writes_trigger=30;max_write_buffer_number=4;block_based_table_factory={cache_index_and_filter_blocks=1;filter_policy=bloomfilter:10:false;whole_key_filtering=0};level_compaction_dynamic_level_bytes=true;optimize_filters_for_hits=true;memtable_prefix_bloom_size_ratio=0.05;prefix_extractor=capped:12;compaction_pri=kMinOverlappingRatio;compression=kLZ4Compression;bottommost_compression=kLZ4Compression;compression_opts=-14:4:0"
+rocksdb_max_subcompactions=4
+rocksdb_compaction_readahead_size=16m
+rocksdb_use_direct_reads=ON
+rocksdb_use_direct_io_for_flush_and_compaction=ON
+
+# group replication settings
+transaction-write-set-extraction = XXHASH64
+binlog_checksum = NONE
+group_replication = FORCE_PLUS_PERMANENT
+group_replication_compression_threshold = 100
+group_replication_flow_control_mode = 0
+group_replication_single_primary_mode = 0
+group_replication_enforce_update_everywhere_checks = 1
+group_replication_transaction_size_limit = 10485760
+group_replication_unreachable_majority_timeout = 120
+group_replication_start_on_boot = 0
+group_replication_bootstrap_group = 0
+
+report_host = {{hostname}}
+group_replication_group_name = "{{group_name}}"
+group_replication_group_seeds= "{{group_seeds}}"
+
+#mysql8
+plugin-load-add=connection_control.so
+mysqlx=0
+rewriter_enabled = 0
+default_authentication_plugin=mysql_native_password
+
+#audit log
+audit_log_format=JSON
+audit_log_rotate_on_size=1G
+audit_log_rotations=2
+
+#slow log
+slow_query_log = 1
+log_slow_admin_statements = 1
+log_slow_slave_statements = 1
+long_query_time=0
+log_slow_rate_limit=1
+log_slow_rate_type=query
+log_slow_verbosity=full
+slow_query_log_always_write_time=1
+slow_query_log_use_global_control=all
+
+[mysqld_safe]
+thp-setting=never
+preload-hotbackup
+malloc-lib=tcmalloc
+
+[xtrabackup]
+target_dir = /data/backup/mysql/
+            ]]>
+        </value>
+        <value-attributes>
+          <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>clicktail_slow_content</name>
+        <display-name>clicktail.conf</display-name>
+        <description>mysql slowlog clicktail.conf content</description>
+        <value><![CDATA[
+
+[Application Options]
+APIHost = http://{{clickhouse_host}}:8123/
+NumSenders = 10
+BatchSize = 100000
+BatchFrequencyMs = 1000
+Localtime = true
+BackOff = true
+
+[Required Options]
+ParserName = mysql
+LogFiles = /data1/log/mysql/slow.log
+Dataset = clicktail.mysql_slow_log
+
+;[Required Options]
+;ParserName = mysqlaudit
+;LogFiles = /data1/log/mysql/audit.log
+;Dataset = clicktail.mysql_audit_log
+
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>clicktail_audit_content</name>
+        <display-name>clicktail.conf</display-name>
+        <description>mysql audit clicktail.conf content</description>
+        <value><![CDATA[
+
+[Application Options]
+APIHost = http://{{clickhouse_host}}:8123/
+NumSenders = 10
+BatchSize = 100000
+BatchFrequencyMs = 1000
+Localtime = true
+BackOff = true
+
+[Required Options]
+ParserName = mysqlaudit
+LogFiles = /data1/log/mysql/audit.log
+Dataset = clicktail.mysql_audit_log
+
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+</configuration>

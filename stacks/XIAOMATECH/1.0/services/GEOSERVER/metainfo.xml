@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>GITLAB</name>
+            <displayName>geoserver</displayName>
+            <comment>GEOSERVER</comment>
+            <version>2.15.2</version>
+            <components>
+                <component>
+                    <name>GEOSERVER</name>
+                    <displayName>GeoServer</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/geoserver.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+            </components>
+
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+        </service>
+    </services>
+</metainfo>

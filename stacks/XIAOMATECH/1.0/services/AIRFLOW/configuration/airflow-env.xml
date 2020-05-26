@@ -1,0 +1,158 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+    <property>
+        <name>airflow_user</name>
+        <display-name>airflow User</display-name>
+        <value>airflow</value>
+        <property-type>USER</property-type>
+        <description>airflow User</description>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>principal_name_worker</name>
+        <description>Airflow principal name</description>
+        <property-type>KERBEROS_PRINCIPAL</property-type>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>keytab_path_worker</name>
+        <description>Airflow keytab path</description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>keytab_path_webserver</name>
+        <description>Airflow keytab path</description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>principal_name_webserver</name>
+        <description>Airflow principal name</description>
+        <property-type>KERBEROS_PRINCIPAL</property-type>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property require-input="true">
+        <name>dags_folder</name>
+        <value>/data1/airflow/dags</value>
+    </property>
+
+    <property require-input="true">
+        <name>base_log_folder</name>
+        <value>/var/log/airflow</value>
+    </property>
+
+    <property require-input="true">
+        <name>sql_alchemy_conn</name>
+        <value>mysql://user:passwd@127.0.0.1:3306/airflow</value>
+    </property>
+
+    <property require-input="true">
+        <name>celery_broker_url</name>
+        <value>redis://redis-master:6379/0</value>
+    </property>
+
+    <property require-input="true">
+        <name>celery_result_backend</name>
+        <value>redis://redis-master:6379/0</value>
+    </property>
+
+    <property>
+        <name>content</name>
+        <display-name>airflow template</display-name>
+        <description>airflow conf</description>
+        <value>
+[core]
+airflow_home = /usr/share/airflow
+dags_folder = {{dags_folder}}
+base_log_folder = /var/log/airflow
+plugins_folder = /usr/share/airflow/plugins
+remote_base_log_folder =
+remote_log_conn_id =
+
+executor = CeleryExecutor
+sql_alchemy_conn = {{airflow_sql_alchemy_conn}}
+sql_alchemy_pool_size = 5
+sql_alchemy_pool_recycle = 3600
+parallelism = 32
+dag_concurrency = 16
+dags_are_paused_at_creation = True
+non_pooled_task_slot_count = 128
+max_active_runs_per_dag = 16
+load_examples = False
+fernet_key = 2IT-D1Z4DV7P_uirajSKwixBUepSYB8mwZycWQDeMdI=
+donot_pickle = False
+dagbag_import_timeout = 30
+
+[operators]
+default_owner = airflow
+
+[webserver]
+base_url = {{airflow_base_url}}
+web_server_host = 0.0.0.0
+web_server_port = 8082
+web_server_worker_timeout = 120
+secret_key = temporary_key
+workers = 4
+worker_class = sync
+expose_config = True
+authenticate = False
+filter_by_owner = False
+
+[email]
+email_backend = airflow.utils.email.send_email_smtp
+
+[smtp]
+smtp_host = localhost
+smtp_starttls = True
+smtp_ssl = False
+smtp_user = airflow
+smtp_port = 25
+smtp_password = airflow
+smtp_mail_from = airflow@airflow.com
+
+[celery]
+celery_app_name = airflow.executors.celery_executor
+celeryd_concurrency = 16
+worker_log_server_port = 8793
+broker_url = {{celery_broker_url}}
+celery_result_backend = {{celery_result_backend}}
+flower_port = 5555
+default_queue = default
+
+[scheduler]
+job_heartbeat_sec = 5
+scheduler_heartbeat_sec = 5
+
+[kerberos]
+principal = {{principal_name_webserver}}
+keytab = {{keytab_path_webserver}}
+
+# Statsd
+# statsd_on = False
+# statsd_host = localhost
+# statsd_port = 8125
+# statsd_prefix = airflow
+
+max_threads = 4
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+</configuration>

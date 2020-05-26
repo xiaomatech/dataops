@@ -1,0 +1,910 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<configuration supports_adding_forbidden="true">
+
+    <property>
+        <name>kafka_user</name>
+        <display-name>Kafka User</display-name>
+        <value>cp-kafka</value>
+        <property-type>USER</property-type>
+        <description/>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>kafka_keytab</name>
+        <description>Kafka keytab path</description>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>kafka_principal_name</name>
+        <description>Kafka principal name</description>
+        <property-type>KERBEROS_PRINCIPAL</property-type>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>kafka_log_dir</name>
+        <display-name>Kafka Log directory</display-name>
+        <value>/var/log/confluent</value>
+        <description/>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>control_center_dir</name>
+        <display-name>Kafka control center data directory</display-name>
+        <value>/data1/confluent/control-center</value>
+        <description/>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>kafka_user_nofile_limit</name>
+        <value>1048576</value>
+        <description>Max open files limit setting for KAFKA user.</description>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>kafka_user_nproc_limit</name>
+        <value>65536</value>
+        <description>Max number of processes limit setting for KAFKA user.</description>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property require-input="true">
+        <name>share_jars</name>
+        <value>cruise-control-metrics-reporter-2.0.42.jar</value>
+        <description>kafka share jars</description>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+    </property>
+
+    <!-- kafka-env.sh -->
+    <property>
+        <name>content</name>
+        <display-name>kafka-env template</display-name>
+        <description>This is the jinja template for kafka-env.sh file</description>
+        <value><![CDATA[
+#!/bin/bash
+
+# Set KAFKA specific environment variables here.
+
+# The java implementation to use.
+export JAVA_HOME={{java64_home}}
+export PATH=$PATH:$JAVA_HOME/bin
+export LOG_DIR={{kafka_log_dir}}
+{% if kerberos_security_enabled or kafka_other_sasl_enabled %}
+export KAFKA_KERBEROS_PARAMS="-Djavax.security.auth.useSubjectCredsOnly=false {{kafka_kerberos_params}}"
+{% else %}
+export KAFKA_KERBEROS_PARAMS={{kafka_kerberos_params}}
+{% endif %}
+
+if [ -d "{{stack_root}}/ranger-kafka-plugin" ]; then
+    export CLASSPATH=${CLASSPATH}:{{stack_root}}/ranger-kafka-plugin/lib/*
+fi
+
+if [ -d "{{stack_root}}/atlas-kafka-plugin" ]; then
+    export CLASSPATH=${CLASSPATH}:{{stack_root}}/atlas-kafka-plugin/atlas-kafka-plugin-impl/*:{{stack_root}}/atlas-kafka-plugin/*
+fi
+
+      ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>kafka_connect_plugin_download_url</name>
+        <value>
+            http://assets.example.com/share/kafkaconnector/debezium-connector-mongodb-0.9.4.Final-plugin.tar.gz,http://assets.example.com/share/kafkaconnector/debezium-connector-mysql-0.9.4.Final-plugin.tar.gz,http://assets.example.com/share/kafkaconnector/debezium-connector-postgres-0.9.4.Final-plugin.tar.gz
+        </value>
+        <description>A comma-separated list of Kafka connect plugin download url</description>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>kafka_env_content</name>
+        <value><![CDATA[
+KAFKA_HEAP_OPTS="-Xms6g -Xmx6g"
+KAFKA_JVM_PERFORMANCE_OPTS="-XX:MetaspaceSize=96m -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80"
+JMX_PORT=39999
+            ]]>
+        </value>
+        <description>kafkf Environment</description>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+
+    <property>
+        <name>kafka_rest_env_content</name>
+        <value><![CDATA[
+KAFKAREST_HEAP_OPTS="-Xms4g -Xmx4g"
+KAFKAREST_JVM_PERFORMANCE_OPTS="-XX:MetaspaceSize=96m -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:G1HeapRegionSize=16M -XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80"
+JMX_PORT=39997
+LOG_DIR=/var/log/confluent/kafka-rest
+            ]]>
+        </value>
+        <description>kafkf Environment</description>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>kafka_registry_env_content</name>
+        <value><![CDATA[
+SCHEMA_REGISTRY_HEAP_OPTS="-Xms1g -Xmx1g"
+JMX_PORT=39998
+LOG_DIR=/var/log/confluent/schema-registry
+            ]]>
+        </value>
+        <description>kafkf Environment</description>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>kafka_connector_content</name>
+        <value><![CDATA[
+{
+     "name" : "mysql-test",
+     "config":
+     {
+           "connector.class" : "io.debezium.connector.mysql.MySqlConnector",
+           "database.hostname" : "192.168.1.22",
+           "database.port" : "3306",
+           "database.user" : "root",
+           "database.password" : "XXXXXX",
+           "database.whitelist" : "kafka_base_db",
+           "table.whitlelist" : "accounts",
+           "database.server.id" : "223344",
+           "database.server.name" : "full",
+           "database.history.kafka.bootstrap.servers" : "192.168.1.22:9092",
+           "database.history.kafka.topic" : "account_topic",
+           "include.schema.changes" : "true" ,
+           "incrementing.column.name" : "id",
+           "database.history.skip.unparseable.ddl" : "true",
+           "transforms": "unwrap,changetopic",
+           "transforms.unwrap.type": "io.debezium.transforms.UnwrapFromEnvelope",
+           "transforms.changetopic.type":"org.apache.kafka.connect.transforms.RegexRouter",
+           "transforms.changetopic.regex":"(.*)",
+           "transforms.changetopic.replacement":"$1-smt"
+      }
+}
+]]>
+        </value>
+        <description>kafkf connector json config to deploy a connector</description>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>schema_registry_content</name>
+        <display-name>Schema Registry properties template</display-name>
+        <description>Custom properties</description>
+        <value><![CDATA[
+# The address the socket server listens on.
+#   FORMAT:
+#     listeners = listener_name://host_name:port
+#   EXAMPLE:
+#     listeners = PLAINTEXT://your.host.name:6667
+listeners=http://0.0.0.0:8081
+
+# Zookeeper connection string for the Zookeeper cluster used by your Kafka cluster
+# (see zookeeper docs for details).
+# This is a comma separated host:port pairs, each corresponding to a zk
+# server. e.g. "127.0.0.1:3000,127.0.0.1:3001,127.0.0.1:3002".
+kafkastore.connection.url={{zk_quorum}}/kafka
+
+# Alternatively, Schema Registry can now operate without Zookeeper, handling all coordination via
+# Kafka brokers. Use this setting to specify the bootstrap servers for your Kafka cluster and it
+# will be used both for selecting the master schema registry instance and for storing the data for
+# registered schemas.
+# (Note that you cannot mix the two modes; use this mode only on new deployments or by shutting down
+# all instances, switching to the new configuration, and then starting the schema registry
+# instances again.)
+kafkastore.bootstrap.servers={{bootstrap_servers}}
+
+# The name of the topic to store schemas in
+kafkastore.topic=_schemas
+
+# If true, API requests that fail will include extra debugging information, including stack traces
+debug=false
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>kafka_content</name>
+        <display-name>kafka server properties template</display-name>
+        <description>Custom properties</description>
+        <value><![CDATA[
+# see kafka.server.KafkaConfig for additional details and defaults
+
+############################# Server Basics #############################
+
+# The id of the broker. This must be set to a unique integer for each broker.
+broker.id.generation.enable=true
+
+############################# Socket Server Settings #############################
+
+# The address the socket server listens on. It will get the value returned from
+# java.net.InetAddress.getCanonicalHostName() if not configured.
+#   FORMAT:
+#     listeners = listener_name://host_name:port
+#   EXAMPLE:
+#     listeners = PLAINTEXT://your.host.name:6667
+listeners=PLAINTEXT://{{hostname}}:6667
+
+# Hostname and port the broker will advertise to producers and consumers. If not set,
+# it uses the value for "listeners" if configured.  Otherwise, it will use the value
+# returned from java.net.InetAddress.getCanonicalHostName().
+advertised.listeners=PLAINTEXT://{{hostname}}:6667
+
+# Maps listener names to security protocols, the default is for them to be the same. See the config documentation for more details
+#listener.security.protocol.map=PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL
+
+# The number of threads that the server uses for receiving requests from the network and sending responses to the network
+num.network.threads=8
+
+# The number of threads that the server uses for processing requests, which may include disk I/O
+num.io.threads=24
+
+# The send buffer (SO_SNDBUF) used by the socket server
+socket.send.buffer.bytes=1048576
+
+# The receive buffer (SO_RCVBUF) used by the socket server
+socket.receive.buffer.bytes=1048576
+
+# The maximum size of a request that the socket server will accept (protection against OOM)
+socket.request.max.bytes=104857600
+
+replica.fetch.max.bytes = 2097152
+############################# Log Basics #############################
+
+# A comma separated list of directories under which to store log files
+log.dirs={{log_dirs}}
+
+# The default number of log partitions per topic. More partitions allow greater
+# parallelism for consumption, but this will also result in more files across
+# the brokers.
+num.partitions=128
+
+# The number of threads per data directory to be used for log recovery at startup and flushing at shutdown.
+# This value is recommended to be increased for installations with data dirs located in RAID array.
+num.recovery.threads.per.data.dir=2
+
+############################# Internal Topic Settings  #############################
+# The replication factor for the group metadata internal topics "__consumer_offsets" and "__transaction_state"
+# For anything other than development testing, a value greater than 1 is recommended for to ensure availability such as 3.
+offsets.topic.replication.factor=3
+transaction.state.log.replication.factor=3
+transaction.state.log.min.isr=1
+
+############################# Log Flush Policy #############################
+
+# Messages are immediately written to the filesystem but by default we only fsync() to sync
+# the OS cache lazily. The following configurations control the flush of data to disk.
+# There are a few important trade-offs here:
+#    1. Durability: Unflushed data may be lost if you are not using replication.
+#    2. Latency: Very large flush intervals may lead to latency spikes when the flush does occur as there will be a lot of data to flush.
+#    3. Throughput: The flush is generally the most expensive operation, and a small flush interval may lead to excessive seeks.
+# The settings below allow one to configure the flush policy to flush data after a period of time or
+# every N messages (or both). This can be done globally and overridden on a per-topic basis.
+
+# The number of messages to accept before forcing a flush of data to disk
+#log.flush.interval.messages=10000
+
+# The maximum amount of time a message can sit in a log before we force a flush
+#log.flush.interval.ms=1000
+
+############################# Log Retention Policy #############################
+
+# The following configurations control the disposal of log segments. The policy can
+# be set to delete segments after a period of time, or after a given size has accumulated.
+# A segment will be deleted whenever *either* of these criteria are met. Deletion always happens
+# from the end of the log.
+
+# The minimum age of a log file to be eligible for deletion due to age
+log.retention.hours=72
+
+# A size-based retention policy for logs. Segments are pruned from the log unless the remaining
+# segments drop below log.retention.bytes. Functions independently of log.retention.hours.
+#log.retention.bytes=1073741824
+
+# The maximum size of a log segment file. When this size is reached a new log segment will be created.
+log.segment.bytes=1073741824
+
+# The interval at which log segments are checked to see if they can be deleted according
+# to the retention policies
+log.retention.check.interval.ms=300000
+
+############################# Zookeeper #############################
+
+# Zookeeper connection string (see zookeeper docs for details).
+# This is a comma separated host:port pairs, each corresponding to a zk
+# server. e.g. "127.0.0.1:3000,127.0.0.1:3001,127.0.0.1:3002".
+# You can also append an optional chroot string to the urls to specify the
+# root directory for all kafka znodes.
+zookeeper.connect={{zk_quorum}}/kafka
+
+# Timeout in ms for connecting to zookeeper
+zookeeper.connection.timeout.ms=6000
+
+##################### Confluent Metrics Reporter #######################
+# Confluent Control Center and Confluent Auto Data Balancer integration
+#
+# Uncomment the following lines to publish monitoring data for
+# Confluent Control Center and Confluent Auto Data Balancer
+# If you are using a dedicated metrics cluster, also adjust the settings
+# to point to your metrics kakfa cluster.
+
+#metric.reporters=com.linkedin.kafka.cruisecontrol.metricsreporter.CruiseControlMetricsReporter
+
+metric.reporters=io.confluent.metrics.reporter.ConfluentMetricsReporter
+confluent.metrics.reporter.bootstrap.servers={{bootstrap_servers}}
+confluent.metrics.reporter.topic.replicas=1
+
+##################### Confluent Proactive Support ######################
+# If set to true, and confluent-support-metrics package is installed
+# then the feature to collect and report support metrics
+# ("Metrics") is enabled.  If set to false, the feature is disabled.
+#
+confluent.support.metrics.enable=true
+
+
+# The customer ID under which support metrics will be collected and
+# reported.
+#
+# When the customer ID is set to "anonymous" (the default), then only a
+# reduced set of metrics is being collected and reported.
+#
+# Confluent customers
+# -------------------
+# If you are a Confluent customer, then you should replace the default
+# value with your actual Confluent customer ID.  Doing so will ensure
+# that additional support metrics will be collected and reported.
+#
+confluent.support.customer.id=anonymous
+
+############################# Group Coordinator Settings #############################
+
+# The following configuration specifies the time, in milliseconds, that the GroupCoordinator will delay the initial consumer rebalance.
+# The rebalance will be further delayed by the value of group.initial.rebalance.delay.ms as new members join the group, up to a maximum of max.poll.interval.ms.
+# The default value for this is 3 seconds.
+# We override this to 0 here as it makes for a better out-of-the-box experience for development and testing.
+# However, in production environments the default value of 3 seconds is more suitable as this will help to avoid unnecessary, and potentially expensive, rebalances during application startup.
+group.initial.rebalance.delay.ms=0
+
+controlled.shutdown.enable=true
+auto.create.topics.enable=true
+background.threads=20
+compression.type=snappy
+
+
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>kafka_connect_content</name>
+        <display-name>kafka-connect properties template</display-name>
+        <description>Custom properties</description>
+        <value><![CDATA[
+# This file contains some of the configurations for the Kafka Connect distributed worker. This file is intended
+# to be used with the examples, and some settings may differ from those used in a production system, especially
+# the `bootstrap.servers` and those specifying replication factors.
+
+# A list of host/port pairs to use for establishing the initial connection to the Kafka cluster.
+bootstrap.servers={{bootstrap_servers}}
+
+# unique name for the cluster, used in forming the Connect cluster group. Note that this must not conflict with consumer group IDs
+group.id=connect-cluster
+
+# The converters specify the format of data in Kafka and how to translate it into Connect data. Every Connect user will
+# need to configure these based on the format they want their data in when loaded from or stored into Kafka
+#key.converter=org.apache.kafka.connect.json.JsonConverter
+#value.converter=org.apache.kafka.connect.json.JsonConverter
+key.converter=io.confluent.connect.avro.AvroConverter
+key.converter.schema.registry.url={{schema_registry_url}}
+value.converter=io.confluent.connect.avro.AvroConverter
+value.converter.schema.registry.url={{schema_registry_url}}
+
+# Converter-specific settings can be passed in by prefixing the Converter's setting with the converter we want to apply
+# it to
+key.converter.schemas.enable=true
+value.converter.schemas.enable=true
+
+# Topic to use for storing offsets. This topic should have many partitions and be replicated and compacted.
+# Kafka Connect will attempt to create the topic automatically when needed, but you can always manually create
+# the topic before starting Kafka Connect if a specific topic configuration is needed.
+# Most users will want to use the built-in default replication factor of 3 or in some cases even specify a larger value.
+# Since this means there must be at least as many brokers as the maximum replication factor used, we'd like to be able
+# to run this example on a single-broker cluster and so here we instead set the replication factor to 1.
+offset.storage.topic=connect-offsets
+offset.storage.replication.factor=3
+offset.storage.partitions=25
+
+# Topic to use for storing connector and task configurations; note that this should be a single partition, highly replicated,
+# and compacted topic. Kafka Connect will attempt to create the topic automatically when needed, but you can always manually create
+# the topic before starting Kafka Connect if a specific topic configuration is needed.
+# Most users will want to use the built-in default replication factor of 3 or in some cases even specify a larger value.
+# Since this means there must be at least as many brokers as the maximum replication factor used, we'd like to be able
+# to run this example on a single-broker cluster and so here we instead set the replication factor to 1.
+config.storage.topic=connect-configs
+config.storage.replication.factor=3
+
+# Topic to use for storing statuses. This topic can have multiple partitions and should be replicated and compacted.
+# Kafka Connect will attempt to create the topic automatically when needed, but you can always manually create
+# the topic before starting Kafka Connect if a specific topic configuration is needed.
+# Most users will want to use the built-in default replication factor of 3 or in some cases even specify a larger value.
+# Since this means there must be at least as many brokers as the maximum replication factor used, we'd like to be able
+# to run this example on a single-broker cluster and so here we instead set the replication factor to 1.
+status.storage.topic=connect-status
+status.storage.replication.factor=3
+status.storage.partitions=5
+
+# Flush much faster than normal, which is useful for testing/debugging
+offset.flush.interval.ms=10000
+
+# These are provided to inform the user about the presence of the REST host and port configs
+# Hostname Port for the REST API to listen on. If this is set, it will bind to the interface used to listen to requests.
+rest.host.name={{hostname}}
+rest.port=8083
+
+# The Hostname Port that will be given out to other workers to connect to i.e. URLs that are routable from other servers.
+rest.advertised.host.name={{hostname}}
+rest.advertised.port=8083
+
+# Set to a list of filesystem paths separated by commas (,) to enable class loading isolation for plugins
+# (connectors, converters, transformations). The list should consist of top level directories that include
+# any combination of:
+# a) directories immediately containing jars with plugins and their dependencies
+# b) uber-jars with plugins and their dependencies
+# c) directories immediately containing the package directory structure of classes of plugins and their dependencies
+# Examples:
+# plugin.path=/usr/local/share/java,/usr/local/share/kafka/plugins
+plugin.path=/usr/share/java,/usr/share/confluent-hub-components
+
+# The offsets, status, and configurations are written to the topics using converters specified through
+# the following required properties. Most users will always want to use the JSON converter without schemas.
+# Offset and config data is never visible outside of Connect in this format.
+internal.key.converter=org.apache.kafka.connect.json.JsonConverter
+internal.value.converter=org.apache.kafka.connect.json.JsonConverter
+internal.key.converter.schemas.enable=false
+internal.value.converter.schemas.enable=false
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>kafka_rest_content</name>
+        <display-name>kafka-rest properties template</display-name>
+        <description>Custom properties</description>
+        <value><![CDATA[
+id=kafka-rest-server
+schema.registry.url={{schema_registry_url}}
+zookeeper.connect={{zk_quorum}}/kafka
+bootstrap.servers={{bootstrap_servers}}
+#
+# Configure interceptor classes for sending consumer and producer metrics to Confluent Control Center
+# Make sure that monitoring-interceptors jar is on the Java class path
+consumer.interceptor.classes=io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+producer.interceptor.classes=io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>ksql_server_content</name>
+        <display-name>ksql server properties template</display-name>
+        <description>Custom properties</description>
+        <value><![CDATA[
+bootstrap.servers={{bootstrap_servers}}
+listeners=http://{{hostname}}:8088
+ksql.server.ui.enabled=true
+
+# Set the retries to Integer.MAX_VALUE to ensure that transient failures
+# will not result in data loss.
+ksql.streams.producer.retries=2147483647
+
+# Set the batch expiry to Long.MAX_VALUE to ensure that queries will not
+# terminate if the underlying Kafka cluster is unavailable for a period of
+# time.
+ksql.streams.producer.confluent.batch.expiry.ms=9223372036854775807
+
+# Allows more frequent retries of requests when there are failures,
+# enabling quicker recovery.
+ksql.streams.producer.request.timeout.ms=300000
+
+# Set the maximum allowable time for the producer to block to
+# Long.MAX_VALUE. This allows KSQL to pause processing if the underlying
+# Kafka cluster is unavailable.
+ksql.streams.producer.max.block.ms=9223372036854775807
+
+# Set the replication factor for internal topics, the command topic, and
+# output topics to be 3 for better fault tolerance and durability. Note:
+# the value 3 requires at least 3 brokers in your Kafka cluster.
+ksql.streams.replication.factor=3
+ksql.sink.replicas=3
+
+# Set the storage directory for stateful operations like aggregations and
+# joins to be at a durable location. By default, they are stored in /tmp.
+ksql.streams.state.dir=/some/non-temporary-storage-path/
+
+# Bump the number of replicas for state storage for stateful operations
+# like aggregations and joins. By having two replicas (one main and one
+# standby) recovery from node failures is quicker since the state doesn't
+# have to be rebuilt from scratch.
+ksql.streams.num.standby.replicas=1
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>control_center_content</name>
+        <display-name>control center properties template</display-name>
+        <description>Custom properties</description>
+        <value> <![CDATA[
+############################# Server Basics #############################
+
+# A comma separated list of Apache Kafka cluster host names (required)
+# NOTE: should not be localhost
+bootstrap.servers={{bootstrap_servers}}
+
+# A comma separated list of ZooKeeper host names (for ACLs)
+zookeeper.connect={{zk_quorum}}/kafka
+
+############################# Control Center Settings #############################
+
+# Unique identifier for the Control Center
+#confluent.controlcenter.id=1
+
+# Directory for Control Center to store data
+# NOTE: this should be changed to point to a reliable directory
+confluent.controlcenter.data.dir={{control_center_dir}}
+
+# License string for the Control Center
+#confluent.controlcenter.license=XyZ
+
+# A comma separated list of Connect host names
+confluent.controlcenter.connect.cluster={{connect_cluster_url}}
+
+# KSQL cluster URL
+confluent.controlcenter.ksql.url={{ksql_url}}
+
+# Schema Registry cluster URL
+confluent.controlcenter.schema.registry.url={{schema_registry_url}}
+
+# Settings to enable email alerts
+#confluent.controlcenter.mail.enabled=true
+#confluent.controlcenter.mail.host.name=smtp1
+#confluent.controlcenter.mail.port=587
+#confluent.controlcenter.mail.from=kafka-monitor@example.com
+
+# Replication for internal Control Center topics.
+# Only lower them for testing.
+# WARNING: replication factor of 1 risks data loss.
+#confluent.controlcenter.internal.topics.replication=3
+
+# Number of partitions for Control Center internal topics
+# Increase for better throughput on monitored data (CPU bound)
+# NOTE: changing requires running `bin/control-center-reset` prior to restart
+#confluent.controlcenter.internal.topics.partitions=4
+
+# Topic used to store Control Center configuration
+# WARNING: replication factor of 1 risks data loss.
+#confluent.controlcenter.command.topic.replication=3
+
+############################# Broker (Metrics reporter) Monitoring #############################
+
+# Set how far back in time metrics reporter data should be processed
+#confluent.metrics.topic.skip.backlog.minutes=15
+
+############################# Stream (Interceptor) Monitoring #############################
+
+# Keep these settings default unless using non-Confluent interceptors
+
+# Override topic name for intercepted (should mach custom interceptor settings)
+#confluent.monitoring.interceptor.topic=_confluent-monitoring
+
+# Number of partitions for the intercepted topic
+#confluent.monitoring.interceptor.topic.partitions=12
+
+# Amount of replication for intercepted topics
+# WARNING: replication factor of 1 risks data loss.
+#confluent.monitoring.interceptor.topic.replication=3
+
+# Set how far back in time interceptor data should be processed
+#confluent.monitoring.interceptor.topic.skip.backlog.minutes=15
+
+############################# System Health (Broker) Monitoring #############################
+
+# Number of partitions for the metrics topic
+#confluent.metrics.topic.partitions=12
+
+# Replication factor for broker monitoring data
+# WARNING: replication factor of 1 risks data loss.
+#confluent.metrics.topic.replication=3
+
+############################# Streams (state store) settings #############################
+
+# Increase for better throughput on data processing (CPU bound)
+#confluent.controlcenter.streams.num.stream.threads=8
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>mqtt_proxy_content</name>
+        <display-name>mqtt proxy properties template</display-name>
+        <description>Custom properties</description>
+        <value>
+            <![CDATA[
+#####################################
+# MQTT TO KAFKA APPLICATION SETTINGS
+#####################################
+
+# A comma-separated list of pairs of type kafka topic:regex that is used to map MQTT topics
+# to Kafka topics.
+# REQUIRED property
+topic.regex.list=temperature:.*temperature, brightness:.*brightness
+
+listeners=0.0.0.0:1883
+network.threads.num=32
+network.epoll.enabled=true
+
+listeners.security.protocol=PLAINTEXT
+bootstrap.servers={{bootstrap_servers}}
+
+# Number of threads publishing records to Kafka
+#stream.threads.num=4
+
+# The total bytes of memory the producer can use to buffer records waiting to be sent to the
+# server. If records are sent faster than they can be delivered to the server the producer will
+# block for max.block.ms after which it will throw an exception.This setting should correspond
+# roughly to the total memory the producer will use, but is not a hard bound since not all memory
+# the producer uses is used for buffering. Some additional memory will be used for compression
+# (if compression is enabled) as well as for maintaining in-flight requests.
+#producer.buffer.memory=33554432
+
+# The compression type for all data generated by the producer. The default is none (i.e. no
+# compression). Valid  values are none, gzip, snappy, or lz4. Compression is of full batches of
+# data, so the efficacy of batching will also impact the compression ratio (more batching means
+# better compression).
+#producer.compression.type=none
+
+# The producer will attempt to batch records together into fewer requests whenever multiple
+# records are being sent to the same partition. This helps performance on both the client and the
+# server. This configuration controls the default batch size in bytes. No attempt will be made to
+# batch records larger than this size. Requests sent to brokers will contain multiple batches,
+# one for each partition with data available to be sent. A small batch size will make batching
+# less common and may reduce throughput (a batch size of zero will disable batching entirely). A
+# very large batch size may use memory a bit more wastefully as we will always allocate a buffer
+# of the specified batch size in anticipation of additional records.
+producer.batch.size=16384
+
+# The producer groups together any records that arrive in between request transmissions into a
+# single batched request. Normally this occurs only under load when records arrive faster than
+# they can be sent out. However in some circumstances the client may want to reduce the number of
+# requests even under moderate load. This setting accomplishes this by adding a small amount of
+# artificial delay&mdash;that is, rather than immediately sending out a record the producer will
+# wait for up to the given delay to allow other records to be sent so that the sends can be
+# batched together. This can be thought of as analogous to Nagle's algorithm in TCP. This setting
+# gives the upper bound on the delay for batching: once we get batch.size worth of records for a
+# partition it will be sent immediately regardless of this setting, however if we have fewer than
+# this many bytes accumulated for this partition we will 'linger' for the specified time waiting
+# for more records to show up. This setting defaults to 0 (i.e. no delay). Setting linger.ms=5,
+# for example, would have the effect of reducing the number of requests sent but would add up to
+# 5ms of latency to records sent in the absence of load.
+#producer.linger.ms=0
+
+# An id string to pass to the server when making requests. The purpose of this is to be able to
+# track the source of requests beyond just ip/port by allowing a logical application name to be
+# included in server-side request logging.
+#producer.client.id=
+
+# The size of the TCP send buffer (SO_SNDBUF) to use when sending data. If the value is -1, the OS
+# default will be used.
+#producer.send.buffer.bytes=131072
+
+# The size of the TCP receive buffer (SO_RCVBUF) to use when reading data. If the value is -1, the
+# OS default will be used.
+#producer.receive.buffer.bytes=32768
+
+# The maximum size of a request in bytes. This setting will limit the number of record batches the
+# producer will send in a single request to avoid sending huge requests. This is also effectively
+# a cap on the maximum record batch size. Note that the server has its own cap on record batch
+# size which may be different from this.
+#producer.max.request.size=1048576
+
+# The base amount of time to wait before attempting to reconnect to a given host. This avoids
+# repeatedly connecting to a host in a tight loop. This backoff applies to all connection
+# attempts by the client to a broker.
+#producer.reconnect.backoff.ms=50
+
+# The maximum amount of time in milliseconds to wait when reconnecting to a broker that has
+# repeatedly failed to connect. If provided, the backoff per host will increase exponentially for
+# each consecutive connection failure, up to this maximum. After calculating the backoff
+# increase, 20% random jitter is added to avoid connection storms.
+#producer.reconnect.backoff.max.ms=1000
+
+# The configuration controls how long KafkaProducer.send() and KafkaProducer.partitionsFor() will
+# block.These methods can be blocked either because the buffer is full or metadata unavailable.
+# Blocking in the user-supplied serializers or partitioner will not be counted against this timeout.
+# producer.max.block.ms=60000
+
+# The configuration controls the maximum amount of time the client will wait for the response of a
+# request. If the response is not received before the timeout elapses the client will resend the
+# request if necessary or fail the request if retries are exhausted. This should be larger than
+# replica.lag.time.max.ms (a broker configuration) to reduce the possibility of message
+# duplication due to unnecessary producer retries.
+#producer.request.timeout.ms=30000
+
+# The period of time in milliseconds after which we force a refresh of metadata even if we haven't
+# seen any partition leadership changes to proactively discover any new brokers or partitions.
+#producer.metadata.max.age.ms=300000
+
+# The window of time a metrics sample is computed over.
+#producer.metrics.sample.window.ms=30000
+
+# The number of samples maintained to compute metrics.
+#producer.metrics.num.samples=2
+
+# The highest recording level for metrics.
+#producer.metrics.recording.level=INFO
+
+# A list of classes to use as metrics reporters. Implementing the org.apache.kafka.common.metrics.MetricsReporter
+# interface allows plugging in classes that will be notified of new metric creation. The
+# JmxReporter is always included to register JMX statistics.
+#producer.metric.reporters=
+
+# The maximum number of unacknowledged requests the client will send on a single connection before
+# blocking. Note that if this setting is set to be greater than 1 and there are failed sends,
+# there is a risk of message re-ordering due to retries (i.e., if retries are enabled).
+#producer.max.in.flight.requests.per.connection=5
+
+# Close idle connections after the number of milliseconds specified by this config.
+#producer.connections.max.idle.ms=540000
+
+# Partitioner class that implements the org.apache.kafka.clients.producer.Partitioner interface.
+#producer.partitioner.class=org.apache.kafka.clients.producer.internals.DefaultPartitioner
+
+# A list of classes to use as interceptors. Implementing the org.apache.kafka.clients.producer.ProducerInterceptor
+# interface allows you to intercept (and possibly mutate) the records received by the producer
+# before they are published to the Kafka cluster. By default, there are no interceptors.
+#producer.interceptor.classes=
+
+producer.security.protocol=PLAINTEXT
+
+#############################
+# CONFLUENT LICENSE SETTINGS
+#############################
+
+# Confluent will issue a license key to each subscriber. The license key will be a short snippet
+# of text that you can copy and paste. Without the license key, you can use Kafka-MQTT for a
+# 30-day trial period. If you are a subscriber, please contact Confluent Support for more
+# information.
+#confluent.license=
+
+# Name of the Kafka topic used for Confluent Platform configuration, including licensing
+# information.
+#confluent.topic=_confluent-command
+
+# A list of host/port pairs to use for establishing the initial connection to the Kafka cluster
+# used for licensing. All servers in the cluster will be discovered from the initial connection.
+# This list should be in the form host1:port1,host2:port2,.... Since these servers
+# are just used for the initial connection to discover the full cluster membership (which may
+# change dynamically), this list need not contain the full set of servers (you may want more than
+# one, though, in case a server is down).
+# By default this property is set to the value of bootstrap.servers property
+#confluent.topic.bootstrap.servers=
+
+# The replication factor for the Kafka topic used for Confluent Platform configuration, including
+# licensing information. This is used only if the topic does not already exist, and the default
+# of 3 is appropriate for production use. If you are using a development environment with less
+# than 3 brokers, you must set this to the number of brokers (often 1).
+#confluent.topic.replication.factor=3
+
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>kafka_manager_content</name>
+        <display-name>kafka-manager properties template</display-name>
+        <description>Custom properties</description>
+        <value><![CDATA[
+play.crypto.secret="^csmm5Fx4d=r2HEX8pelM3iBkFVv?k[mc;IZE_Qoq8EkX_/7@Zt6dP05Pzea3U"
+play.i18n.langs=["en"]
+
+play.http.requestHandler = "play.http.DefaultHttpRequestHandler"
+play.http.context = "/"
+play.application.loader=loader.KafkaManagerLoader
+pinned-dispatcher.type="PinnedDispatcher"
+pinned-dispatcher.executor="thread-pool-executor"
+application.features=["KMClusterManagerFeature","KMTopicManagerFeature","KMPreferredReplicaElectionFeature","KMReassignPartitionsFeature"]
+
+akka {
+loggers = ["akka.event.slf4j.Slf4jLogger"]
+loglevel = "INFO"
+}
+
+akka.logger-startup-timeout = 60s
+kafka-manager.zkhosts="{{zk_quorum}}/kafka"
+basicAuthentication.enabled=true
+basicAuthentication.username="admin"
+basicAuthentication.password="admin"
+basicAuthentication.realm="Kafka-Manager"
+basicAuthentication.excluded=["/api/health"]
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+</configuration>

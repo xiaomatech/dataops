@@ -1,0 +1,425 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>tidb_user</name>
+        <value>tidb</value>
+        <property-type>USER</property-type>
+        <description>Service user for tidb</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>pd_content</name>
+        <display-name>pd conf</display-name>
+        <description>pd conf</description>
+        <value><![CDATA[
+# PD Configuration.
+
+name = "pd"
+data-dir = "{{data_dir}}/pd"
+
+client-urls = "http://{{hostname}}:2379"
+peer-urls = "http://{{hostname}}:2380"
+
+initial-cluster = "pd=http://{{hostname}}:2380"
+initial-cluster-state = "new"
+
+lease = 3
+tso-save-interval = "3s"
+
+namespace-classifier = "table"
+
+enable-prevote = true
+
+[log]
+level = "info"
+
+[log.file]
+filename = "{{log_dir}}/pd.log"
+
+[metric]
+interval = "15s"
+address = "{{prometheus_pushgateway_addr}}"
+
+[schedule]
+max-merge-region-size = 0
+max-merge-region-keys = 0
+split-merge-interval = "1h"
+max-snapshot-count = 3
+max-pending-peer-count = 16
+max-store-down-time = "30m"
+leader-schedule-limit = 4
+region-schedule-limit = 4
+replica-schedule-limit = 8
+merge-schedule-limit = 8
+tolerant-size-ratio = 5.0
+
+
+[replication]
+# The number of replicas for each region.
+max-replicas = 3
+location-labels = []
+
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>tidb_content</name>
+        <display-name>tidb conf</display-name>
+        <description>tidb conf</description>
+        <value><![CDATA[
+# TiDB Configuration.
+host = "0.0.0.0"
+
+advertise-address = "{{hostname}}"
+port = 4000
+store = "tikv"
+path = "{{data_dir}}/tidb"
+socket = "/var/run/tidb.sock"
+split-table = false
+oom-action = "log"
+lower-case-table-names = 2
+compatible-kill-query = true
+
+[log]
+level = "info"
+slow-query-file = "{{log_dir}}/slow.log"
+
+[log.file]
+filename = "{{log_dir}}/tidb.log"
+log-rotate = true
+
+[status]
+report-status = true
+status-port = 10080
+metrics-addr = "{{prometheus_pushgateway_addr}}"
+metrics-interval = 15
+
+[performance]
+max-procs = 0
+stmt-count-limit = 5000
+tcp-keep-alive = true
+run-auto-analyze = true
+
+# Force the priority of all statements in a specified priority.
+# The value could be "NO_PRIORITY", "LOW_PRIORITY", "HIGH_PRIORITY" or "DELAYED".
+force-priority = "NO_PRIORITY"
+
+[proxy-protocol]
+networks = "*"
+
+[prepared-plan-cache]
+enabled = false
+capacity = 100
+
+[opentracing]
+enable = true
+rpc-metrics = true
+
+[opentracing.sampler]
+type = "probabilistic"
+param = 0.1
+sampling-server-url = "{{jaeger_agent_url}}"
+max-operations = 0.2
+
+[opentracing.reporter]
+queue-size = 0
+buffer-flush-interval = 0
+log-spans = false
+
+local-agent-host-port = "{{jaeger_agent}}"
+
+[tikv-client]
+grpc-connection-count = 16
+
+[txn-local-latches]
+# Enable local latches for transactions. Enable it when
+# there are lots of conflicts between transactions.
+enabled = false
+capacity = 10240000
+
+[binlog]
+binlog-socket = "/var/run/tidb_binlog.sock"
+write-timeout = "15s"
+ignore-error = false
+
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>tikv_content</name>
+        <display-name>tikv conf</display-name>
+        <description>tikv conf</description>
+        <value><![CDATA[
+# TiKV config template
+#  Human-readable big numbers:
+#   File size(based on byte): KB, MB, GB, TB, PB
+#    e.g.: 1_048_576 = "1MB"
+#   Time(based on ms): ms, s, m, h
+#    e.g.: 78_000 = "1.3m"
+log-level = "info"
+log-file = "{{log_dir}}/tikv.log"
+log-rotation-timespan = "24h"
+
+[readpool.storage]
+high-concurrency = 16
+normal-concurrency = 8
+ow-concurrency = 4
+max-tasks-per-worker-high = 8000
+max-tasks-per-worker-normal = 4000
+max-tasks-per-worker-low = 2000
+stack-size = "10MB"
+
+
+[server]
+addr = "0.0.0.0:20160"
+grpc-compression-type = "none"
+grpc-concurrency = 32
+grpc-concurrent-stream = 1024
+grpc-raft-conn-num = 10
+grpc-stream-initial-window-size = "2MB"
+grpc-keepalive-time = "10s"
+grpc-keepalive-timeout = "3s"
+concurrent-send-snap-limit = 32
+concurrent-recv-snap-limit = 32
+end-point-recursion-limit = 1000
+end-point-request-max-handle-duration = "60s"
+snap-max-write-bytes-per-sec = "100MB"
+
+# set attributes about this server, e.g. { zone = "us-west-1", disk = "ssd" }.
+# labels = {}
+
+[rocksdb.defaultcf]
+block-cache-size = "10GB"
+[rocksdb.writecf]
+block-cache-size = "4GB"
+[rocksdb.raftcf]
+block-cache-size = "1GB"
+[rocksdb.lockcf]
+block-cache-size = "1GB"
+
+[storage]
+data-dir = "{{data_dir}}/store"
+scheduler-worker-pool-size = 32
+scheduler-pending-write-threshold = "100MB"
+
+[pd]
+endpoints = [{{pd_endpoints}}]
+
+[metric]
+interval = "15s"
+address = "{{prometheus_pushgateway_addr}}"
+job = "tikv"
+
+
+[coprocessor]
+split-region-on-table = false
+
+[rocksdb]
+max-background-compactions = 6
+max-background-flushes = 2
+max-background-jobs = 16
+max-open-files = -1
+wal-recovery-mode = 2
+wal-dir = "{{wal_dir}}"
+
+[raftstore]
+sync-log = false
+raftdb-dir = {{raftdb_dir}}
+
+[import]
+num-threads = 8
+stream-channel-window = 128
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>tikv_import_content</name>
+        <display-name>tikv importer conf</display-name>
+        <description>tikv importer conf</description>
+        <value><![CDATA[
+# TiKV Importer configuration file template
+
+log-file = "{{log_dir}}/tikv_importer.log"
+log-level = "info"
+
+[server]
+addr = "0.0.0.0:20170"
+grpc-concurrency = 16
+
+[metric]
+job = "tikv-importer"
+interval = "15s"
+address = ""
+
+[rocksdb]
+max-background-jobs = 32
+
+[rocksdb.defaultcf]
+write-buffer-size = "1GB"
+max-write-buffer-number = 16
+compression-per-level = ["lz4", "no", "no", "no", "no", "no", "zstd"]
+
+[import]
+import-dir = "{{data_dir}}/import"
+num-threads = 16
+num-import-jobs = 24
+max-prepare-duration = "5m"
+region-split-size = "96MB"
+stream-channel-window = 128
+max-open-engines = 8
+
+            ]]>
+        </value>
+        <value-attributes>
+        <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>syncer_content</name>
+        <display-name>tidb syncer conf</display-name>
+        <description>tidb syncer conf</description>
+        <value><![CDATA[
+log-level = "info"
+log-file = {{log_dir}}/syncer.log
+server-id = {{hostname}}
+meta = "./syncer.meta"
+worker-count = 16
+batch = 10
+status-addr = "{{hostname}}:10086"
+skip-ddls = ["^CREATE\\s+USER"]
+
+[from]
+host = "127.0.0.1"
+user = "root"
+password = ""
+port = 3306
+
+[to]
+host = "127.0.0.1"
+user = "root"
+password = ""
+port = 4000
+
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>drainer_content</name>
+        <display-name>tidb drainer conf</display-name>
+        <description>tidb drainer conf</description>
+        <value><![CDATA[
+
+addr = "{{hostname}}:8249"
+
+detect-interval = 10
+
+data-dir = "{{data_dir}}/drainer"
+
+zookeeper-addrs = "{{zk_url}}/kafka"
+
+pd-urls = "{{pd_url}}"
+
+log-file = "drainer.log"
+
+metrics-addr = "{{prometheus_pushgateway_addr}}"
+
+[syncer]
+ignore-schemas = "INFORMATION_SCHEMA,PERFORMANCE_SCHEMA,mysql"
+txn-batch = 1
+worker-count = 16
+disable-dispatch = false
+db-type = "mysql"
+
+[syncer.to]
+host = "192.168.0.10"
+user = "root"
+password = ""
+port = 3306
+
+# db-type is pb
+# [syncer.to]
+# dir = "{{data_dir}}/drainer"
+
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+    <property>
+        <name>pump_content</name>
+        <display-name>tidb pump conf</display-name>
+        <description>tidb pump conf</description>
+        <value><![CDATA[
+
+addr = "{{hostname}}:8250"
+
+advertise-addr = "{{hostname}}:8250"
+gc = 7
+data-dir = "{{data_dir}}/pump"
+
+zookeeper-addrs = "{{zk_url}}/kafka"
+heartbeat-interval = 3
+pd-urls = "{{pd_url}}"
+
+metrics-addr = "{{prometheus_pushgateway_addr}}"
+
+socket = "unix:///var/run/pump.sock"
+
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>log_dir</name>
+        <value>/var/log/tidb</value>
+        <description>Log directory</description>
+    </property>
+    <property>
+        <name>pid_dir</name>
+        <value>/var/run/tidb</value>
+        <description>run directory</description>
+    </property>
+
+</configuration>

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <!-- kibana.yml -->
+    <property>
+        <name>content</name>
+        <display-name>kibana.yml template</display-name>
+        <description>This is the jinja template for kibana.yml file</description>
+        <value>
+# Kibana is served by a back end server. This controls which port to use.
+server.port: {{ kibana_port }}
+
+# The host to bind the server to.
+server.host: "0.0.0.0"
+
+server.maxPayloadBytes: 1048576
+
+elasticsearch.url: {{ es_url }}
+
+# The default application to load.
+kibana.defaultAppId: "{{ kibana_default_application }}"
+
+lasticsearch.username: "kibana"
+# elasticsearch.password: "pass"
+pid.file: /var/run/kibana.pid
+
+logging.dest: {{ log_dir }}/kibana.log
+
+xpack.security.enabled: false
+
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+    </property>
+</configuration>

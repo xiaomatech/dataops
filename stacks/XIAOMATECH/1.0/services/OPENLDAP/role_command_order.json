@@ -1,0 +1,6 @@
+{
+  "general_deps" : {
+    "_comment" : "dependencies for OPENLDAP",
+    "OPENLDAP_MASTER-STOP" : ["ZOOKEEPER_SERVER-STOP","NAMENODE-STOP","KRB5_MASTER-STOP"]
+  }
+}

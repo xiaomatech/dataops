@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>DNS</name>
+            <displayName>DNS</displayName>
+            <comment>DNS and DNS WEB
+            </comment>
+            <version>2.76</version>
+            <components>
+                <component>
+                    <name>DNS</name>
+                    <displayName>DNS</displayName>
+                    <category>MASTER</category>
+                    <cardinality>2+</cardinality>
+                    <commandScript>
+                        <script>scripts/dns.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+            </components>
+            <osSpecifics>
+                <osSpecific>
+                    <osFamily>any</osFamily>
+                    <packages>
+                        <package>
+                            <name>dnsmasq</name>
+                        </package>
+                    </packages>
+                </osSpecific>
+            </osSpecifics>
+            <restartRequiredAfterChange>false</restartRequiredAfterChange>
+        </service>
+    </services>
+</metainfo>

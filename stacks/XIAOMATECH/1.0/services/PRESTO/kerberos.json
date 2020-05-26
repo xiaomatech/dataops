@@ -1,0 +1,63 @@
+{
+  "services": [
+    {
+      "name": "presto",
+      "identities": [
+        {
+          "name": "/spnego"
+        }
+      ],
+      "components": [
+        {
+          "name": "PRESTO_COORDINATOR",
+          "identities": [
+            {
+              "name": "presto_coordinator_kerberos",
+              "principal": {
+                "value": "presto/_HOST@${realm}",
+                "type": "service",
+                "configuration": "presto-env/presto_principal_name"
+              },
+              "keytab": {
+                "file": "${keytab_dir}/presto.service.keytab",
+                "owner": {
+                  "name": "${presto-env/presto_user}",
+                  "access": "r"
+                },
+                "group": {
+                  "name": "${cluster-env/user_group}",
+                  "access": ""
+                },
+                "configuration": "presto-env/presto_keytab_path"
+              }
+            }
+          ]
+        },{
+          "name": "PRESTO_WORKER",
+          "identities": [
+            {
+              "name": "presto_worker_kerberos",
+              "principal": {
+                "value": "presto/_HOST@${realm}",
+                "type": "service",
+                "configuration": "presto-env/presto_principal_name"
+              },
+              "keytab": {
+                "file": "${keytab_dir}/presto.service.keytab",
+                "owner": {
+                  "name": "${presto-env/presto_user}",
+                  "access": "r"
+                },
+                "group": {
+                  "name": "${cluster-env/user_group}",
+                  "access": ""
+                },
+                "configuration": "presto-env/presto_keytab_path"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

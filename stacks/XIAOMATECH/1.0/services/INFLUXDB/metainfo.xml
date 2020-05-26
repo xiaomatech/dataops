@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>INFLUXDB</name>
+            <displayName>Influxdb</displayName>
+            <comment>Open source time series database</comment>
+            <version>1.7</version>
+            <components>
+                <component>
+                    <name>INFLUXDB</name>
+                    <displayName>InfluxDB Raft Node</displayName>
+                    <category>MASTER</category>
+                    <cardinality>3+</cardinality>
+                    <dependencies>
+                    </dependencies>
+                    <commandScript>
+                        <script>scripts/influxdb.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+            </components>
+
+            <osSpecifics>
+                <osSpecific>
+                    <osFamily>any</osFamily>
+                    <packages>
+                        <package>
+                            <name>influxdb</name>
+                        </package>
+                    </packages>
+                </osSpecific>
+            </osSpecifics>
+
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+
+            <configuration-dependencies>
+                <config-type>influxdb-cluster</config-type>
+            </configuration-dependencies>
+        </service>
+    </services>
+</metainfo>

@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>beacon.sso.knox.authentication.enabled</name>
+        <value>false</value>
+        <description>Enable Knox SSO</description>
+        <value-attributes>
+            <type>boolean</type>
+        </value-attributes>
+    </property>
+    <property>
+        <name>beacon.sso.knox.browser.useragent</name>
+        <value>Mozilla,Chrome</value>
+        <description>Comma seperated browser agent</description>
+    </property>
+    <property>
+        <name>beacon.sso.knox.providerurl</name>
+        <value></value>
+        <description>Example: https://KNOX_HOST:KNOX_PORT/gateway/knoxsso/api/v1/websso</description>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <depends-on>
+            <property>
+                <type>gateway-site</type>
+                <name>gateway.port</name>
+            </property>
+        </depends-on>
+    </property>
+    <property>
+        <name>beacon.sso.knox.publicKey</name>
+        <value></value>
+        <description></description>
+        <value-attributes>
+            <type>multiLine</type>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+    </property>
+    <property>
+        <name>beacon.sso.knox.cookiename</name>
+        <value>hadoop-jwt</value>
+        <description>Parameter name for SSO cookie</description>
+    </property>
+    <property>
+        <name>beacon.sso.knox.query.param.originalurl</name>
+        <value>originalUrl</value>
+        <description>Query name for appending original url in SSO url</description>
+    </property>
+    <property>
+        <name>beacon.sso.knox.default.browser-useragents</name>
+        <value>Mozilla,Opera,Chrome</value>
+        <description>Default comma seperated browser agent</description>
+    </property>
+    <property>
+        <name>beacon.basic.authentication.enabled</name>
+        <value>true</value>
+        <description>Enable Beacon Basic Authentication</description>
+        <value-attributes>
+            <type>boolean</type>
+        </value-attributes>
+    </property>
+    <property>
+        <name>beacon.authorization.enabled</name>
+        <value>false</value>
+        <description>Enable Beacon Basic Authorization</description>
+        <value-attributes>
+            <type>boolean</type>
+        </value-attributes>
+    </property>
+    <property>
+        <name>beacon.authorization.policy.file</name>
+        <value>policy-store.txt</value>
+        <description>Beacon Authorization Policy File</description>
+    </property>
+    <property>
+        <name>beacon.username</name>
+        <value>beacon</value>
+        <description>Beacon user</description>
+    </property>
+    <property>
+        <name>beacon.password</name>
+        <property-type>PASSWORD</property-type>
+        <value>beacon</value>
+        <description>Beacon user password</description>
+        <value-attributes>
+            <type>password</type>
+            <overridable>false</overridable>
+            <keystore>true</keystore>
+        </value-attributes>
+    </property>
+    <property>
+        <name>beacon.ranger.user</name>
+        <value>beacon_ranger</value>
+        <description>Ranger beacon user</description>
+    </property>
+    <property>
+        <name>beacon.ranger.password</name>
+        <property-type>PASSWORD</property-type>
+        <value>beacon12</value>
+        <description>Ranger beacon user password</description>
+        <value-attributes>
+            <type>password</type>
+            <overridable>false</overridable>
+            <keystore>true</keystore>
+        </value-attributes>
+    </property>
+    <property>
+        <name>beacon.ranger.plugin.create.denypolicy</name>
+        <value>true</value>
+        <description></description>
+        <value-attributes>
+            <type>boolean</type>
+        </value-attributes>
+    </property>
+
+    <property>
+        <name>beacon.atlas.user</name>
+        <value>admin</value>
+        <description>Atlas beacon user</description>
+    </property>
+    <property>
+        <name>beacon.atlas.password</name>
+        <property-type>PASSWORD</property-type>
+        <value>admin</value>
+        <description>Atlas beacon user password</description>
+        <value-attributes>
+            <type>password</type>
+            <overridable>false</overridable>
+            <keystore>true</keystore>
+        </value-attributes>
+    </property>
+
+</configuration>

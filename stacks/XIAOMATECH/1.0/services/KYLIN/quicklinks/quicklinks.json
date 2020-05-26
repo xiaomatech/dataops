@@ -1,0 +1,25 @@
+{
+  "name": "default",
+  "description": "default quick links configuration",
+  "configuration": {
+    "protocol": {
+      "type": "http",
+      "checks": [
+      ]
+    },
+    "links": [
+      {
+        "name": "KYLIN",
+        "label": "KYLIN",
+        "requires_user_name": "false",
+        "component_name": "KYLIN_JOB",
+        "url": "%@://%@:%@/kylin",
+        "port": {
+          "http_default_port": "7070",
+          "https_default_port": "7070",
+          "regex": "\\w*:(\\d+)"
+        }
+      }
+    ]
+  }
+}

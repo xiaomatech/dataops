@@ -1,0 +1,325 @@
+{
+  "configuration": {
+    "layouts": [
+      {
+        "name": "default",
+        "tabs": [
+          {
+            "name": "settings",
+            "display-name": "Settings",
+            "layout": {
+              "tab-rows": 2,
+              "tab-columns": 1,
+              "sections": [
+                {
+                  "name": "beacon-database-configurations",
+                  "display-name": "Database",
+                  "row-index": "0",
+                  "column-index": "0",
+                  "row-span": "1",
+                  "column-span": "2",
+                  "section-columns": "2",
+                  "section-rows": "1",
+                  "subsections": [
+                    {
+                      "name": "beacon-database-configurations-col-1",
+                      "row-index": "0",
+                      "column-index": "0",
+                      "row-span": "1",
+                      "column-span": "1"
+                    },
+                    {
+                      "name": "beacon-database-configurations-col-2",
+                      "row-index": "0",
+                      "column-index": "1",
+                      "row-span": "1",
+                      "column-span": "1"
+                    }
+                  ]
+                },
+                {
+                  "name": "beacon-tls",
+                  "display-name": "Wire Encryption",
+                  "row-index": "1",
+                  "column-index": "0",
+                  "row-span": "2",
+                  "column-span": "2",
+                  "section-columns": "2",
+                  "section-rows": "2",
+                  "subsections": [
+                    {
+                      "name": "beacon-tls-row-1",
+                      "row-index": "0",
+                      "column-index": "0",
+                      "row-span": "1",
+                      "column-span": "2"
+                    },
+                    {
+                      "name": "beacon-tls-row-2-col-1",
+                      "row-index": "1",
+                      "column-index": "0",
+                      "row-span": "1",
+                      "column-span": "1"
+                    },
+                    {
+                      "name": "beacon-tls-row-2-col-2",
+                      "row-index": "1",
+                      "column-index": "1",
+                      "row-span": "1",
+                      "column-span": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "placement": {
+      "configuration-layout": "default",
+      "configs": [
+        {
+          "config": "beacon-env/beacon_database",
+          "subsection-name": "beacon-database-configurations-col-1"
+        },
+        {
+          "config": "beacon-env/beacon_store_db_name",
+          "subsection-name": "beacon-database-configurations-col-1"
+        },
+        {
+          "config": "beacon-env/beacon_store_user",
+          "subsection-name": "beacon-database-configurations-col-1"
+        },
+        {
+          "config": "beacon-env/beacon_store_url",
+          "subsection-name": "beacon-database-configurations-col-1"
+        },
+        {
+          "config": "beacon-env/beacon_store_driver",
+          "subsection-name": "beacon-database-configurations-col-2"
+        },
+        {
+          "config": "beacon-env/beacon_store_password",
+          "subsection-name": "beacon-database-configurations-col-2"
+        },
+        {
+          "config": "beacon-env/beacon_tls_enabled",
+          "subsection-name": "beacon-tls-row-1"
+        },
+        {
+          "config": "beacon-env/beacon_tls_port",
+          "subsection-name": "beacon-tls-row-2-col-1",
+          "depends-on": [
+            {
+              "configs": [
+                "beacon-env/beacon_tls_enabled"
+              ],
+              "if": "${beacon-env/beacon_tls_enabled}",
+              "then": {
+                "property_value_attributes": {
+                  "visible": true
+                }
+              },
+              "else": {
+                "property_value_attributes": {
+                  "visible": false
+                }
+              }
+            }
+          ]
+        },
+        {
+          "config": "beacon-env/beacon_key_store",
+          "subsection-name": "beacon-tls-row-2-col-1",
+          "depends-on": [
+            {
+              "configs": [
+                "beacon-env/beacon_tls_enabled"
+              ],
+              "if": "${beacon-env/beacon_tls_enabled}",
+              "then": {
+                "property_value_attributes": {
+                  "visible": true
+                }
+              },
+              "else": {
+                "property_value_attributes": {
+                  "visible": false
+                }
+              }
+            }
+          ]
+        },
+        {
+          "config": "beacon-env/beacon_key_store_password",
+          "subsection-name": "beacon-tls-row-2-col-1",
+          "depends-on": [
+            {
+              "configs": [
+                "beacon-env/beacon_tls_enabled"
+              ],
+              "if": "${beacon-env/beacon_tls_enabled}",
+              "then": {
+                "property_value_attributes": {
+                  "visible": true
+                }
+              },
+              "else": {
+                "property_value_attributes": {
+                  "visible": false
+                }
+              }
+            }
+          ]
+        },
+        {
+          "config": "beacon-env/beacon_trust_store",
+          "subsection-name": "beacon-tls-row-2-col-2",
+          "depends-on": [
+            {
+              "configs": [
+                "beacon-env/beacon_tls_enabled"
+              ],
+              "if": "${beacon-env/beacon_tls_enabled}",
+              "then": {
+                "property_value_attributes": {
+                  "visible": true
+                }
+              },
+              "else": {
+                "property_value_attributes": {
+                  "visible": false
+                }
+              }
+            }
+          ]
+        },
+        {
+          "config": "beacon-env/beacon_trust_store_password",
+          "subsection-name": "beacon-tls-row-2-col-2",
+          "depends-on": [
+            {
+              "configs": [
+                "beacon-env/beacon_tls_enabled"
+              ],
+              "if": "${beacon-env/beacon_tls_enabled}",
+              "then": {
+                "property_value_attributes": {
+                  "visible": true
+                }
+              },
+              "else": {
+                "property_value_attributes": {
+                  "visible": false
+                }
+              }
+            }
+          ]
+        },
+        {
+          "config": "beacon-env/beacon_key_password",
+          "subsection-name": "beacon-tls-row-2-col-2",
+          "depends-on": [
+            {
+              "configs": [
+                "beacon-env/beacon_tls_enabled"
+              ],
+              "if": "${beacon-env/beacon_tls_enabled}",
+              "then": {
+                "property_value_attributes": {
+                  "visible": true
+                }
+              },
+              "else": {
+                "property_value_attributes": {
+                  "visible": false
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "widgets": [
+      {
+        "config": "beacon-env/beacon_database",
+        "widget": {
+          "type": "combo"
+        }
+      },
+      {
+        "config": "beacon-env/beacon_store_db_name",
+        "widget": {
+          "type": "text-field"
+        }
+      },
+      {
+        "config": "beacon-env/beacon_store_user",
+        "widget": {
+          "type": "text-field"
+        }
+      },
+      {
+        "config": "beacon-env/beacon_store_url",
+        "widget": {
+          "type": "text-field"
+        }
+      },
+      {
+        "config": "beacon-env/beacon_store_driver",
+        "widget": {
+          "type": "text-field"
+        }
+      },
+      {
+        "config": "beacon-env/beacon_store_password",
+        "widget": {
+          "type": "password"
+        }
+      },
+      {
+        "config": "beacon-env/beacon_tls_enabled",
+        "widget": {
+          "type": "toggle"
+        }
+      },
+      {
+        "config": "beacon-env/beacon_tls_port",
+        "widget": {
+          "type": "text-field"
+        }
+      },
+      {
+        "config": "beacon-env/beacon_key_store",
+        "widget": {
+          "type": "text-field"
+        }
+      },
+      {
+        "config": "beacon-env/beacon_key_store_password",
+        "widget": {
+          "type": "password"
+        }
+      },
+      {
+        "config": "beacon-env/beacon_trust_store",
+        "widget": {
+          "type": "text-field"
+        }
+      },
+      {
+        "config": "beacon-env/beacon_trust_store_password",
+        "widget": {
+          "type": "password"
+        }
+      },
+      {
+        "config": "beacon-env/beacon_key_password",
+        "widget": {
+          "type": "password"
+        }
+      }
+    ]
+  }
+}

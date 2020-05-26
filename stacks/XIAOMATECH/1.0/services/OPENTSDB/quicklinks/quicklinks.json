@@ -1,0 +1,23 @@
+{
+  "name": "default",
+  "description": "default quick links configuration",
+  "configuration": {
+    "protocol": {
+      "type": "HTTP_ONLY"
+    },
+    "links": [
+      {
+        "name": "opentsdb",
+        "label": "opentsdb UI",
+        "requires_user_name": "false",
+        "component_name": "OPENTSDB_MASTER",
+        "url": "%@://%@:%@",
+        "port": {
+          "http_default_port": "4242",
+          "https_default_port": "4242",
+          "regex": "^(\\d+)$"
+        }
+      }
+    ]
+  }
+}

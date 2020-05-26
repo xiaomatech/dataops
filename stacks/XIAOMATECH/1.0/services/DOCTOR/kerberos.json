@@ -1,0 +1,36 @@
+{
+  "services": [
+    {
+      "name": "DOCTOR",
+      "components": [
+        {
+          "name": "DOCTOR_ELEPHANT",
+          "identities": [
+            {
+              "name": "doctor_principal",
+              "principal": {
+                "value": "${doctor-env/doctor_user}/_HOST@${realm}",
+                "type" : "service",
+                "configuration": "doctor-env/principal_name",
+                "local_username": "${doctor-env/doctor_user}"
+
+              },
+              "keytab": {
+                "file": "${keytab_dir}/doctor.service.keytab",
+                "owner": {
+                  "name": "${doctor-env/doctor_user}",
+                  "access": "r"
+                },
+                "group": {
+                  "name": "${cluster-env/user_group}",
+                  "access": ""
+                },
+                "configuration": "doctor-env/keytab_path"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

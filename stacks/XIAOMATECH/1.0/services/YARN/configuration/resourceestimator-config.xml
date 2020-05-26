@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+    <property>
+        <name>resourceestimator.solver.lp.alpha</name>
+        <value>0.1</value>
+        <description>
+            The resource estimator has an integrated Linear Programming solver to make the prediction, and this parameter tunes the tradeoff between resource over-allocation and under-allocation in the Linear Programming model. This parameter varies from 0 to 1, and a larger alpha value means the model minimizes over-allocation better. Default value is 0.1.
+        </description>
+    </property>
+    <property>
+        <name>resourceestimator.solver.lp.beta</name>
+        <value>0.1</value>
+        <description>
+            This parameter controls the generalization of the Linear Programming model. This parameter varies from 0 to 1. Deafult value is 0.1.
+        </description>
+    </property>
+    <property>
+        <name>resourceestimator.solver.lp.minJobRuns</name>
+        <value>2</value>
+        <description>
+            The minimum number of job runs required in order to make the prediction. Default value is 2.
+        </description>
+    </property>
+    <property>
+        <name>resourceestimator.timeInterval</name>
+        <value>5</value>
+        <description>
+            The time length which is used to discretize job execution into intervals. Note that the estimator makes resource allocation prediction for each interval. A smaller time interval has more fine-grained granularity for prediction, but it also takes longer time and more space for prediction. Default value is 5 (seconds).
+        </description>
+    </property>
+    <property>
+        <name>resourceestimator.translator.line-parser</name>
+        <value>org.apache.hadoop.resourceestimator.translator.impl.NativeSingleLineParser</value>
+        <description>
+            The class name of the translator single-line parser, which parses a single line in the log. Default value is org.apache.hadoop.resourceestimator.translator.impl.NativeSingleLineParser, which can parse one line in the sample log. Note that if users want to parse Hadoop Resource Manager logs, they need to set the value to be org.apache.hadoop.resourceestimator.translator.impl.RmSingleLineParser. If they want to implement single-line parser to parse their customized log file, they need to change this value accordingly.
+        </description>
+    </property>
+
+    <property>
+        <name>resourceestimator.service-port</name>
+        <value>9998</value>
+        <description>
+            The port which ResourceEstimatorService listens to. The default value is 9998.
+        </description>
+    </property>
+</configuration>

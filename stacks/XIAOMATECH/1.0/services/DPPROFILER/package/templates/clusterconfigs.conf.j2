@@ -1,0 +1,31 @@
+clusterconfigs {
+ clusterName = {{ambari_cluster_name}}
+ assetMetricsPath = {{dpprofiler_profiler_dwh_dir}}
+
+ atlasUser = {{atlas_username}}
+ {% if credential_store_enabled %}
+ atlasPassword = "{{atlas_password_alias}}"
+ {% endif %}
+ {% if not credential_store_enabled %}
+ atlasPassword = "{{atlas_password}}"
+ {% endif %}
+ credential.provider.path = "{{dpprofiler_credential_provider_hdfs_path}}"
+ credential.store.enabled = {{credential_store_enabled | lower}}
+
+ sparkConfigurations1 {
+
+    spark.security.credentials.hiveserver2.enabled={{security_credentials_hiveserver2_enabled | lower}}
+
+    {{dpprofiler_spark_cluster_configs}}
+
+ }
+
+ sparkConfigurations2 {
+
+    spark.sql.hive.hiveserver2.jdbc.url="{{hiveserver2_interactive_jdbc_url}}"
+
+ }
+
+
+ {{dpprofiler_cluster_configs}}
+}

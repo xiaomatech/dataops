@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>ELASTICSEARCH</name>
+            <displayName>Elasticsearch</displayName>
+            <comment>Indexing and Search</comment>
+            <version>7.2.0</version>
+            <components>
+                <component>
+                    <name>ES_MASTER</name>
+                    <displayName>ES Master Node</displayName>
+                    <category>MASTER</category>
+                    <cardinality>3+</cardinality>
+                    <commandScript>
+                        <script>scripts/elastic.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+
+                    <customCommands>
+                        <customCommand>
+                            <name>INIT</name>
+                            <commandScript>
+                                <script>scripts/elastic.py</script>
+                                <scriptType>PYTHON</scriptType>
+                                <timeout>600</timeout>
+                            </commandScript>
+                        </customCommand>
+                    </customCommands>
+                </component>
+                <component>
+                    <name>ES_COORDINATING</name>
+                    <displayName>ES Coordinating Node</displayName>
+                    <category>MASTER</category>
+                    <cardinality>2</cardinality>
+                    <commandScript>
+                        <script>scripts/elastic.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+                <component>
+                    <name>ES_INGEST</name>
+                    <displayName>ES Ingest Node</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>3</cardinality>
+                    <commandScript>
+                        <script>scripts/elastic.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>ES_ML</name>
+                    <displayName>ES Machine Learning Node</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>3+</cardinality>
+                    <commandScript>
+                        <script>scripts/elastic.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                    <bulkCommands>
+                        <displayName>ElasticSearch  Machine Learning Nodes</displayName>
+                        <masterComponent>ES_MASTER</masterComponent>
+                    </bulkCommands>
+                </component>
+
+                <component>
+                    <name>ES_DATA</name>
+                    <displayName>ES Data Node</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>3+</cardinality>
+                    <commandScript>
+                        <script>scripts/elastic.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                    <bulkCommands>
+                        <displayName>ElasticSearch Datas</displayName>
+                        <masterComponent>ES_MASTER</masterComponent>
+                    </bulkCommands>
+                </component>
+                <component>
+                    <name>ES_CLIENT</name>
+                    <displayName>ES Client Node</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>3+</cardinality>
+                    <commandScript>
+                        <script>scripts/elastic.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+            </components>
+            <osSpecifics>
+                <osSpecific>
+                    <osFamily>any</osFamily>
+                    <packages>
+                        <package>
+                            <name>elasticsearch</name>
+                        </package>
+                    </packages>
+                </osSpecific>
+            </osSpecifics>
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+            <configuration-dependencies>
+                <config-type>elastic-env</config-type>
+                <config-type>elastic-sysconfig</config-type>
+
+                <config-type>ranger-elasticsearch-plugin-properties</config-type>
+                <config-type>ranger-elasticsearch-audit</config-type>
+                <config-type>ranger-elasticsearch-policymgr-ssl</config-type>
+                <config-type>ranger-elasticsearch-security</config-type>
+
+            </configuration-dependencies>
+            <restartRequiredAfterChange>true</restartRequiredAfterChange>
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+        </service>
+    </services>
+</metainfo>

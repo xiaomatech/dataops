@@ -1,0 +1,208 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/canal.deployer-1.1.1-SNAPSHOT.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>canal_user</name>
+        <value>canal</value>
+        <property-type>USER</property-type>
+        <description>Service user for canal</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>canal_log_dir</name>
+        <value>/var/log/canal</value>
+        <description>Log directory for canal</description>
+    </property>
+
+    <property>
+        <name>canal_properties_content</name>
+        <display-name>canal.properties template</display-name>
+        <description>This is the jinja template for canal.properties file</description>
+        <value>
+#################################################
+######### 		common argument		#############
+#################################################
+canal.id= 1
+canal.ip=
+canal.port=11111
+canal.metrics.pull.port=11112
+canal.zkServers={{zk_url}}
+# flush data to zk
+canal.zookeeper.flush.period = 1000
+canal.withoutNetty = false
+# tcp, kafka, rocketMQ
+canal.serverMode = kafka
+# flush meta cursor/parse position to file
+canal.file.data.dir = ${canal.conf.dir}
+canal.file.flush.period = 1000
+## memory store RingBuffer size, should be Math.pow(2,n)
+canal.instance.memory.buffer.size = 16384
+## memory store RingBuffer used memory unit size , default 1kb
+canal.instance.memory.buffer.memunit = 1024
+## meory store gets mode used MEMSIZE or ITEMSIZE
+canal.instance.memory.batch.mode = MEMSIZE
+
+## detecing config
+canal.instance.detecting.enable = false
+#canal.instance.detecting.sql = insert into retl.xdual values(1,now()) on duplicate key update x=now()
+canal.instance.detecting.sql = select 1
+canal.instance.detecting.interval.time = 3
+canal.instance.detecting.retry.threshold = 3
+canal.instance.detecting.heartbeatHaEnable = false
+
+# support maximum transaction size, more than the size of the transaction will be cut into multiple transactions delivery
+canal.instance.transaction.size =  1024
+# mysql fallback connected to new master should fallback times
+canal.instance.fallbackIntervalInSeconds = 60
+
+# network config
+canal.instance.network.receiveBufferSize = 16384
+canal.instance.network.sendBufferSize = 16384
+canal.instance.network.soTimeout = 30
+
+# binlog filter config
+canal.instance.filter.druid.ddl = true
+canal.instance.filter.query.dcl = false
+canal.instance.filter.query.dml = false
+canal.instance.filter.query.ddl = false
+canal.instance.filter.table.error = false
+canal.instance.filter.rows = false
+canal.instance.filter.transaction.entry = false
+
+# binlog format/image check
+canal.instance.binlog.format = ROW,STATEMENT,MIXED
+canal.instance.binlog.image = FULL,MINIMAL,NOBLOB
+
+# binlog ddl isolation
+canal.instance.get.ddl.isolation = false
+
+# parallel parser config
+canal.instance.parser.parallel = true
+## concurrent thread number, default 60% available processors, suggest not to exceed Runtime.getRuntime().availableProcessors()
+#canal.instance.parser.parallelThreadSize = 16
+## disruptor ringbuffer size, must be power of 2
+canal.instance.parser.parallelBufferSize = 256
+
+# table meta tsdb info
+canal.instance.tsdb.enable=true
+canal.instance.tsdb.dir=${canal.file.data.dir:../conf}/${canal.instance.destination:}
+canal.instance.tsdb.url=jdbc:mysql://127.0.0.1:3306/canal_tsdb
+canal.instance.tsdb.dbUsername=canal
+canal.instance.tsdb.dbPassword=canal
+
+# rds oss binlog account
+canal.instance.rds.accesskey =
+canal.instance.rds.secretkey =
+
+#################################################
+######### 		destinations		#############
+#################################################
+canal.destinations= example
+# conf root dir
+canal.conf.dir = ../conf
+# auto scan instance dir add/remove and start/stop instance
+canal.auto.scan = true
+canal.auto.scan.interval = 5
+
+canal.instance.tsdb.spring.xml=classpath:spring/tsdb/mysql-tsdb.xml
+
+canal.instance.global.mode = spring
+canal.instance.global.lazy = false
+canal.instance.global.manager.address = 0.0.0.0:1099
+canal.instance.global.spring.xml = classpath:spring/default-instance.xml
+        </value>
+        <value-attributes>
+          <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>kafka_content</name>
+        <display-name>kafka.yml template</display-name>
+        <description>This is the jinja template for kafka.yml file</description>
+        <value>
+servers: {{kafka_broker_url}}
+retries: 0
+batchSize: 16384
+lingerMs: 1
+bufferMemory: 33554432
+
+# Canal的batch size, 默认50K, 由于kafka最大消息体限制请勿超过1M(900K以下)
+canalBatchSize: 50
+# Canal get数据的超时时间, 单位: 毫秒, 空为不限超时
+canalGetTimeout: 100
+
+canalDestinations:
+  - canalDestination: example
+    topic: example
+    partition:%
+        </value>
+        <value-attributes>
+          <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>instance_content</name>
+        <display-name>instance.properties template</display-name>
+        <description>This is the jinja template for instance.properties file</description>
+        <value>
+#################################################
+## mysql serverId , v1.0.26+ will autoGen
+# canal.instance.mysql.slaveId=0
+
+# enable gtid use true/false
+canal.instance.gtidon=false
+
+# position info
+canal.instance.master.address=127.0.0.1:3306
+canal.instance.master.journal.name=
+canal.instance.master.position=
+canal.instance.master.timestamp=
+canal.instance.master.gtid=
+
+#canal.instance.standby.address =
+#canal.instance.standby.journal.name =
+#canal.instance.standby.position =
+#canal.instance.standby.timestamp =
+#canal.instance.standby.gtid=
+
+# username/password
+canal.instance.dbUsername=canal
+canal.instance.dbPassword=canal
+canal.instance.connectionCharset=UTF-8
+
+# table regex
+canal.instance.filter.regex=.*\\..*
+# table black regex
+canal.instance.filter.black.regex=
+#################################################
+        </value>
+        <value-attributes>
+          <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+</configuration>

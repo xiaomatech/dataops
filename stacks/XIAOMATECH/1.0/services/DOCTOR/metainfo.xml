@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>DOCTOR</name>
+            <displayName>dr-elephant</displayName>
+            <comment>Performance monitoring and tuning tool for Apache Hadoop</comment>
+            <version>2.0.13</version>
+            <components>
+                <component>
+                    <name>DOCTOR_ELEPHANT</name>
+                    <displayName>linkedin dr-elephant</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <dependencies>
+                        <dependency>
+                            <name>HDFS/HDFS_CLIENT</name>
+                            <scope>host</scope>
+                            <auto-deploy>
+                                <enabled>true</enabled>
+                            </auto-deploy>
+                        </dependency>
+                        <dependency>
+                            <name>SPARK/SPARK_CLIENT</name>
+                            <scope>host</scope>
+                            <auto-deploy>
+                                <enabled>true</enabled>
+                            </auto-deploy>
+                        </dependency>
+                    </dependencies>
+                    <commandScript>
+                        <script>scripts/doctor.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                    <logs>
+                        <log>
+                            <logId>doctor</logId>
+                            <primary>true</primary>
+                        </log>
+                    </logs>
+                </component>
+            </components>
+
+            <configuration-dependencies>
+                <config-type>doctor-env</config-type>
+            </configuration-dependencies>
+
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+
+        </service>
+    </services>
+</metainfo>

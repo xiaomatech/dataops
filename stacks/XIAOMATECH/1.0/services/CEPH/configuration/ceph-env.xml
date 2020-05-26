@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration supports_final="true" supports_adding_forbidden="true">
+    <property>
+        <name>ceph_user</name>
+        <display-name>Ceph User</display-name>
+        <value>ceph</value>
+        <property-type>USER</property-type>
+        <description/>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>conf_content</name>
+        <display-name>ceph.conf</display-name>
+        <description>ceph.conf content</description>
+        <value>
+[global]
+  fsid = eeeeeeee-yyyy-zzzz-xxxx-ddddddd
+  #mon initial members = ceph01
+  #mon host = 192.168.0.63
+  #public network = 192.168.0.0/24
+  #cluster network = 192.168.0.0/24
+  #osd journal size = 100
+  #log file = /dev/null
+
+  max_open_files = 131072
+  mon_osd_full_ratio = .95
+  mon_osd_nearfull_ratio = .85
+  osd_pool_default_min_size = 1
+  osd_pool_default_pg_num = 128
+  osd_pool_default_pgp_num = 128
+  osd_pool_default_size = 3
+  filestore_queue_max_ops = 65536
+  filestore_queue_max_bytes = 536870912
+  filestore_queue_committing_max_ops = 65536
+  filestore_queue_committing_max_bytes = 536870912
+  journal_queue_max_ops = 65536
+  journal_queue_max_bytes = 536870912
+  osd_client_message_cap = 65536
+  osd_client_message_size_cap = 536870912
+  ms_dispatch_throttle_bytes = 536870912
+  osd_enable_op_tracker = false
+  throttler_perf_counter = false
+  cephx_sign_messages = false
+  filestore_fd_cache_size = 4096
+  filestore_fd_cache_shards = 256
+
+[mon]
+  mon_cluster_log_file = /dev/null
+  mon_clock_drift_allowed = .15
+  mon_clock_drift_warn_backoff = 30
+  mon_osd_down_out_interval = 300
+  mon_osd_min_down_reporters = 1
+  mon_osd_min_down_reports = 2
+  mon_osd_report_timeout = 300
+  osd_heartbeat_grace = 15
+  osd_heartbeat_interval = 3
+
+[mon.ceph01]
+  host = ceph01
+  mon_addr = 192.168.0.63
+[mon.ceph02]
+  host = ceph02
+  mon_addr = 192.168.0.64
+[mon.ceph03]
+  host = ceph03
+  mon_addr = 192.168.0.65
+
+[osd]
+    filestore_max_sync_interval = 5
+    filestore_merge_threshold = 40
+    filestore_op_threads = 8
+    filestore_split_multiple = 8
+    journal_size = 100
+    ms_bind_port_max = 7100
+    ms_bind_port_min = 6800
+    osd_client_op_priority = 63
+    osd_crush_update_on_start = true
+    osd_heartbeat_grace = 15
+    osd_heartbeat_interval = 3
+    osd_max_backfills = 1
+    osd_max_scrubs = 1
+    osd_mkfs_options_btrfs = "-f"
+    osd_mkfs_options_xfs = "-f -i size=2048"
+    osd_mkfs_type = xfs
+    osd_mon_heartbeat_interval = 30
+    osd_objectstore = filestore
+    osd_op_threads = 8
+    osd_recovery_max_active = 5
+    osd_recovery_max_chunk = 1048576
+    osd_recovery_op_priority = 2
+    osd_recovery_threads = 1
+    osd_scrub_begin_hour = 0
+    osd_scrub_end_hour = 6
+    osd_scrub_load_threshold = 15.0
+    pool_default_crush_rule = 0
+
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+</configuration>

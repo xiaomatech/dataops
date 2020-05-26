@@ -1,0 +1,25 @@
+{
+  "name": "default",
+  "description": "default quick links configuration",
+  "configuration": {
+    "protocol":
+    {
+      "type":"HTTP_ONLY"
+    },
+
+    "links": [
+      {
+        "name": "dr_elephant_ui",
+        "label": "Dr Elephant Server UI",
+        "requires_user_name": "false",
+        "component_name": "DOCTOR_ELEPHANT",
+        "url": "%@://%@:%@",
+        "port":{
+          "http_default_port": "8080",
+          "https_default_port": "8080",
+          "regex": "^(\\d+)$"
+        }
+      }
+    ]
+  }
+}

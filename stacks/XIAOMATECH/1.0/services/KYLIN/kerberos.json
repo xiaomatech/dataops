@@ -1,0 +1,41 @@
+{
+  "services": [
+    {
+      "name": "KYLIN",
+      "identities": [
+        {
+          "name": "/smokeuser"
+        },
+        {
+          "name": "kylin_user",
+          "principal": {
+            "value": "${kylin-env/kylin_user}${principal_suffix}@${realm}",
+            "type" : "user",
+            "configuration": "kylin-env/kylin.server.kerberos.principal",
+            "local_username" : "${kylin-env/kylin_user}"
+          },
+          "keytab": {
+            "file": "${keytab_dir}/kylin.server.kerberos.keytab",
+            "owner": {
+              "name": "${kylin-env/kylin_user}",
+              "access": "r"
+            },
+            "group": {
+              "name": "${cluster-env/user_group}",
+              "access": ""
+            },
+            "configuration": "kylin-env/kylin.server.kerberos.keytab"
+          }
+        }
+      ],
+      "components": [
+        {
+          "name": "KYLIN_JOB"
+        },
+        {
+          "name": "KYLIN_QUERY"
+        }
+      ]
+    }
+  ]
+}

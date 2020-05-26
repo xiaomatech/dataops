@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<metainfo>
+  <schemaVersion>2.0</schemaVersion>
+  <services>
+    <service>
+      <name>ANGEL</name>
+      <displayName>Angel</displayName>
+      <comment>A Flexible and Powerful Parameter Server for large-scale machine learning</comment>
+      <version>2.1</version>
+      <components>
+        <component>
+          <name>ANGEL_CLIENT</name>
+          <displayName>Angel</displayName>
+          <category>SLAVE</category>
+          <cardinality>1+</cardinality>
+          <versionAdvertised>true</versionAdvertised>
+          <commandScript>
+            <script>scripts/angel_client.py</script>
+            <scriptType>PYTHON</scriptType>
+            <timeout>1200</timeout>
+          </commandScript>
+          <logs>
+            <log>
+              <logId>angel</logId>
+              <primary>true</primary>
+            </log>
+          </logs>
+          <configFiles>
+            <configFile>
+              <type>xml</type>
+              <fileName>angel-site.xml</fileName>
+              <dictionaryName>angel-site</dictionaryName>
+            </configFile>
+            <configFile>
+              <type>xml</type>
+              <fileName>angel-default.xml</fileName>
+              <dictionaryName>angel-default</dictionaryName>
+            </configFile>
+            <configFile>
+              <type>env</type>
+              <fileName>angel-env.sh</fileName>
+              <dictionaryName>angel-env</dictionaryName>
+            </configFile>
+          </configFiles>
+          <dependencies>
+            <dependency>
+              <name>HDFS/HDFS_CLIENT</name>
+              <scope>host</scope>
+              <auto-deploy>
+                <enabled>true</enabled>
+              </auto-deploy>
+            </dependency>
+            <dependency>
+              <name>SPARK2/SPARK2_CLIENT</name>
+              <scope>host</scope>
+              <auto-deploy>
+                <enabled>true</enabled>
+              </auto-deploy>
+            </dependency>
+          </dependencies>
+        </component>
+      </components>
+
+      <commandScript>
+        <script>scripts/service_check.py</script>
+        <scriptType>PYTHON</scriptType>
+        <timeout>300</timeout>
+      </commandScript>
+
+      <requiredServices>
+        <service>SPARK2</service>
+      </requiredServices>
+
+      <configuration-dependencies>
+        <config-type>angel-env</config-type>
+        <config-type>angel-site</config-type>
+        <config-type>angel-default</config-type>
+      </configuration-dependencies>
+
+    </service>
+  </services>
+</metainfo>

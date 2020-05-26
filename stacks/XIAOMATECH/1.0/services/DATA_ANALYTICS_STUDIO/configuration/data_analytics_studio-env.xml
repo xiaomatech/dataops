@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration supports_adding_forbidden="true">
+    <property>
+        <name>data_analytics_studio_pid_dir</name>
+        <value>/var/run/das</value>
+        <description>Data Analytics Studio Process ID Directory. Web App and Event Processor must be stopped before
+            modifying this.
+        </description>
+        <display-name>Data Analytics Studio pid dir</display-name>
+        <value-attributes>
+            <type>directory</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>data_analytics_studio_log_dir</name>
+        <value>/var/log/das</value>
+        <description>Log dir for Data Analytics Studio</description>
+        <display-name>Data Analytics Studio log dir</display-name>
+        <value-attributes>
+            <type>directory</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>webapp_jvm_opts</name>
+        <value>-Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath={data_analytics_studio_log_dir}</value>
+        <description>Java options for Data Analytics Studio</description>
+        <display-name>Webapp JVM opts</display-name>
+    </property>
+    <property>
+        <name>ep_jvm_opts</name>
+        <value>-Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath={data_analytics_studio_log_dir}</value>
+        <description>Java options for Data Analytics Studio event processor</description>
+        <display-name>Event processor JVM opts</display-name>
+    </property>
+    <property>
+        <name>webapp_additional_classpath</name>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>Additional classpath for Data Analytics Studio</description>
+        <display-name>Webapp Additional Classpath</display-name>
+    </property>
+    <property>
+        <name>ep_additional_classpath</name>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>Additional classpath for Data Analytics Studio event processor</description>
+        <display-name>Event processor Additional Classpath</display-name>
+    </property>
+</configuration>

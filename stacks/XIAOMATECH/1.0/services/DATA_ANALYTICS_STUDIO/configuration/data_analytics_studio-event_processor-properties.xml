@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration supports_adding_forbidden="true">
+    <property>
+        <name>data_analytics_studio_event_processor_server_protocol</name>
+        <value>http</value>
+        <description>Data Analytics Studio Event Processor server protocol (http or https - only http supported in
+            beta)
+        </description>
+        <display-name>Data Analytics Studio Event Processor server protocol</display-name>
+        <on-ambari-upgrade add="true"/>
+        <value-attributes>
+            <read-only>true</read-only>
+            <overridable>false</overridable>
+        </value-attributes>
+    </property>
+    <property>
+        <name>data_analytics_studio_event_processor_server_port</name>
+        <value>30900</value>
+        <description>Data Analytics Studio Event Processor server port</description>
+        <display-name>Data Analytics Studio Event Processor server port</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>data_analytics_studio_event_processor_admin_server_port</name>
+        <value>30901</value>
+        <description>Data Analytics Studio Event Processor admin server port</description>
+        <display-name>Data Analytics Studio Event Processor admin server port</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>content</name>
+        <display-name>Data Analytics Studio Event Processor config file template</display-name>
+        <description>This is the jinja template for das-event-processor.json file</description>
+        <value/>
+        <property-type>VALUE_FROM_PROPERTY_FILE</property-type>
+        <value-attributes>
+            <property-file-name>das-event-processor.json.j2</property-file-name>
+            <property-file-type>text</property-file-type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+</configuration>

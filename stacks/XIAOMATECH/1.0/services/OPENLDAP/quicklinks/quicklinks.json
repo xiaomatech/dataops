@@ -1,0 +1,25 @@
+{
+  "name": "default",
+  "description": "default quick links configuration",
+  "configuration": {
+    "protocol": {
+      "type":"http",
+      "checks":[
+      ]
+    },
+    "links": [
+      {
+        "name": "phpmldapadmin",
+        "label": "phpmldapadmin",
+        "requires_user_name": "false",
+        "component_name": "OPENLDAP_MASTER",
+        "url":"%@://%@:%@/phpldapadmin",
+        "port":{
+          "http_default_port": "80",
+          "https_default_port": "80",
+          "regex": "\\w*:(\\d+)"
+        }
+      } 
+    ]
+  }
+}

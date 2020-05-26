@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/apache-pulsar-2.4.1-bin.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>pulsar_user</name>
+        <value>pulsar</value>
+        <property-type>USER</property-type>
+        <description>Service user for pulsar</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+    <property>
+        <name>content</name>
+        <display-name> config</display-name>
+        <description> config</description>
+        <value><![CDATA[
+
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>content</name>
+        <display-name> config</display-name>
+        <description> config</description>
+        <value><![CDATA[
+
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>content</name>
+        <display-name> config</display-name>
+        <description> config</description>
+        <value><![CDATA[
+
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>content</name>
+        <display-name> config</display-name>
+        <description> config</description>
+        <value><![CDATA[
+
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>content</name>
+        <display-name> config</display-name>
+        <description> config</description>
+        <value><![CDATA[
+
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+</configuration>

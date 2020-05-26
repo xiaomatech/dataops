@@ -1,0 +1,25 @@
+{
+  "name": "default",
+  "description": "default quick links configuration",
+  "configuration": {
+    "protocol": {
+      "type":"http",
+      "checks":[
+      ]
+    },
+    "links": [
+      {
+        "name": "PRESTO",
+        "label": "PRESTO",
+        "requires_user_name": "false",
+        "component_name": "PRESTO_COORDINATOR",
+        "url":"%@://%@:%@",
+        "port":{
+          "http_default_port": "8000",
+          "https_default_port": "8000",
+          "regex": "\\w*:(\\d+)"
+        }
+      } 
+    ]
+  }
+}

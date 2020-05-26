@@ -1,0 +1,17 @@
+{
+  "services": [
+    {
+      "name": "OPENLDAP",
+      "identities": [
+        {
+          "name": "/smokeuser"
+        }
+      ],
+      "components": [
+        {
+          "name": "OPENLDAP_MASTER"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "services": [
+    {
+      "name": "AIRFLOW",
+      "components": [
+        {
+          "name": "AIRFLOW_WORKER",
+          "identities": [
+            {
+              "name": "airflow_worker_principal",
+              "principal": {
+                "value": "${airflow-env/airflow_user}/_HOST@${realm}",
+                "type": "service",
+                "configuration": "airflow-env/principal_name_worker",
+                "local_username": "${airflow-env/airflow_user}"
+              },
+              "keytab": {
+                "file": "${keytab_dir}/airflow.worker.service.keytab",
+                "owner": {
+                  "name": "${airflow-env/airflow_user}",
+                  "access": "r"
+                },
+                "group": {
+                  "name": "${cluster-env/user_group}",
+                  "access": ""
+                },
+                "configuration": "airflow-env/keytab_path_worker"
+              }
+            }
+          ]
+        },
+        {
+          "name": "AIRFLOW_WEBSERVER",
+          "identities": [
+            {
+              "name": "airflow_webserver_principal",
+              "principal": {
+                "value": "${airflow-env/airflow_user}/_HOST@${realm}",
+                "type": "service",
+                "configuration": "airflow-env/principal_name_webserver",
+                "local_username": "${airflow-env/airflow_user}"
+              },
+              "keytab": {
+                "file": "${keytab_dir}/airflow.webserver.service.keytab",
+                "owner": {
+                  "name": "${airflow-env/airflow_user}",
+                  "access": "r"
+                },
+                "group": {
+                  "name": "${cluster-env/user_group}",
+                  "access": ""
+                },
+                "configuration": "airflow-env/keytab_path_webserver"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

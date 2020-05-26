@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>CONFLUENT</name>
+            <displayName>Confluent</displayName>
+            <comment>Confluent platform</comment>
+            <version>5.0</version>
+            <components>
+                <component>
+                    <name>SCHEMA_REGISTRY</name>
+                    <displayName>Schema Registry</displayName>
+                    <comment>Schema Registry</comment>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <timelineAppid>SCHEMA_REGISTRY</timelineAppid>
+                    <commandScript>
+                        <script>scripts/schema_registry.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>10000</timeout>
+                    </commandScript>
+                    <recovery_enabled>true</recovery_enabled>
+                </component>
+
+                <component>
+                    <name>KAFKA</name>
+                    <displayName>KAFKA</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>3+</cardinality>
+                    <timelineAppid>KAFKA</timelineAppid>
+                    <commandScript>
+                        <script>scripts/kafka.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>10000</timeout>
+                    </commandScript>
+                    <bulkCommands>
+                        <displayName>Confluent Kafka Brokers</displayName>
+                        <masterComponent>KAFKAMANAGER</masterComponent>
+                    </bulkCommands>
+                    <recovery_enabled>true</recovery_enabled>
+                </component>
+
+                <component>
+                    <name>KAFKAREST</name>
+                    <displayName>Kafka Rest Proxy</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>0+</cardinality>
+                    <timelineAppid>kafka-rest</timelineAppid>
+                    <commandScript>
+                        <script>scripts/rest.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>10000</timeout>
+                    </commandScript>
+                    <bulkCommands>
+                        <displayName>Kafka Rests</displayName>
+                        <masterComponent>KAFKAMANAGER</masterComponent>
+                    </bulkCommands>
+                    <recovery_enabled>true</recovery_enabled>
+                </component>
+
+                <component>
+                    <name>KSQL</name>
+                    <displayName>Kafka KSQL Server</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <timelineAppid>ksql</timelineAppid>
+                    <commandScript>
+                        <script>scripts/ksql.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>10000</timeout>
+                    </commandScript>
+                    <recovery_enabled>true</recovery_enabled>
+                </component>
+
+                <component>
+                    <name>KAFKACONNECTOR</name>
+                    <displayName>Kafka Connector</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <timelineAppid>kafka-connect</timelineAppid>
+                    <commandScript>
+                        <script>scripts/connector.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>10000</timeout>
+                    </commandScript>
+                    <customCommands>
+                        <customCommand>
+                            <name>DEPLOYCONNECTOR</name>
+                            <commandScript>
+                                <script>scripts/connector.py</script>
+                                <scriptType>PYTHON</scriptType>
+                                <timeout>600</timeout>
+                            </commandScript>
+                        </customCommand>
+                    </customCommands>
+                    <recovery_enabled>true</recovery_enabled>
+                </component>
+
+                <component>
+                    <name>CONTROLCENTER</name>
+                    <displayName>Kafka control center</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>0+</cardinality>
+                    <timelineAppid>kafka-control-center</timelineAppid>
+                    <commandScript>
+                        <script>scripts/control_center.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>10000</timeout>
+                    </commandScript>
+                    <recovery_enabled>true</recovery_enabled>
+                </component>
+
+                <component>
+                    <name>KAFKAMQTT</name>
+                    <displayName>Kafka mqtt proxy</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>0+</cardinality>
+                    <timelineAppid>kafka-mqtt-proxy</timelineAppid>
+                    <commandScript>
+                        <script>scripts/mqtt.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>10000</timeout>
+                    </commandScript>
+                    <recovery_enabled>true</recovery_enabled>
+                </component>
+
+                <component>
+                    <name>KAFKAMANAGER</name>
+                    <displayName>Kafka manager</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1</cardinality>
+                    <timelineAppid>kafka-manager</timelineAppid>
+                    <commandScript>
+                        <script>scripts/kafka-manager.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>10000</timeout>
+                    </commandScript>
+                    <recovery_enabled>true</recovery_enabled>
+                </component>
+
+            </components>
+
+            <osSpecifics>
+                <osSpecific>
+                    <osFamily>any</osFamily>
+                    <packages>
+                        <package>
+                            <name>confluent-platform-oss-2.11</name>
+                        </package>
+                        <package>
+                            <name>confluent-librdkafka-plugins</name>
+                        </package>
+                        <package>
+                            <name>confluent-support-metrics</name>
+                        </package>
+                        <package>
+                            <name>confluent-control-center</name>
+                        </package>
+                    </packages>
+                </osSpecific>
+            </osSpecifics>
+
+            <configuration-dependencies>
+                <config-type>confluent-env</config-type>
+                <config-type>ranger-confluent-plugin-properties</config-type>
+                <config-type>ranger-confluent-audit</config-type>
+                <config-type>ranger-confluent-policymgr-ssl</config-type>
+                <config-type>ranger-confluent-security</config-type>
+
+            </configuration-dependencies>
+            <restartRequiredAfterChange>true</restartRequiredAfterChange>
+
+            <widgetsFileName>widgets.json</widgetsFileName>
+            <metricsFileName>metrics.json</metricsFileName>
+
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+
+        </service>
+
+    </services>
+</metainfo>

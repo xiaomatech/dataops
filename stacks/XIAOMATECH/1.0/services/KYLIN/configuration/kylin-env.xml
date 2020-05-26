@@ -1,0 +1,560 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/apache-kylin-2.6.4-bin-hbase1x.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>kylin_pid_dir</name>
+        <value>/var/run/kylin</value>
+        <description>Dir containing process ID file</description>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+            <editable-only-at-install>true</editable-only-at-install>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>kylin_user</name>
+        <value>kylin</value>
+        <property-type>USER</property-type>
+        <description>User kylin daemon runs as</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>kylin_log_dir</name>
+        <value>/var/log/kylin</value>
+        <description>kylin Log dir</description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>kylin_env_content</name>
+        <display-name>kylin-env template</display-name>
+        <description>This is the jinja template for kylin-env file</description>
+        <value>
+export HADOOP_HOME={{stack_root}}/hadoop
+export HADOOP_CONF_DIR=/etc/hadoop
+export HBASE_CONF_DIR=/etc/hbase
+export HIVE_CONF=/etc/hive
+export HIVE_HOME={{stack_root}}/hive
+export HCAT_HOME={{stack_root}}/hive/hcatalog
+export KYLIN_HOME={{stack_root}}/kylin
+export KYLIN_CONF=/etc/kylin
+export ZOOKEEPER_HOME={{stack_root}}/zookeeper
+export SPARK_HOME={{stack_root}}/spark
+export SPARK_CONF_DIR=/etc/spark
+export KYLIN_JVM_SETTINGS="-Xms16g -Xmx16g -XX:MaxPermSize=512m -XX:SurvivorRatio=4 -XX:+CMSClassUnloadingEnabled -XX:+CMSParallelRemarkEnabled -XX:+UseG1GC -XX:+CMSIncrementalMode -XX:+DisableExplicitGC -XX:+HeapDumpOnOutOfMemoryError"
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>kylin-server-log4j</name>
+        <display-name>kylin server log4j template</display-name>
+        <description>kylin server log4j </description>
+        <value>
+#define appenders
+log4j.appender.file=org.apache.log4j.RollingFileAppender
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.File=${catalina.home}/../logs/kylin.log
+log4j.appender.file.layout.ConversionPattern=%d{ISO8601} %-5p [%t] %c{2}:%L : %m%n
+log4j.appender.file.Append=true
+log4j.appender.file.MaxFileSize=268435456
+log4j.appender.file.MaxBackupIndex=10
+
+#overall config
+log4j.rootLogger=INFO,file
+log4j.logger.org.apache.kylin=DEBUG
+log4j.logger.org.springframework=WARN
+log4j.logger.org.springframework.security=INFO
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>kylin-tools-log4j</name>
+        <display-name>kylin tools log4j template</display-name>
+        <description>kylin tools log4j file</description>
+        <value>
+# the kylin-tools-log4j.properties is mainly for configuring log properties on kylin tools, including:
+#   1. tools launched by kylin.sh script, e.g. DeployCoprocessorCLI
+#   2. DebugTomcat
+#   3. others
+#
+# It's called kylin-tools-log4j.properties so that it won't distract users from the other more important log4j config file: kylin-server-log4j.properties
+# enable this by -Dlog4j.configuration=kylin-tools-log4j.properties
+
+log4j.rootLogger=INFO,stderr
+
+log4j.appender.stderr=org.apache.log4j.ConsoleAppender
+log4j.appender.stderr.Target=System.err
+log4j.appender.stderr.layout=org.apache.log4j.PatternLayout
+log4j.appender.stderr.layout.ConversionPattern=%d{ISO8601} %-5p [%t] %c{2}:%L : %m%n
+
+#log4j.logger.org.apache.hadoop=ERROR
+log4j.logger.org.apache.kylin=DEBUG
+log4j.logger.org.springframework=WARN
+log4j.logger.org.apache.kylin.tool.shaded=INFO
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>kylin-kafka-log4j</name>
+        <display-name>kylin kafka log4j template</display-name>
+        <description>kylin kafka log4j file</description>
+        <value>
+log4j.rootCategory=WARN,stderr,stdout
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.target=System.out
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%d{ISO8601} %-5p [%t] %c{2}:%L : %m%n
+
+log4j.appender.stderr=org.apache.log4j.ConsoleAppender
+log4j.appender.stderr.Target=System.err
+log4j.appender.stderr.layout=org.apache.log4j.PatternLayout
+log4j.appender.stderr.layout.ConversionPattern=%d{ISO8601} %-5p [%t] %c{2}:%L : %m%n
+
+
+# Settings to quiet third party logs that are too verbose
+log4j.logger.org.spark-project.jetty=WARN
+log4j.logger.org.spark-project.jetty.util.component.AbstractLifeCycle=ERROR
+log4j.logger.org.apache.spark.repl.SparkIMain$exprTyper=INFO
+log4j.logger.org.apache.spark.repl.SparkILoop$SparkILoopInterpreter=INFO
+log4j.logger.org.apache.parquet=ERROR
+log4j.logger.parquet=ERROR
+
+# SPARK-9183: Settings to avoid annoying messages when looking up nonexistent UDFs in SparkSQL with Hive support
+log4j.logger.org.apache.hadoop.hive.metastore.RetryingHMSHandler=FATAL
+log4j.logger.org.apache.hadoop.hive.ql.exec.FunctionRegistry=ERROR
+log4j.logger.org.apache.spark.sql=WARN
+
+log4j.logger.org.apache.kylin=DEBUG
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>content</name>
+        <display-name>kylin.properties template</display-name>
+        <description>This is the jinja template for kylin.properties file</description>
+        <value>
+# The below commented values will effect as default settings
+# Uncomment and override them if necessary
+
+#### METADATA | ENV ###
+#
+## The metadata store in hbase
+kylin.metadata.url=kylin_metadata@hbase
+#
+## metadata cache sync retry times
+kylin.metadata.sync-retries=3
+#
+## Working folder in HDFS, better be qualified absolute path, make sure user has the right permission to this directory
+kylin.env.hdfs-working-dir=/kylin
+#
+## DEV|QA|PROD. DEV will turn on some dev features, QA and PROD has no difference in terms of functions.
+kylin.env=PROD
+#
+## kylin zk base path
+kylin.env.zookeeper-base-path=/kylin
+#
+#### SERVER | WEB | RESTCLIENT ###
+## Kylin server mode, valid value [all, query, job]
+kylin.server.mode={{server_mode}}
+kylin.job.scheduler.default=2
+kylin.job.lock=org.apache.kylin.storage.hbase.util.ZookeeperJobLock
+
+## List of web servers in use, this enables one web server instance to sync up with other servers.
+kylin.rest.servers={{kylin_cluster_servers}}
+kylin.server.cluster-servers={{kylin_cluster_servers}}
+#
+## Display timezone on UI,format like[GMT+N or GMT-N]
+kylin.web.timezone=GMT+8
+#
+## Timeout value for the queries submitted through the Web UI, in milliseconds
+kylin.web.query-timeout=300000
+#
+kylin.web.cross-domain-enabled=true
+#
+##allow user to export query result
+kylin.web.export-allow-admin=true
+kylin.web.export-allow-other=true
+#
+## Hide measures in measure list of cube designer, separate by comma
+kylin.web.hide-measures=RAW
+#
+##max connections of one route
+kylin.restclient.connection.default-max-per-route=20
+#
+##max connections of one rest-client
+kylin.restclient.connection.max-total=200
+#
+#### PUBLIC CONFIG ###
+kylin.engine.default=2
+kylin.storage.default=2
+kylin.web.hive-limit=20
+kylin.web.help.length=4
+kylin.web.help.0=start|Getting Started|http://kylin.apache.org/docs/tutorial/kylin_sample.html
+kylin.web.help.1=odbc|ODBC Driver|http://kylin.apache.org/docs/tutorial/odbc.html
+kylin.web.help.2=tableau|Tableau Guide|http://kylin.apache.org/docs/tutorial/tableau_91.html
+kylin.web.help.3=onboard|Cube Design Tutorial|http://kylin.apache.org/docs/howto/howto_optimize_cubes.html
+kylin.web.link-streaming-guide=http://kylin.apache.org/
+kylin.htrace.show-gui-trace-toggle=false
+#kylin.web.link-hadoop=
+#kylin.web.link-diagnostic=
+#kylin.web.contact-mail=
+#kylin.server.external-acl-provider=
+#
+kylin.engine.mr.config-override.mapreduce.job.queuename=default
+#### SOURCE ###
+#
+## Hive client, valid value [cli, beeline]
+kylin.source.hive.client=cli
+#
+## Absolute path to beeline shell, can be set to spark beeline instead of the default hive beeline on PATH
+kylin.source.hive.beeline-shell=beeline
+#
+## Parameters for beeline client, only necessary if hive client is beeline
+#kylin.source.hive.beeline-params=-n root --hiveconf hive.security.authorization.sqlstd.confwhitelist.append='mapreduce.job.*|dfs.*' -u jdbc:hive2://localhost:10000
+#
+## While hive client uses above settings to read hive table metadata,
+## table operations can go through a separate SparkSQL command line, given SparkSQL connects to the same Hive metastore.
+kylin.source.hive.enable-sparksql-for-table-ops=false
+kylin.source.hive.sparksql-beeline-shell={{stack_root}}/spark/bin/beeline
+kylin.source.hive.sparksql-beeline-params=-n root --hiveconf hive.security.authorization.sqlstd.confwhitelist.append='mapreduce.job.*|dfs.*' -u jdbc:hive2://{{hive_thriftserver}}:10000
+#
+kylin.source.hive.keep-flat-table=false
+#
+## Hive database name for putting the intermediate flat tables
+kylin.source.hive.database-for-flat-table=default
+#
+## Whether redistribute the intermediate flat table before building
+kylin.source.hive.redistribute-flat-table=true
+#
+kylin.source.hive.config-override.mapreduce.job.queuename=default
+kylin.storage.hbase.compression-codec=snappy
+#
+#### STORAGE ###
+#
+## The storage for final cube file in hbase
+kylin.storage.url=hbase
+#
+## The prefix of hbase table
+kylin.storage.hbase.table-name-prefix=KYLIN_
+#
+## The namespace for hbase storage
+kylin.storage.hbase.namespace=default
+#
+## Compression codec for htable, valid value [none, snappy, lzo, gzip, lz4]
+kylin.storage.hbase.compression-codec=snappy
+#
+## HBase Cluster FileSystem, which serving hbase, format as hdfs://hbase-cluster:8020
+## Leave empty if hbase running on same cluster with hive and mapreduce
+##kylin.storage.hbase.cluster-fs=
+#
+## The cut size for hbase region, in GB.
+kylin.storage.hbase.region-cut-gb=5
+#
+## The hfile size of GB, smaller hfile leading to the converting hfile MR has more reducers and be faster.
+## Set 0 to disable this optimization.
+kylin.storage.hbase.hfile-size-gb=2
+#
+kylin.storage.hbase.min-region-count=1
+kylin.storage.hbase.max-region-count=500
+#
+## Optional information for the owner of kylin platform, it can be your team's email
+## Currently it will be attached to each kylin's htable attribute
+#kylin.storage.hbase.owner-tag=whoami@kylin.apache.org
+#
+kylin.storage.hbase.coprocessor-mem-gb=3
+#
+## By default kylin can spill query's intermediate results to disks when it's consuming too much memory.
+## Set it to false if you want query to abort immediately in such condition.
+kylin.storage.partition.aggr-spill-enabled=true
+#
+## The maximum number of bytes each coprocessor is allowed to scan.
+## To allow arbitrary large scan, you can set it to 0.
+kylin.storage.partition.max-scan-bytes=3221225472
+#
+## The default coprocessor timeout is (hbase.rpc.timeout * 0.9) / 1000 seconds,
+## You can set it to a smaller value. 0 means use default.
+kylin.storage.hbase.coprocessor-timeout-seconds=0
+#
+#
+#### JOB ###
+#
+## Max job retry on error, default 0: no retry
+kylin.job.retry=3
+#
+## Max count of concurrent jobs running
+kylin.job.max-concurrent-jobs=10
+#
+## The percentage of the sampling, default 100%
+kylin.job.sampling-percentage=100
+#
+## If true, will send email notification on job complete
+##kylin.job.notification-enabled=true
+##kylin.job.notification-mail-enable-starttls=true
+##kylin.job.notification-mail-host=smtp.office365.com
+##kylin.job.notification-mail-port=587
+##kylin.job.notification-mail-username=kylin@example.com
+##kylin.job.notification-mail-password=mypassword
+##kylin.job.notification-mail-sender=kylin@example.com
+#
+#
+#### ENGINE ###
+#
+## Time interval to check hadoop job status
+kylin.engine.mr.yarn-check-interval-seconds=10
+#
+kylin.engine.mr.reduce-input-mb=500
+#
+kylin.engine.mr.max-reducer-number=500
+#
+kylin.engine.mr.mapper-input-rows=1000000
+#
+## Enable dictionary building in MR reducer
+kylin.engine.mr.build-dict-in-reducer=true
+#
+## Number of reducers for fetching UHC column distinct values
+kylin.engine.mr.uhc-reducer-count=1
+#
+## Whether using an additional step to build UHC dictionary
+kylin.engine.mr.build-uhc-dict-in-additional-step=false
+#
+#
+#### CUBE | DICTIONARY ###
+#
+kylin.cube.cuboid-scheduler=org.apache.kylin.cube.cuboid.DefaultCuboidScheduler
+kylin.cube.segment-advisor=org.apache.kylin.cube.CubeSegmentAdvisor
+#
+## 'auto', 'inmem', 'layer' or 'random' for testing
+kylin.cube.algorithm=auto
+#
+## A smaller threshold prefers layer, a larger threshold prefers in-mem
+kylin.cube.algorithm.layer-or-inmem-threshold=7
+#
+kylin.cube.aggrgroup.max-combination=32768
+#
+kylin.snapshot.max-mb=300
+#
+kylin.cube.cubeplanner.enabled=true
+kylin.cube.cubeplanner.enabled-for-existing-cube=true
+kylin.cube.cubeplanner.expansion-threshold=15.0
+kylin.cube.cubeplanner.recommend-cache-max-size=200
+kylin.cube.cubeplanner.mandatory-rollup-threshold=1000
+kylin.cube.cubeplanner.algorithm-threshold-greedy=8
+kylin.cube.cubeplanner.algorithm-threshold-genetic=23
+#
+#
+#### QUERY ###
+#
+## Controls the maximum number of bytes a query is allowed to scan storage.
+## The default value 0 means no limit.
+## The counterpart kylin.storage.partition.max-scan-bytes sets the maximum per coprocessor.
+kylin.query.max-scan-bytes=0
+kylin.query.cache-enabled=true
+#
+## Controls extras properties for Calcite jdbc driver
+## all extras properties should undder prefix "kylin.query.calcite.extras-props."
+## case sensitive, default: true, to enable case insensitive set it to false
+## @see org.apache.calcite.config.CalciteConnectionProperty.CASE_SENSITIVE
+kylin.query.calcite.extras-props.caseSensitive=true
+## how to handle unquoted identity, defualt: TO_UPPER, available options: UNCHANGED, TO_UPPER, TO_LOWER
+## @see org.apache.calcite.config.CalciteConnectionProperty.UNQUOTED_CASING
+kylin.query.calcite.extras-props.unquotedCasing=TO_UPPER
+## quoting method, default: DOUBLE_QUOTE, available options: DOUBLE_QUOTE, BACK_TICK, BRACKET
+## @see org.apache.calcite.config.CalciteConnectionProperty.QUOTING
+kylin.query.calcite.extras-props.quoting=DOUBLE_QUOTE
+## change SqlConformance from DEFAULT to LENIENT to enable group by ordinal
+## @see org.apache.calcite.sql.validate.SqlConformance.SqlConformanceEnum
+kylin.query.calcite.extras-props.conformance=LENIENT
+#
+## TABLE ACL
+kylin.query.security.table-acl-enabled=true
+#
+## Usually should not modify this
+kylin.query.interceptors=org.apache.kylin.rest.security.TableInterceptor
+#
+kylin.query.escape-default-keyword=false
+#
+## Usually should not modify this
+kylin.query.transformers=org.apache.kylin.query.util.DefaultQueryTransformer,org.apache.kylin.query.util.KeywordDefaultDirtyHack
+#
+#### SECURITY ###
+#
+## Spring security profile, options: testing, ldap, saml
+## with "testing" profile, user can use pre-defined name/pwd like KYLIN/ADMIN to login
+#kylin.security.profile=ldap
+#
+## Admin roles in LDAP, for ldap and saml
+#kylin.security.acl.admin-role=admin
+#
+## LDAP authentication configuration
+#kylin.security.ldap.connection-server=ldap://ldap_server:389
+#kylin.security.ldap.connection-username=
+#kylin.security.ldap.connection-password=
+#
+## LDAP user account directory;
+#kylin.security.ldap.user-search-base=
+#kylin.security.ldap.user-search-pattern=
+#kylin.security.ldap.user-group-search-base=
+#kylin.security.ldap.user-group-search-filter=(|(member={0})(memberUid={1}))
+#
+## LDAP service account directory
+#kylin.security.ldap.service-search-base=
+#kylin.security.ldap.service-search-pattern=
+#kylin.security.ldap.service-group-search-base=
+#
+### SAML configurations for SSO
+## SAML IDP metadata file location
+#kylin.security.saml.metadata-file=classpath:sso_metadata.xml
+#kylin.security.saml.metadata-entity-base-url=https://hostname/kylin
+#kylin.security.saml.keystore-file=classpath:samlKeystore.jks
+#kylin.security.saml.context-scheme=https
+#kylin.security.saml.context-server-name=hostname
+#kylin.security.saml.context-server-port=443
+#kylin.security.saml.context-path=/kylin
+#
+#### SPARK ENGINE CONFIGS ###
+#
+## Hadoop conf folder, will export this as "HADOOP_CONF_DIR" to run spark-submit
+## This must contain site xmls of core, yarn, hive, and hbase in one folder
+kylin.env.hadoop-conf-dir=/etc/hadoop
+#
+## Estimate the RDD partition numbers
+kylin.engine.spark.rdd-partition-cut-mb=10
+#
+## Minimal partition numbers of rdd
+kylin.engine.spark.min-partition=1
+#
+## Max partition numbers of rdd
+kylin.engine.spark.max-partition=5000
+#
+## Spark conf (default is in spark/conf/spark-defaults.conf)
+kylin.engine.spark-conf.spark.master=yarn
+kylin.engine.spark-conf.spark.submit.deployMode=cluster
+kylin.engine.spark-conf.spark.yarn.queue=default
+kylin.engine.spark-conf.spark.driver.memory=2G
+kylin.engine.spark-conf.spark.executor.memory=4G
+kylin.engine.spark-conf.spark.executor.instances=40
+kylin.engine.spark-conf.spark.yarn.executor.memoryOverhead=1024
+kylin.engine.spark-conf.spark.shuffle.service.enabled=true
+kylin.engine.spark-conf.spark.eventLog.enabled=true
+kylin.engine.spark-conf.spark.eventLog.dir=hdfs\:///logs/spark/kylin
+kylin.engine.spark-conf.spark.history.fs.logDirectory=hdfs\:///logs/spark/kylin
+kylin.engine.spark-conf.spark.hadoop.yarn.timeline-service.enabled=false
+
+kylin.engine.spark-conf.spark.dynamicAllocation.enabled=true
+kylin.engine.spark-conf.spark.dynamicAllocation.minExecutors=1
+kylin.engine.spark-conf.spark.dynamicAllocation.maxExecutors=1000
+kylin.engine.spark-conf.spark.dynamicAllocation.executorIdleTimeout=300
+kylin.engine.spark-conf.spark.yarn.executor.memoryOverhead=1024
+kylin.engine.spark-conf.spark.network.timeout=600
+kylin.engine.spark-conf.spark.shuffle.service.enabled=true
+kylin.engine.spark-conf.spark.eventLog.enabled=true
+kylin.engine.spark-conf.spark.hadoop.dfs.replication=2
+kylin.engine.spark-conf.spark.hadoop.mapreduce.output.fileoutputformat.compress=true
+kylin.engine.spark-conf.spark.io.compression.codec=org.apache.spark.io.SnappyCompressionCodec
+
+#
+#### Spark conf for specific job
+kylin.engine.spark-conf-mergedict.spark.executor.memory=6G
+kylin.engine.spark-conf-mergedict.spark.memory.fraction=0.2
+#
+## manually upload spark-assembly jar to HDFS and then set this property will avoid repeatedly uploading jar at runtime
+kylin.engine.spark-conf.spark.io.compression.codec=org.apache.spark.io.SnappyCompressionCodec
+#
+#### QUERY PUSH DOWN ###
+#
+kylin.query.pushdown.runner-class-name=org.apache.kylin.query.adhoc.PushDownRunnerJdbcImpl
+#
+kylin.query.pushdown.update-enabled=false
+kylin.query.pushdown.jdbc.url=jdbc:hive2://hive-thriftserver:10000/default
+kylin.query.pushdown.jdbc.driver=org.apache.hive.jdbc.HiveDriver
+kylin.query.pushdown.jdbc.username=hive
+kylin.query.pushdown.jdbc.password=
+#
+kylin.query.pushdown.jdbc.pool-max-total=8
+kylin.query.pushdown.jdbc.pool-max-idle=8
+kylin.query.pushdown.jdbc.pool-min-idle=0
+#
+#### JDBC Data Source
+##kylin.source.jdbc.connection-url=
+##kylin.source.jdbc.driver=
+##kylin.source.jdbc.dialect=
+##kylin.source.jdbc.user=
+##kylin.source.jdbc.pass=
+##kylin.source.jdbc.sqoop-home=
+##kylin.source.jdbc.filed-delimiter=|
+
+kylin.web.dashboard-enabled=true
+kylin.server.query-metrics2-enabled=true
+kylin.metrics.reporter-query-enabled=true
+kylin.metrics.reporter-job-enabled=true
+kylin.metrics.monitor-enabled=true
+kylin.server.query-metrics-enabled=true
+
+#kylin.server.external-acl-provider=org.apache.ranger.authorization.kylin.authorizer.RangerKylinAuthorizer
+
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>kylin.server.kerberos.principal</name>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>
+            Kerberos principal name for the kylin.
+        </description>
+        <property-type>KERBEROS_PRINCIPAL</property-type>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>kylin.server.kerberos.keytab</name>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>
+            Location of the kerberos keytab file for the kylin.
+        </description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+</configuration>

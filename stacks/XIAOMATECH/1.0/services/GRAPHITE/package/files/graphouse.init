@@ -1,0 +1,59 @@
+#!/bin/bash
+#
+# description: Starts and stops Graphouse.
+
+### BEGIN INIT INFO
+# Provides:          graphouse
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start the graphouse.
+# Description:       Start the graphouse.
+### END INIT INFO
+
+
+. /etc/rc.d/init.d/functions
+
+. /etc/sysconfig/network
+
+user="graphouse"
+service="graphouse"
+graphouse_root=/opt/graphouse
+logfile=/var/log/graphouse/shell.log
+pidfile=/var/run/$service.pid
+lockfile=/var/lock/subsys/graphouse
+
+case "$1" in
+  start)
+    echo -n "Starting $DAEMON..."
+    daemon $graphouse_root/bin/graphouse --make-pidfile --pidfile $pidfile --background --no-close --chuid $user 1>$logfile 2>&1
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && touch $lockfile
+    return $retval
+  ;;
+
+  stop)
+    echo -n "Stopping $DAEMON..."
+    killproc $prog -QUIT
+    retval=$?
+    echo
+    [ $retval -eq 0 ] && rm -f $lockfile
+
+    rm -f $pidfile 2>/dev/null
+
+    return $retval
+  ;;
+
+  restart)
+    stop
+    sleep 1
+    start
+  ;;
+
+*)
+  echo -n "Usage $0 {start|stop|restart}"
+  exit 1
+
+esac

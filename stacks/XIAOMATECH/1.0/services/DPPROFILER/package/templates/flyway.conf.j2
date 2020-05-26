@@ -1,0 +1,13 @@
+
+db.default.driver="{{dpprofiler_db_driver}}"
+db.default.url="{{dpprofiler_db_jdbc_url}}"
+db.default.migration.locations=["{{dpprofiler_db_type}}"]
+
+db.default.username="{{dpprofiler_db_user}}"
+db.default.password="{{dpprofiler_db_password}}"
+db.default.schemas=["public"]
+
+db.default.migration.sqlMigrationPrefix=V
+db.default.migration.sqlMigrationSeparator=__
+db.default.migration.sqlMigrationSuffix=.sql
+db.default.migration.validateOnMigrate=true

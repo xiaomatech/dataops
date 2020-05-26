@@ -1,0 +1,185 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+    <property>
+        <name>dpprofiler.db.type</name>
+        <value>mysql</value>
+        <display-name>DP Profiler Database</display-name>
+        <description>DP Profiler Server Database.</description>
+        <value-attributes>
+            <overridable>false</overridable>
+            <type>value-list</type>
+            <entries>
+                <entry>
+                    <value>h2</value>
+                    <label>H2</label>
+                </entry>
+                <entry>
+                    <value>mysql</value>
+                    <label>MySQL</label>
+                </entry>
+                <entry>
+                    <value>postgres</value>
+                    <label>POSTGRES</label>
+                </entry>
+            </entries>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.db.database</name>
+        <value>profileragent</value>
+        <description>Database Name</description>
+        <display-name>Database Name</display-name>
+    </property>
+    <property>
+        <name>dpprofiler.db.host</name>
+        <value></value>
+        <description>Database Host</description>
+        <display-name>Database Host</display-name>
+    </property>
+    <property>
+        <name>dpprofiler.db.jdbc.url</name>
+        <value>jdbc:h2:/var/lib/profiler_agent/h2/profileragent;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1</value>
+        <description>Database url</description>
+        <display-name>Database URL</display-name>
+        <value-attributes>
+            <overridable>false</overridable>
+        </value-attributes>
+        <depends-on>
+            <property>
+                <name>dpprofiler.db.database</name>
+                <type>dpprofiler-config</type>
+            </property>
+            <property>
+                <name>dpprofiler.db.host</name>
+                <type>dpprofiler-config</type>
+            </property>
+            <property>
+                <name>dpprofiler.db.type</name>
+                <type>dpprofiler-config</type>
+            </property>
+        </depends-on>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>dpprofiler.db.user</name>
+        <value>profileragent</value>
+        <description>Database Username</description>
+        <display-name>Database Username</display-name>
+    </property>
+    <property>
+        <name>dpprofiler.db.password</name>
+        <value/>
+        <property-type>PASSWORD</property-type>
+        <description>Database Password</description>
+        <display-name>Database Password</display-name>
+        <value-attributes>
+            <type>password</type>
+            <overridable>false</overridable>
+            <keystore>true</keystore>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.spnego.cookie.name</name>
+        <value>dpprofiler.spnego.cookie</value>
+        <description>SPNEGO cookie name returned on a successful auhtentication request</description>
+        <display-name>SPNEGO cookie name</display-name>
+    </property>
+
+    <property>
+        <name>dpprofiler.spnego.signature.secret</name>
+        <value/>
+        <property-type>PASSWORD</property-type>
+        <description>SPNEGO secret use to sign and validate cookie</description>
+        <display-name>SPNEGO signature secret</display-name>
+        <value-attributes>
+            <overridable>false</overridable>
+            <type>password</type>
+            <keystore>true</keystore>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.profiler.hdfs.dir</name>
+        <value>/apps/dpprofiler/profilers</value>
+        <description>HDFS directory where profiler binaries and configuration are stored</description>
+        <display-name>Profilers shared binaries directory</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.profiler.dwh.dir</name>
+        <value>/user/dpprofiler/dwh</value>
+        <description>HDFS directory where profiler results are stored</description>
+        <display-name>Profilers shared results directory</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.profiler.dir</name>
+        <value>{{stack_root}}/dpprofilers</value>
+        <description>Local directory on the node under which profilers are installed</description>
+        <display-name>Profilers local home directory</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.custom.config</name>
+        <property-type>TEXT</property-type>
+        <value>
+
+
+        </value>
+        <description>Additional configuration items of services in the cluster that can be set for use by profilers
+        </description>
+        <display-name>Additional Cluster Configurations</display-name>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+            <type>multiLine</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.cluster.config.keys</name>
+        <value>atlasUrl=application-properties/atlas.rest.address;
+            rangerAuditDir=ranger-env/xasecure.audit.destination.hdfs.dir;
+            spark.datasource.hive.warehouse.metastoreUri=hive-site/hive.metastore.uris;
+            spark.hadoop.hive.llap.daemon.service.hosts=hive-interactive-site/hive.llap.daemon.service.hosts;
+            spark.hadoop.hive.zookeeper.quorum=hive-site/hive.zookeeper.quorum;
+            spark.sql.hive.hiveserver2.jdbc.url.principal=hive-site/hive.server2.authentication.kerberos.principal
+        </value>
+        <description>Names of configuration items of services in the cluster used by profilers</description>
+        <display-name>Dependent Cluster Configurations</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.submitter.batch.size</name>
+        <value>50</value>
+        <description>Maximum assets submitted per profiler job</description>
+        <display-name>Maximum assets submitted per profiler job</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.submitter.jobs.max</name>
+        <value>2</value>
+        <description>Maximum number of concurrent profiler jobs per profiler</description>
+        <display-name>Maximum number of concurrent profiler jobs</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.submitter.jobs.scan.seconds</name>
+        <value>30</value>
+        <description>Interval at which submitter queue is checked for assets for job submission</description>
+        <display-name>Job scan interval</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.submitter.queue.size</name>
+        <value>500</value>
+        <description>Maximum Number of assets queued for submission per profiler</description>
+        <display-name>Maximum Number of assets queued for submission</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+</configuration>

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+
+    <property>
+        <name>conf_content</name>
+        <display-name>jfrog content</display-name>
+        <description>jfrog content</description>
+        <value><![CDATA[
+artifactory.repo.global.disabled=true
+derby.storage.pageCacheSize=500
+derby.module.mgmt.jmx=org.apache.derby.impl.services.jmxnone.NoManagementService
+derby.stream.error.logSeverityLevel=0
+derby.language.logStatementText=false
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+</configuration>

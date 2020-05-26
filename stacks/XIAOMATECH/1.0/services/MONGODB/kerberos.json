@@ -1,0 +1,33 @@
+{
+  "services": [
+    {
+      "name": "MONGODB",
+      "identities": [
+	    {
+              "name": "mongodb",
+              "principal": {
+                "value": "${mongodb/mongodb_user}/_HOST@${realm}",
+                "type": "service",
+                "configuration": "mongodb/mongodb_principal_name"
+              },
+              "keytab": {
+                "file": "${keytab_dir}/mongodb.service.keytab",
+                "owner": {
+                  "name": "${mongodb/mongodb_user}",
+                  "access": "r"
+                },
+                "group": {
+                  "name": "${mongodb/user_group}",
+                  "access": ""
+                },
+                "configuration": "mongodb/mongodb_keytab"
+              }
+        },
+        {
+          "name": "/smokeuser"
+        }
+      ]
+      
+    }
+  ]
+}

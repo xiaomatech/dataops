@@ -1,0 +1,472 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>elastic_user</name>
+        <value>elasticsearch</value>
+        <property-type>USER</property-type>
+        <description>Service user for Elasticsearch</description>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>cluster_name</name>
+        <value>logcenter</value>
+        <description>Elasticsearch Cluster Name identifies your Elasticsearch subsystem</description>
+    </property>
+
+    <property>
+        <name>elastic_group</name>
+        <value>elasticsearch</value>
+        <property-type>GROUP</property-type>
+        <description>Service group for Elasticsearch</description>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+        </value-attributes>
+    </property>
+    <property>
+        <name>elastic_log_dir</name>
+        <value>/var/log/elasticsearch</value>
+        <description>Log directory for elastic</description>
+    </property>
+    <property>
+        <name>elastic_pid_dir</name>
+        <value>/var/run/elasticsearch</value>
+        <description>The directory for pid files</description>
+    </property>
+
+    <property>
+        <name>content</name>
+        <description>This is the jinja template for elastic-env.sh file</description>
+        <value>
+#!/bin/bash
+
+# Set ELASTICSEARCH specific environment variables here.
+
+# The java implementation to use.
+export JAVA_HOME={{java64_home}}
+export PATH=$PATH:$JAVA_HOME/bin
+        </value>
+    </property>
+
+    <property>
+        <name>hdfs_backup_content</name>
+        <description>backup to hdfs repository</description>
+        <value><![CDATA[
+{
+ 	"type": "hdfs",
+​	"settings": {
+​	"uri": "hdfs://{{default_fs}}",
+​	"path": "{{hdfs_backup_dir}}"
+​	"compress":"true",
+​	"max_restore_bytes_per_sec":"300mb",
+​	"max_snapshot_bytes_per_sec":"100mb"
+  }
+}
+        ]]>
+        </value>
+    </property>
+
+
+    <property>
+        <name>index_template_content</name>
+        <display-name>index template</display-name>
+        <description>index template</description>
+        <value><![CDATA[
+{
+    "index_patterns" : ["*"],
+    "order": 0,
+    "template": "*",
+    "settings" : {
+        "index.number_of_replicas" : 1,
+        "index.number_of_shards" : 64,
+        "index.merge.policy": {
+          "segments_per_tier": 50,
+          "max_merge_at_once": 50,
+          "max_merged_segment": "1gb"
+        },
+        "transient": {
+            "cluster.routing.use_adaptive_replica_selection": true
+        },
+        "persistent": {
+            "xpack.monitoring.collection.enabled": true,
+            "indices.breaker.fielddata.limit":"20%",
+            "indices.breaker.request.limit":"1%",
+            "indices.breaker.total.limit":"70%"
+        },
+        "index.unassigned.node_left.delayed_timeout": "5m",
+        "index.routing.allocation.include.role": "normal",
+        "index.soft_deletes.retention.operations": 2000,
+        "index.soft_deletes.enabled": true,
+        "index.translog.flush_threshold_size":"2gb",
+        "index.translog.sync_interval":"30s",
+        "index.translog.durability": "async",
+        "index.refresh_interval": "30s",
+        "index.merge.scheduler.max_merge_count": "32",
+        "index.merge.scheduler.max_thread_count": "1",
+        "index.merge.policy.max_merged_segment": "2gb",
+        "index.merge.policy.floor_segment": "20mb",
+        "index.routing.allocation.total_shards_per_node": 4,
+        "index.indexing.slowlog.level" : "info",
+        "index.indexing.slowlog.source" : "1000",
+        "index.indexing.slowlog.threshold.index.debug" : "2s",
+        "index.indexing.slowlog.threshold.index.info" : "5s",
+        "index.indexing.slowlog.threshold.index.trace" : "500ms",
+        "index.indexing.slowlog.threshold.index.warn" : "10s",
+        "index.search.slowlog.level" : "info",
+        "index.search.slowlog.threshold.fetch.debug" : "500ms",
+        "index.search.slowlog.threshold.fetch.info" : "800ms",
+        "index.search.slowlog.threshold.fetch.trace" : "200ms",
+        "index.search.slowlog.threshold.fetch.warn" : "1s",
+        "index.search.slowlog.threshold.query.debug" : "2s",
+        "index.search.slowlog.threshold.query.info" : "5s",
+        "index.search.slowlog.threshold.query.trace" : "500ms",
+        "index.search.slowlog.threshold.query.warn" : "10s",
+        "index.routing.allocation.require.role": "hot",
+        "index.lifecycle.name": "hot-warm-cold-delete-60days"
+    },
+    "mappings": {
+        "_default_": {
+          "dynamic_templates": [
+            {
+              "strings_as_keywords": {
+                "mapping": {
+                  "index": "not_analyzed"
+                },
+                "match_mapping_type": "string"
+              }
+            },{
+              "integer field": {
+                "mapping": {
+                  "doc_values": true,
+                  "type": "integer"
+                },
+                "match": "*",
+                "match_mapping_type": "integer"
+              }
+            },
+            {
+              "date field": {
+                "mapping": {
+                  "doc_values": true,
+                  "type": "date"
+                },
+                "match": "*",
+                "match_mapping_type": "date"
+              }
+            },
+            {
+              "long field": {
+                "mapping": {
+                  "doc_values": true,
+                  "type": "long"
+                },
+                "match": "*",
+                "match_mapping_type": "long"
+              }
+            },
+            {
+              "float field": {
+                "mapping": {
+                  "doc_values": true,
+                  "type": "float"
+                },
+                "match": "*",
+                "match_mapping_type": "float"
+              }
+            },
+            {
+              "double field": {
+                "mapping": {
+                  "doc_values": true,
+                  "type": "double"
+                },
+                "match": "*",
+                "match_mapping_type": "double"
+              }
+            },
+            {
+              "byte field": {
+                "mapping": {
+                  "doc_values": true,
+                  "type": "byte"
+                },
+                "match": "*",
+                "match_mapping_type": "byte"
+              }
+            },
+            {
+              "short field": {
+                "mapping": {
+                  "doc_values": true,
+                  "type": "short"
+                },
+                "match": "*",
+                "match_mapping_type": "short"
+              }
+            },
+            {
+              "binary field": {
+                "mapping": {
+                  "doc_values": true,
+                  "type": "binary"
+                },
+                "match": "*",
+                "match_mapping_type": "binary"
+              }
+            },
+            {
+              "geo_point field": {
+                "mapping": {
+                  "doc_values": true,
+                  "type": "geo_point"
+                },
+                "match": "*",
+                "match_mapping_type": "geo_point"
+              }
+            },
+            {
+              "string fields": {
+                "mapping": {
+                  "index": "not_analyzed",
+                  "omit_norms": true,
+                  "doc_values": true,
+                  "type": "string"
+                },
+                "match": "*",
+                "match_mapping_type": "string"
+              }
+            }
+          ],
+          "_all": {
+            "enabled": false
+          }
+        },
+        "logs": {
+            "_all": {
+              "enabled": false
+            },
+            "properties": {
+              "builtinTimestamp": {
+                "type": "date",
+                "format": "YYYY-MM-dd HH:mm:ss.SSS"
+              },
+              "exception": {
+                "type": "keyword",
+                "ignore_above": 10915
+              },
+              "request": {
+                "type": "text",
+                "index": false
+              },
+              "response": {
+                "type": "keyword"
+              },
+              "timestamp": {
+                "type": "date"
+              },
+            }
+        }
+    },
+    "aliases": {}
+}
+    ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>master_content</name>
+        <display-name>elasticsearch.yaml</display-name>
+        <description>This is the jinja template for elasticsearch.yaml file</description>
+        <value><![CDATA[
+cluster:
+  name:   {{cluster_name}}
+  routing:
+    allocation.node_concurrent_recoveries: 4
+    allocation.disk.threshold_enabled: true
+
+
+{{node_mode}}
+
+node.name: {{hostname}}
+path:
+  data: {{data_dir}}
+  logs: {{log_dir}}
+
+gateway:
+  recover_after_data_nodes: 3
+  recover_after_time: 15m
+  expected_data_nodes: 0
+
+indices:
+  memory:
+   index_buffer_size: 10%
+  fielddata:
+   cache.size: 2%
+  recovery.max_bytes_per_sec: 900mb
+
+bootstrap.memory_lock: true
+bootstrap.system_call_filter: false
+
+discovery.zen.ping_timeout: 3s
+discovery.zen.fd.ping_interval: 15s
+discovery.zen.fd.ping_timeout: 60s
+discovery.zen.fd.ping_retries: 5
+
+transport.tcp.compress: true
+
+gateway.recover_after_nodes: 3
+
+node.max_local_storage_nodes: 1
+action.destructive_requires_name: true
+
+discovery.zen.minimum_master_nodes : {{minimum_master_nodes}}
+discovery.zen.ping.unicast.hosts : [{{unicast_hosts}}]
+network.host : {{hostname}}
+
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+
+xpack.security.enabled: false
+xpack.monitoring.enabled: true
+cluster.routing.allocation.same_shard.host: true
+node.attr.role: {{role_type}}
+es.index.auto.create: true
+
+
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>policy_content</name>
+        <display-name>ILM policy for hot-warm-cold</display-name>
+        <description>ILM policy for hot-warm-cold (hot-warm-cold-delete-60days)</description>
+        <value><![CDATA[
+{
+  "policy": {
+    "phases": {
+      "hot": {
+        "actions": {
+          "rollover": {
+            "max_size":"50gb",
+            "max_age":"30d"
+          },
+          "set_priority": {
+            "priority": 50
+          }
+        }
+      },
+      "warm": {
+        "min_age": "7d",
+        "actions": {
+          "forcemerge": {
+            "max_num_segments": 1
+          },
+          "shrink": {
+            "number_of_shards": 1
+          },
+          "allocate": {
+            "require": {
+              "data": "warm"
+            }
+          },
+          "set_priority": {
+            "priority": 25
+          }
+        }
+      },
+      "cold": {
+        "min_age": "30d",
+        "actions": {
+          "set_priority": {
+            "priority": 0
+          },
+          "freeze": {},
+          "allocate": {
+            "require": {
+              "data": "cold"
+            }
+          }
+        }
+      },
+      "delete": {
+        "min_age": "60d",
+        "actions": {
+          "delete": {}
+        }
+      }
+    }
+  }
+}
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>jvm_content</name>
+        <display-name>jvm.options template</display-name>
+        <description>This is the jinja template for jvm.options file</description>
+        <value><![CDATA[
+-Xms{{mem_gib}}g
+-Xmx{{mem_gib}}g
+-XX:+UseG1GC
+-XX:MaxGCPauseMillis=4000
+-XX:+ExitOnOutOfMemoryError
+-XX:-ResizePLAB
+-XX:+AlwaysPreTouch
+-server
+-Xss1m
+-Djava.awt.headless=true
+-Dfile.encoding=UTF-8
+-Djna.nosys=true
+-Djdk.io.permissionsUseCanonicalPath=true
+-XX:-OmitStackTraceInFastThrow
+-Dio.netty.allocator.type=unpooled
+-Dio.netty.noUnsafe=true
+-Dio.netty.noKeySetOptimization=true
+-Dio.netty.recycler.maxCapacityPerThread=0
+-Dlog4j.shutdownHookEnabled=false
+-Dlog4j2.disable.jmx=true
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:+PrintGCDetails
+-XX:+PrintGCTimeStamps
+-XX:+PrintGCDateStamps
+-XX:+PrintClassHistogram
+-XX:+PrintTenuringDistribution
+-XX:+PrintGCApplicationStoppedTime
+-XX:+UseGCLogFileRotation
+-XX:NumberOfGCLogFiles=32
+-XX:GCLogFileSize=128M
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+</configuration>

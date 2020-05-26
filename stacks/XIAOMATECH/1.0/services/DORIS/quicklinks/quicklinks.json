@@ -1,0 +1,24 @@
+{
+  "name": "default",
+  "description": "default quick links configuration",
+  "configuration": {
+    "protocol": {
+      "type": "HTTP_ONLY"
+    },
+    "links": [
+      {
+        "name": "palo_fe_link",
+        "label": "PALO FE Health",
+        "requires_user_name": "false",
+        "component_name": "PALOFE",
+        "url": "%@://%@:%@",
+        "port": {
+          "http_property": "http_port",
+          "http_default_port": "8888",
+          "https_property": "http_port",
+          "https_default_port": "8888"
+        }
+      }
+    ]
+  }
+}

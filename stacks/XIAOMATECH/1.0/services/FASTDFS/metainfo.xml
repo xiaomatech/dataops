@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>FASTDFS</name>
+            <displayName>FastDFS</displayName>
+            <comment>FastDFS</comment>
+            <version>5.1</version>
+            <components>
+                <component>
+                    <name>FASTDFS_TRACKER</name>
+                    <displayName>FastDFS tracker</displayName>
+                    <category>MASTER</category>
+                    <cardinality>3+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/tracker.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>FASTDFS_STORAGE</name>
+                    <displayName>FastDFS tracker</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>3+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/storage.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                    <bulkCommands>
+                        <displayName>FastDFS storages</displayName>
+                        <masterComponent>FASTDFS_TRACKER</masterComponent>
+                    </bulkCommands>
+                </component>
+
+                <component>
+                    <name>FASTDFS_CLIENT</name>
+                    <displayName>FastDFS client</displayName>
+                    <category>CLIENT</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/client.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+            </components>
+
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+
+            <osSpecifics>
+                <osSpecific>
+                    <osFamily>any</osFamily>
+                    <packages>
+                        <package>
+                            <name>fastdfs</name>
+                        </package>
+                        <package>
+                            <name>fastdfs-server</name>
+                        </package>
+                        <package>
+                            <name>fastdfs-tool</name>
+                        </package>
+                    </packages>
+                </osSpecific>
+            </osSpecifics>
+
+        </service>
+    </services>
+</metainfo>

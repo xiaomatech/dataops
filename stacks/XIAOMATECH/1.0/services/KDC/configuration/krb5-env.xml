@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+ <property>
+    <name>content</name>
+    <description>This is the jinja template for krb5.conf file</description>
+    <value>
+[logging]
+ default = FILE:/var/log/krb5libs.log
+ kdc = FILE:/var/log/krb5kdc.log
+ admin_server = FILE:/var/log/kadmind.log
+
+[libdefaults]
+ default_realm = {{kdc_realm}}
+ dns_lookup_realm = false
+ dns_lookup_kdc = false
+ ticket_lifetime = 24h
+ renew_lifetime = 7d
+ forwardable = true
+ rdns = false
+ allow_weak_crypto = true
+
+[domain_realm]
+ .{{kdc_domain}} = {{kdc_realm}}
+ {{kdc_domain}} = {{kdc_realm}}
+
+[realms]
+  {{kdc_realm}} = {
+    {%- if kdc_hosts > 0 -%}
+    {%- set kdc_host_list = kdc_hosts  -%}
+    {%- if kdc_host_list and kdc_host_list|length > 0 %}
+    admin_server = {{admin_server_host|default(kdc_host_list[0]|trim(), True)}}
+    {%- if kdc_host_list -%}
+    {% for kdc_host in kdc_host_list %}
+    kdc = {{kdc_host|trim()}}:81
+    {%- endfor -%}
+    {% endif %}
+    {%- endif %}
+    {%- endif %}
+    default_domain = {{kdc_domain}}
+    database_module = openldap_ldapconf
+    supported_enctypes = aes256-cts:normal aes128-cts:normal des3-hmac-sha1:normal arcfour-hmac:normal camellia256-cts:normal camellia128-cts:normal des-hmac-sha1:normal des-cbc-md5:normal des-cbc-crc:normal
+  }
+
+ [dbdefaults]
+    ldap_kerberos_container_dn = {{ldap_kerberos_container_dn}}
+
+ [dbmodules]
+   openldap_ldapconf = {
+       db_library = kldap
+       ldap_servers = {{ldap_hosts}}
+       ldap_kerberos_container_dn = {{ldap_kerberos_container_dn}}
+       ldap_kdc_dn = {{ldap_kdc_dn}}
+       ldap_kadmind_dn = {{ldap_kadmind_dn}}
+       ldap_service_password_file = /var/kerberos/krb5kdc/service.keyfile
+       ldap_conns_per_server = 5
+    }
+
+    </value>
+  </property>
+  
+        
+</configuration>  

@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<configuration supports_final="false" supports_adding_forbidden="false">
+
+    <property>
+        <name>content</name>
+        <display-name>kms-log4j template</display-name>
+        <description>Custom kms-log4j.properties</description>
+        <value><![CDATA[
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License. See accompanying LICENSE file.
+#
+
+# If the Java System property 'kms.log.dir' is not defined at KMS start up time
+# Setup sets its value to '${kms.home}/logs'
+
+log4j.appender.kms=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.kms.DatePattern='.'yyyy-MM-dd
+log4j.appender.kms.File=${kms.log.dir}/kms.log
+log4j.appender.kms.Append=true
+log4j.appender.kms.layout=org.apache.log4j.PatternLayout
+log4j.appender.kms.layout.ConversionPattern=%d{ISO8601} %-5p %c{1} - %m%n
+
+log4j.appender.kms-audit=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.kms-audit.DatePattern='.'yyyy-MM-dd
+log4j.appender.kms-audit.File=${kms.log.dir}/kms-audit.log
+log4j.appender.kms-audit.Append=true
+log4j.appender.kms-audit.layout=org.apache.log4j.PatternLayout
+log4j.appender.kms-audit.layout.ConversionPattern=%d{ISO8601} %m%n
+
+log4j.logger.kms-audit=INFO, kms-audit
+log4j.additivity.kms-audit=false
+
+log4j.rootLogger=INFO, kms
+log4j.logger.org.apache.hadoop=INFO
+log4j.logger.com.sun.jersey.server.wadl.generators.WadlGeneratorJAXBGrammarGenerator=OFF
+# make zookeeper log level an explicit config, and not changing with rootLogger.
+log4j.logger.org.apache.zookeeper=INFO
+log4j.logger.org.apache.curator=INFO
+# make jetty log level an explicit config, and not changing with rootLogger.
+log4j.logger.org.eclipse.jetty=INFO
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+            <show-property-name>false</show-property-name>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>env_content</name>
+        <display-name>kms-env.sh template</display-name>
+        <description>Custom kms-env.sh</description>
+        <value><![CDATA[
+# Set kms specific environment variables here.
+#
+# hadoop-env.sh is read prior to this file.
+#
+
+# KMS config directory
+#
+# export KMS_CONFIG=${HADOOP_CONF_DIR}
+
+# KMS log directory
+#
+# export KMS_LOG=${HADOOP_LOG_DIR}
+
+# KMS temporary directory
+#
+# export KMS_TEMP=${HADOOP_HOME}/temp
+
+# The HTTP port used by KMS
+#
+# export KMS_HTTP_PORT=9600
+
+# The maximum number of HTTP handler threads
+#
+# export KMS_MAX_THREADS=1000
+
+# The maximum size of HTTP header
+#
+# export KMS_MAX_HTTP_HEADER_SIZE=65536
+
+# Whether SSL is enabled
+#
+# export KMS_SSL_ENABLED=false
+
+# The location of the SSL keystore if using SSL
+#
+# export KMS_SSL_KEYSTORE_FILE=${HOME}/.keystore
+
+# The password of the SSL keystore if using SSL
+#
+# export KMS_SSL_KEYSTORE_PASS=password
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+            <show-property-name>false</show-property-name>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+</configuration>

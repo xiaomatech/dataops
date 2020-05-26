@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>KIBANA</name>
+            <displayName>Kibana</displayName>
+            <comment>Kibana Dashboard</comment>
+            <version>7.0.0</version>
+            <components>
+                <component>
+                    <name>KIBANA_MASTER</name>
+                    <displayName>Kibana Server</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/kibana_master.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+            </components>
+            <osSpecifics>
+                <osSpecific>
+                    <osFamily>any</osFamily>
+                    <packages>
+                        <package>
+                            <name>python-elasticsearch</name>
+                        </package>
+                        <package>
+                            <name>kibana</name>
+                        </package>
+                    </packages>
+                </osSpecific>
+            </osSpecifics>
+            <configuration-dependencies>
+                <config-type>kibana-env</config-type>
+                <config-type>kibana-site</config-type>
+            </configuration-dependencies>
+            <restartRequiredAfterChange>true</restartRequiredAfterChange>
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+        </service>
+    </services>
+</metainfo>

@@ -1,0 +1,11 @@
+{
+  "general_deps": {
+    "_comment": "Dependencies for Presto service",
+    "PRESTO_WORKER-START": [
+      "PRESTO_COORDINATOR-START"
+    ],
+    "PRESTO_COORDINATOR-STOP": [
+      "PRESTO_WORKER-STOP"
+    ]
+  }
+}

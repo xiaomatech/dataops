@@ -1,0 +1,25 @@
+{
+  "name": "default",
+  "description": "default quick links configuration",
+  "configuration": {
+    "protocol":
+    {
+      "type":"HTTP_ONLY"
+    },
+
+    "links": [
+      {
+        "name": "elasticjob_ui",
+        "label": "elasticjob ui",
+        "requires_user_name": "false",
+        "component_name": "ELASTICJOB",
+        "url": "%@://%@:%@",
+        "port":{
+          "http_default_port": "8899",
+          "https_default_port": "8899",
+          "regex": "^(\\d+)$"
+        }
+      }
+    ]
+  }
+}

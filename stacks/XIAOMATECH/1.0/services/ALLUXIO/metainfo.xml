@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>ALLUXIO</name>
+            <displayName>Alluxio</displayName>
+            <comment>Memory Centric Reliable Distributed Storage</comment>
+            <version>1.8.1</version>
+            <components>
+                <component>
+                    <name>ALLUXIO_MASTER</name>
+                    <displayName>Alluxio Master</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/master.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>500</timeout>
+                    </commandScript>
+                </component>
+                <component>
+                    <name>ALLUXIO_WORKER</name>
+                    <displayName>Alluxio Worker</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/worker.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>300</timeout>
+                    </commandScript>
+                    <bulkCommands>
+                        <displayName>Alluxio Workers</displayName>
+                        <masterComponent>ALLUXIO_MASTER</masterComponent>
+                    </bulkCommands>
+                </component>
+            </components>
+
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+
+            <configuration-dependencies>
+                <config-type>alluxio-env</config-type>
+                <config-type>core-site</config-type>
+            </configuration-dependencies>
+
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+        </service>
+    </services>
+</metainfo>

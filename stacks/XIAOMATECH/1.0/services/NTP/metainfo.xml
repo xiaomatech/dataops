@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>NTPD</name>
+            <displayName>ntpd</displayName>
+            <comment>The Network Time Protocol daemon (ntpd) is an operating system program that maintains the system
+                time in synchronization with time servers using the Network Time Protocol
+            </comment>
+            <version>4.2.65</version>
+            <components>
+                <component>
+                    <name>NTPD_SERVER</name>
+                    <displayName>ntpd</displayName>
+                    <category>MASTER</category>
+                    <cardinality>2+</cardinality>
+                    <commandScript>
+                        <script>scripts/ntp.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+            </components>
+            <osSpecifics>
+                <osSpecific>
+                    <osFamily>any</osFamily>
+                    <packages>
+                        <package>
+                            <name>ntp</name>
+                        </package>
+                        <package>
+                            <name>ntpdate</name>
+                        </package>
+                    </packages>
+                </osSpecific>
+            </osSpecifics>
+            <restartRequiredAfterChange>false</restartRequiredAfterChange>
+        </service>
+    </services>
+</metainfo>

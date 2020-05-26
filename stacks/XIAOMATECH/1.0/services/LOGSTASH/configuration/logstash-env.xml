@@ -1,0 +1,477 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property require-input="true">
+        <name>logstash_log_dir</name>
+        <value>/var/log/logstash</value>
+        <description>Log directory for logstash</description>
+    </property>
+    
+    <property>
+        <name>indexer_content</name>
+        <display-name>indexer.conf template</display-name>
+        <description>This is the jinja template for indexer.conf file</description>
+        <value><![CDATA[
+input {
+  beats {
+    port => 5044
+  }
+}
+
+filter {
+   if [log_type] == "other" {
+       codec => multiline {
+          pattern => "^%{TIMESTAMP_ISO8601} "
+          negate => true
+          what => previous
+       }
+
+       codec => multiline {
+              pattern => "\\$"
+              what => "next"
+       }
+
+       codec => multiline {
+              pattern => "^\s"
+              what => "previous"
+       }
+   }
+
+   if [log_type] == "nginx_access" {
+          json {
+            source => "message"
+          }
+
+          mutate {
+            convert => ["size", "integer", "responsetime", "float", "upstream_response_time", "float"]
+          }
+
+          if [http_cookie] {
+            kv {
+              prefix => "cookie_"
+              source => "http_cookie"
+              field_split => "; "
+            }
+          }
+          if [request] {
+              ruby {
+                init => "@kname = ['method','uri','verb']"
+                code => "
+                    new_event = LogStash::Event.new(Hash[@kname.zip(event.get('request').split(' '))])
+                    new_event.remove('@timestamp')
+                    event.append(new_event)""
+                "
+              }
+              if [uri] {
+                  ruby {
+                    init => "@kname = ['url_path','url_args']"
+                    code => "
+                        new_event = LogStash::Event.new(Hash[@kname.zip(event.get('uri').split('?'))])
+                        new_event.remove('@timestamp')
+                        event.append(new_event)""
+                    "
+                  }
+                  kv {
+                    prefix => "url_"
+                    source => "url_args"
+                    field_split => "& "
+                    remove_field => [ "url_args","uri","request" ]
+                  }
+              }
+          }
+          mutate {
+            convert => [
+              "status" : "integer",
+              "size" , "integer",
+              "request_length", "integer",
+              "upstream_response_time", "float",
+              "request_time", "float"
+            ]
+          }
+          date {
+            match => [ "time_local", "dd/MMM/yyyy:hh:mm:ss Z" ]
+            locale => "en"
+          }
+
+          geoip {
+              cache_size => 8192000
+              source => 'remote_addr'
+              add_tag => ["geoip"]
+              database => "/usr/share/GeoIP/GeoIPCity.dat"
+              fields => ['city_name','continent_code','country_code2','country_code3','country_name','dma_code','ip','latitude','longitude','postal_code','region_name']
+            }
+    }
+
+    if [log_type] == "jetty_access" {
+         grok {
+           match => ["message" => "%{IP:clientip} \-  \-  \[%{MONTHDAY}\/%{MONTH}\/%{YEAR}\:%{TIME} %{ISO8601_TIMEZONE}] "%{WORD:request} \/ HTTP\/%{NUMBER:http_version}" %{NUMBER:response_code} %{NUMBER:response_time}"]
+           add_tag => "jetty_access"
+         }
+
+         geoip {
+           source => "clientip"
+           add_tag => ["geoip"]
+           database => "/usr/share/GeoIP/GeoIPCity.dat"
+           fields => ["country_name", "country_code2", "region_name", "city_name", "real_region_name", "latitude", "longitude"]
+           remove_field => ["[geoip][longitude]", "[geoip][latitude]"]
+         }
+    }
+
+    if [log_type] == "log4j" {
+         codec => multiline {
+           pattern => "(^.+Exception: .+)|(^\s+at .+)|(^\s+... \d+ more)|(^\s*Caused by:.+)|(^\s+...\s[\d]+[\s\w]+$)"
+           what => "previous"
+         }
+
+         grok {
+           match => ["message" => "%{20%{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{HOUR}:%{MINUTE}:%{SECOND}:timestamp}%{SPACE}%{LOGLEVEL:level}%{SPACE}\[%{THREADNAME:thread}\]%{SPACE}\[%{JAVACLASS:class}\]%{SPACE}%{GREEDYDATA:logmessage}"]
+         }
+         date {
+           match => [ "timestamp", "yyyy-MM-dd HH:mm:ss,SSS" ]
+         }
+
+         if [type] == "java" and "multiline" in [tags] {
+            grok {
+              match => ["message", "%{JAVASTACKTRACEPART}"]
+              add_tag => "java_exception"
+            }
+         }
+    }
+
+    if [log_type] == "mongodb" {
+        grok {
+           match => ["message","%{MONGO3_LOG}"]
+        }
+
+        if [message] =~ "nreturned" {
+          grok {
+            match => [ "message", "%{MONGO_SLOWQUERY}"]
+            add_tag => [ "query" ]
+          }
+        }
+
+        date {
+          match => [ "timestamp", "MMM  d HH:mm:ss", "MMM  d HH:mm:ss.SSS" ,"MMM dd HH:mm:ss.SSS", "MMM DD HH:mm:ss" ]
+          remove_field => [ "timestamp" ]
+        }
+    }
+
+
+    if [log_type] == "mysql_slow" {
+          codec => multiline {
+           pattern => "^# User@Host:"
+           negate => true
+           what => "previous"
+         }
+          grok {
+              match => { "message" => "SELECT SLEEP" }
+              add_tag => [ "sleep_drop" ]
+              tag_on_failure => [] # prevent default _grokparsefailure tag on real records
+          }
+          if "sleep_drop" in [tags] {
+              drop {}
+          }
+
+          grok {
+            match => { "message" => "(?m)^#\s+User@Host:\s+%{USER:user}\[[^\]]+\]\s+@\s+(?:(?<clienthost>\S*) )?\[(?:%{IPV4:clientip})?\]\s+Id:\s+%{NUMBER:row_id:int}\n#\s+Query_time:\s+%{NUMBER:query_time:float}\s+Lock_time:\s+%{NUMBER:lock_time:float}\s+Rows_sent:\s+%{NUMBER:rows_sent:int}\s+Rows_examined:\s+%{NUMBER:rows_examined:int}\n\s*(?:use %{DATA:database};\s*\n)?SET\s+timestamp=%{NUMBER:timestamp};\n\s*(?<sql>(?<action>\w+)\b.*;)\s*(?:\n#\s+Time)?.*$" }
+          }
+          date {
+            match => [ "timestamp", "UNIX", "YYYY-MM-dd HH:mm:ss"]
+            remove_field => [ "timestamp" ]
+          }
+    }
+
+    if [log_type] == "php_slow" {
+        codec => multiline {
+           pattern => '^$'
+           what => 'next'
+           negate => true
+         }
+        grok {
+          patterns_dir => '/etc/logstash/patterns'
+          match => [
+            "message", "\[%{%{MONTHDAY}-%{MONTH}-%{YEAR}\s+%{TIME}:timestamp}\]  \[%{GREEDYDATA:php_fpm_pool}\] pid {POSINT}",
+            "message", "\[%{GREEDYDATA}\] %{GREEDYDATA:func_name} %{UNIXPATH:script_path}"
+          ]
+        }
+        date { match => ['timestamp', 'dd-MMM-YYYY HH:mm:ss'] }
+    }
+
+
+}
+
+output {
+    #elasticsearch {
+    #    ilm_enabled => true
+    #}
+
+    kafka {
+      codec => json
+      bootstrap_servers => "{{kafka_url}}"
+      topic_id => '%{[fields.log_topic]}'
+      batch_size => 16384
+
+      #jaas_path => ""
+      #security_protocol => "SASL_PLAINTEXT"
+    }
+}
+        ]]>
+        </value>
+    </property>
+
+    <property>
+        <name>jvm_content</name>
+        <display-name>jvm.options template</display-name>
+        <description>This is the jinja template for jvm.options file</description>
+        <value><![CDATA[
+-Xms256m
+-Xmx1g
+
+-XX:+UseG1GC
+-XX:MaxGCPauseMillis=100
+-XX:+ExitOnOutOfMemoryError
+
+-XX:+DisableExplicitGC
+
+-Djava.awt.headless=true
+
+-Dfile.encoding=UTF-8
+
+-XX:+HeapDumpOnOutOfMemoryError
+
+
+        ]]>
+        </value>
+    </property>
+
+
+    <property>
+        <name>logstash_content</name>
+        <display-name>logstash.yml template</display-name>
+        <description>This is the jinja template for logstash.yml file</description>
+        <value><![CDATA[
+path.data: /var/lib/logstash
+dead_letter_queue.enable: true
+path.dead_letter_queue: /var/lib/logstash/dead_letter_queue
+path.config: /etc/logstash/conf.d/*.conf
+path.logs: /var/log/logstash
+pipeline.workers: {{cpu_count}}
+pipeline.output.workers: {{cpu_count}}
+pipeline.batch.size: 2000
+pipeline.batch.delay: 3
+queue.page_capacity: 256mb
+queue.max_bytes: 8gb
+queue.drain: true
+queue.type: memory
+slowlog.threshold.warn: 2s
+slowlog.threshold.info: 1s
+slowlog.threshold.debug: 500ms,
+slowlog.threshold.trace: 100ms
+config.reload.automatic: true
+xpack.security.enabled: false
+
+xpack.monitoring.enabled: true
+xpack.monitoring.collection.enabled: true
+xpack.monitoring.elasticsearch.url: http://{{es_host}}:9200
+xpack.monitoring.elasticsearch.username: "logstash_system"
+#xpack.monitoring.elasticsearch.password: "changeme"
+xpack.management.enabled: true
+xpack.management.elasticsearch.url: http://{{es_host}}:9200
+xpack.management.logstash.poll_interval: 5s
+xpack.management.pipeline.id: ["jetty_access", "nginx_access", "mysql_slow","php_slow","log4j"]
+
+modules:
+- name: netflow
+  var.elasticsearch.hosts: "{{es_hosts_url}}"
+  var.kibana.host: "{{kibana_host}}"
+  var.input.tcp.port: 5606
+        ]]>
+        </value>
+    </property>
+
+    <property>
+        <name>init_content</name>
+        <display-name>init template</display-name>
+        <description>This is the jinja template for init file</description>
+        <value><![CDATA[
+#!/bin/bash
+# Init script for logstash
+# Maintained by Elasticsearch
+# Generated by pleaserun.
+# Implemented based on LSB Core 3.1:
+# * Sections: 20.2, 20.3
+#
+### BEGIN INIT INFO
+# Provides: logstash
+# Required-Start: $remote_fs $syslog
+# Required-Stop: $remote_fs $syslog
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description:
+# Description: Starts Logstash as a daemon.
+### END INIT INFO
+
+if [ `id -u` -ne 0 ]; then
+    echo "You need root privileges to run this script"
+    exit 1
+fi
+
+name=logstash
+pidfile="/var/run/logstash/$name.pid"
+
+JAVACMD=/usr/bin/java
+LS_HOME=/usr/share/logstash
+LS_CONF_DIR=/etc/logstash
+LS_OPTS="--path.settings ${LS_CONF_DIR}"
+LS_JAVA_OPTS=""
+LS_PIDFILE=/var/run/logstash/logstash.pid
+LS_USER=logstash
+LS_GROUP=logstash
+LS_GC_LOG_FILE=/var/log/logstash/gc.log
+LS_OPEN_FILES=65536
+LS_NICE=19
+SERVICE_NAME="logstash"
+SERVICE_DESCRIPTION="logstash"
+LS_LOG_FILE=/var/log/logstash
+LS_LOG_DIR=/var/log/logstash
+LS_HEAP_SIZE=8g
+
+[ -r /etc/default/$name ] && . /etc/default/$name
+[ -r /etc/sysconfig/$name ] && . /etc/sysconfig/$name
+
+program=$LS_HOME/bin/logstash
+args=" -f ${LS_CONF_DIR}/conf.d/*.conf -l ${LS_LOG_FILE} ${LS_OPTS}"
+
+start() {
+
+LS_JAVA_OPTS="${LS_JAVA_OPTS} -Djava.io.tmpdir=${LS_HOME}"
+HOME=${LS_HOME}
+export PATH HOME LS_HEAP_SIZE LS_JAVA_OPTS LS_USE_GC_LOGGING
+
+SGROUPS=$(id -Gn "$LS_USER" | tr " " "," | sed 's/,$//'; echo '')
+
+if [ ! -z $SGROUPS ]
+then
+EXTRA_GROUPS="--groups $SGROUPS"
+fi
+
+ulimit -n ${LS_OPEN_FILES}
+
+nice -n ${LS_NICE} chroot --userspec $LS_USER:$LS_GROUP $EXTRA_GROUPS / sh -c "
+cd $LS_HOME
+ulimit -n ${LS_OPEN_FILES}
+exec \"$program\" $args
+" > "${LS_LOG_DIR}/$name.stdout" 2> "${LS_LOG_DIR}/$name.err" &
+
+echo $! > $pidfile
+
+echo "$name started."
+return 0
+}
+
+stop() {
+    # Try a few times to kill TERM the program
+    if status ; then
+        pid=`cat "$pidfile"`
+        echo "Killing $name (pid $pid) with SIGTERM"
+        kill -TERM $pid
+        # Wait for it to exit.
+        for i in 1 2 3 4 5 ; do
+            echo "Waiting $name (pid $pid) to die..."
+            status || break
+            sleep 1
+        done
+        if status ; then
+            if [ "$KILL_ON_STOP_TIMEOUT" -eq 1 ] ; then
+                echo "Timeout reached. Killing $name (pid $pid) with SIGKILL. This may result in data loss."
+                kill -KILL $pid
+                echo "$name killed with SIGKILL."
+            else
+                echo "$name stop failed; still running."
+            fi
+        else
+            echo "$name stopped."
+        fi
+    fi
+}
+
+status() {
+    if [ -f "$pidfile" ] ; then
+        pid=`cat "$pidfile"`
+            if kill -0 $pid > /dev/null 2> /dev/null ; then
+                return 0
+            else
+                return 2 # program is dead but pid file exists
+            fi
+    else
+        return 3 # program is not running
+    fi
+}
+
+force_stop() {
+    if status ; then
+        stop
+        status && kill -KILL `cat "$pidfile"`
+    fi
+}
+
+
+case "$1" in
+    start)
+        status
+        code=$?
+        if [ $code -eq 0 ]; then
+            echo "$name is already running"
+        else
+            start
+            code=$?
+        fi
+        exit $code
+        ;;
+
+    stop)
+        stop
+        ;;
+
+    force-stop)
+        force_stop
+        ;;
+
+    status)
+        status
+        code=$?
+        if [ $code -eq 0 ] ; then
+            echo "$name is running"
+        else
+            echo "$name is not running"
+        fi
+        exit $code
+        ;;
+
+    restart)
+        stop && start
+        ;;
+
+    *)
+        echo "Usage: $SCRIPTNAME {start|stop|force-stop|status|restart}" >&2
+        exit 3
+        ;;
+    esac
+
+exit $?
+        ]]>
+        </value>
+    </property>
+
+    <property>
+        <name>patterns_content</name>
+        <display-name>init template</display-name>
+        <description>This is the jinja template for patterns file</description>
+        <value><![CDATA[
+TAB \t
+NGINXACCESS %{TIMESTAMP_ISO8601:timestamp}%{TAB}%{NUMBER:status_code}%{TAB}%{NUMBER:connection}%{TAB}%{NUMBER:connection_requests}%{TAB}%{IPORHOST:remote_addr}%{TAB}%{DATA:http_x_forwarded_for}%{TAB}%{DATA:remote_user}%{TAB}%{DATA:request_length}%{TAB}%{DATA:request_time}%{TAB}%{DATA:request_method}%{TAB}%{DATA:server_protocol}%{TAB}%{DATA:http_host}%{TAB}%{DATA:server_port}%{TAB}%{DATA:uri}%{TAB}%{DATA:args}%{TAB}%{DATA:http_referer}%{TAB}%{DATA:body_bytes_sent}%{TAB}%{DATA:http_user_agent}%{TAB}%{DATA:ssl_protocol}%{TAB}%{DATA:ssl_cipher}%{TAB}%{DATA:upstream_addr}%{TAB}%{DATA:upstream_status}%{TAB}%{DATA:upstream_response_time}
+        ]]>
+        </value>
+    </property>
+
+</configuration>

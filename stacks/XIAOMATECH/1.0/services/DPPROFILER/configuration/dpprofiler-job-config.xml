@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+    <property>
+        <name>profiler.job.executor.memory.min</name>
+        <value>1</value>
+        <description>Minimum executor memory for profiler job</description>
+        <display-name>Minimum executor memory</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>profiler.job.executor.memory.max</name>
+        <value>10</value>
+        <description>Maximum executor memory for profiler job</description>
+        <display-name>Maximum executor memory</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>profiler.job.executor.cores.min</name>
+        <value>1</value>
+        <description>Minimum executor cores for profiler job</description>
+        <display-name>Minimum executor cores</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>profiler.job.executor.cores.max</name>
+        <value>10</value>
+        <description>Maximum executor cores for profiler job</description>
+        <display-name>Maximum executor cores</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>profiler.job.executor.count.min</name>
+        <value>1</value>
+        <description>Minimum number of executors for profiler job</description>
+        <display-name>Minimum number of executors</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>profiler.job.executor.count.max</name>
+        <value>50</value>
+        <description>Maximum number of executors for profiler job</description>
+        <display-name>Maximum number of executors</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>profiler.job.driver.cores.min</name>
+        <value>1</value>
+        <description>Minimum driver cores for profiler job</description>
+        <display-name>Minimum driver cores</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>profiler.job.driver.cores.max</name>
+        <value>10</value>
+        <description>Maximum driver cores for profiler job</description>
+        <display-name>Maximum driver cores</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>profiler.job.driver.memory.min</name>
+        <value>1</value>
+        <description>Minimum driver memory for profiler job</description>
+        <display-name>Minimum driver memory</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>profiler.job.driver.memory.max</name>
+        <value>10</value>
+        <description>Maximum driver memory for profiler job</description>
+        <display-name>Maximum driver memory</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>scheduler.config.cron.frequency.check.enabled</name>
+        <value>true</value>
+        <description>Scheduler CRON check enabled flag</description>
+        <display-name>Scheduler CRON Check enabled</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+</configuration>

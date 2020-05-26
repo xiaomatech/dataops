@@ -1,0 +1,8 @@
+mongo --port 30000 << EOF
+use admin;
+db.createUser( {
+    user: '{{mongodb_admin}}',
+    pwd: '{{mongodb_password}}',
+    roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+  });
+EOF

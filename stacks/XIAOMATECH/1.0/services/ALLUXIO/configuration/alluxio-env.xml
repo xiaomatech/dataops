@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/alluxio-1.8.1-hadoop-2.9.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>alluxio_user</name>
+        <value>alluxio</value>
+        <property-type>USER</property-type>
+        <description>User for Alluxio service</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+        <display-name>Alluxio user</display-name>
+    </property>
+
+    <property require-input="true">
+        <name>alluxio.log.dir</name>
+        <description>Alluxio Log Directory</description>
+        <value>/var/log/alluxio</value>
+    </property>
+
+    <property require-input="true">
+        <name>alluxio.pid.dir</name>
+        <description>Alluxio pid Directory</description>
+        <value>/var/run/alluxio</value>
+    </property>
+
+    <property require-input="true">
+        <name>alluxio.hdd.dirs</name>
+        <description>Alluxio HDD Directory</description>
+        <value>/data1/alluxio/hdd</value>
+    </property>
+
+    <property require-input="true">
+        <name>alluxio.hdd.quota</name>
+        <description>Alluxio HDD Size(GB)</description>
+        <value>20GB</value>
+    </property>
+
+    <property require-input="true">
+        <name>alluxio.underfs.address</name>
+        <description>Alluxio UnderFS Address</description>
+        <value>/data1/alluxio/underFSStorage</value>
+    </property>
+
+    <property require-input="true">
+        <name>alluxio.master.journal.folder</name>
+        <description>Alluxio Master Journal Folder</description>
+        <value>/data1/alluxio/journal</value>
+    </property>
+
+    <property require-input="true">
+        <name>alluxio.worker.memory</name>
+        <description>Alluxio Worker Memory(GB)</description>
+        <value>2GB</value>
+    </property>
+
+    <property require-input="true">
+        <name>alluxio.zookeeper.address</name>
+        <description>Alluxio Zookeeper Address</description>
+        <value></value>
+    </property>
+
+    <property>
+        <name>alluxio_user</name>
+        <value>alluxio</value>
+        <property-type>USER</property-type>
+        <description>Alluxio Service Account User</description>
+    </property>
+
+    <property>
+        <name>alluxio.master.web.port</name>
+        <description>Alluxio Master Web Port</description>
+        <value>19999</value>
+    </property>
+
+    <property>
+        <name>env_content</name>
+        <display-name>alluxio-env.sh</display-name>
+        <description>The template for alluxio-env.sh</description>
+        <value>
+JAVA_HOME={{java64_home}}
+ALLUXIO_HOME={{install_dir}}
+ALLUXIO_LOGS_DIR={{log_dir}}
+
+# Config properties set for Alluxio master, worker and shell. (Default: "")
+# E.g. "-Dalluxio.master.port=39999"
+# ALLUXIO_JAVA_OPTS
+
+# Config properties set for Alluxio master daemon. (Default: "")
+# E.g. "-Dalluxio.master.port=39999"
+# ALLUXIO_MASTER_JAVA_OPTS
+
+# Config properties set for Alluxio worker daemon. (Default: "")
+# E.g. "-Dalluxio.worker.port=49999" to set worker port, "-Xms2048M -Xmx2048M" to limit the heap size of worker.
+# ALLUXIO_WORKER_JAVA_OPTS
+
+# Config properties set for Alluxio shell. (Default: "")
+# E.g. "-Dalluxio.user.file.writetype.default=CACHE_THROUGH"
+# ALLUXIO_USER_JAVA_OPTS
+
+# Additional classpath entries for Alluxio processes. (Default: "")
+# E.g. "/path/to/library1/:/path/to/library2/"
+# ALLUXIO_CLASSPATH
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>alluxio_site_content</name>
+        <display-name>alluxio-site.properties</display-name>
+        <description>The template for alluxio-site.properties</description>
+        <value>
+{{enabled_ha}}
+{{zk_addr}}
+{{journal_folder}}
+{{worker_timeout}}
+{{alluxio_master}}
+alluxio.underfs.address={{underfs_addr}}
+alluxio.underfs.hdfs.configuration={{hadoop_conf_dir}}/core-site.xml:{{hadoop_conf_dir}}/hdfs-site.xml
+{{alluxio_master_web_port}}
+
+#alluxio.keyvalue.enabled=true
+#alluxio.keyvalue.partition.size.bytes.max=256MB
+
+alluxio.worker.tieredstore.levels=1
+alluxio.worker.tieredstore.level0.alias=MEM
+alluxio.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+alluxio.worker.tieredstore.level0.dirs.quota={{worker_mem}}
+alluxio.worker.tieredstore.level0.watermark.high.ratio=0.9
+alluxio.worker.tieredstore.level0.watermark.low.ratio=0.7
+#alluxio.worker.tieredstore.level1.alias=SSD
+#alluxio.worker.tieredstore.level1.dirs.path=/data1/alluxio
+#alluxio.worker.tieredstore.level1.dirs.quota=25GB
+#alluxio.worker.tieredstore.level1.watermark.high.ratio=0.9
+#alluxio.worker.tieredstore.level1.watermark.low.ratio=0.7
+alluxio.worker.tieredstore.level1.alias=HDD
+alluxio.worker.tieredstore.level1.dirs.path={{hdd_dirs}}
+alluxio.worker.tieredstore.level1.dirs.quota={{hdd_quota}}
+alluxio.worker.tieredstore.level1.watermark.high.ratio=0.9
+alluxio.worker.tieredstore.level1.watermark.low.ratio=0.7
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+</configuration>

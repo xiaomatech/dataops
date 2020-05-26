@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration supports_adding_forbidden="true">
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/geoserver-2.15.2.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>geoserver_user</name>
+        <value>geoserver</value>
+        <property-type>USER</property-type>
+        <description>User geoserver daemon runs as</description>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    
+    <property>
+        <name>conf_dir</name>
+        <display-name>Conf Dir</display-name>
+        <value>/etc/geoserver</value>
+        <description>Location to save configuration files</description>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+            <editable-only-at-install>true</editable-only-at-install>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>log_dir</name>
+        <display-name>Log Dir</display-name>
+        <value>/var/log/geoserver</value>
+        <description>Location to save log files</description>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>run_dir</name>
+        <value>/var/run/geoserver</value>
+        <description>Location to save information about running agents</description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    
+    <property>
+        <name>data_dir</name>
+        <value>/data/geoserver</value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>env_content</name>
+        <display-name>env template</display-name>
+        <description>This is the jinja template</description>
+        <value><![CDATA[
+
+export JAVA_HOME={{java_home}}
+export GEOSERVER_HOME = {{install_dir}}
+export GEOSERVER_DATA_DIR = {{data_dir}}
+
+      ]]>
+        </value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>geoserver_content</name>
+        <display-name></display-name>
+        <description></description>
+        <value><![CDATA[
+
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+            <empty-value-valid>true</empty-value-valid>
+            <show-property-name>false</show-property-name>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+</configuration>

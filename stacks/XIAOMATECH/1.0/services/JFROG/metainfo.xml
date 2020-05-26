@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>JFROG</name>
+            <displayName>Jfrog</displayName>
+            <comment>Jfrog</comment>
+            <version>6.5.9</version>
+            <components>
+                <component>
+                    <name>JFROG</name>
+                    <displayName>Jfrog</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/jfrog.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+            </components>
+
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+
+            <osSpecifics>
+                <osSpecific>
+                    <osFamily>any</osFamily>
+                    <packages>
+                        <package>
+                            <name>jfrog-artifactory-oss</name>
+                        </package>
+                    </packages>
+                </osSpecific>
+            </osSpecifics>
+
+        </service>
+    </services>
+</metainfo>

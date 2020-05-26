@@ -1,0 +1,31 @@
+{
+  "input":[
+    {
+      "type":"flume_handler",
+      "rowtype":"service",
+      "path":"{{default('/configurations/flume-env/flume_log_dir', '/var/log/flume')}}/flume.log"
+    }
+  ],
+  "filter":[
+    {
+      "filter":"grok",
+      "conditions":{
+        "fields":{
+          "type":[
+            "flume_handler"
+          ]
+        }
+      },
+      "log4j_format":"",
+      "multiline_pattern":"^(%{USER_SYNC_DATE:logtime})",
+      "message_pattern":"(?m)^%{USER_SYNC_DATE:logtime}%{SPACE}%{LOGLEVEL:level}%{SPACE}\\[%{DATA:thread_name}\\]%{SPACE}\\(%{JAVACLASS:class}\\.%{JAVAMETHOD:method}:%{INT:line_number}\\)%{SPACE}-%{SPACE}%{GREEDYDATA:log_message}",
+      "post_map_values":{
+        "logtime":{
+          "map_date":{
+            "target_date_pattern":"dd MMM yyyy HH:mm:ss,SSS"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "SCHEMA_REGISTRY": {
+    "Component": [
+      {
+        "type": "ganglia",
+        "metrics": {
+          "default": {
+            "jvm/memory/heap/usage": {
+              "metric": "jvm.memory.heap.usage.",
+              "pointInTime": true,
+              "temporal": true
+            },
+            "jvm/memory/total/max": {
+              "metric": "jvm.memory.total.max.",
+              "pointInTime": false,
+              "temporal": false
+            }
+          }
+        }
+      }
+    ]
+  }
+}

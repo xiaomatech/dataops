@@ -1,0 +1,21 @@
+worker.metrics:
+    "CGroupMemory": "org.apache.storm.metric.cgroup.CGroupMemoryUsage"
+    "CGroupMemoryLimit": "org.apache.storm.metric.cgroup.CGroupMemoryLimit"
+    "CGroupCpu": "org.apache.storm.metric.cgroup.CGroupCpu"
+    "CGroupCpuGuarantee": "org.apache.storm.metric.cgroup.CGroupCpuGuarantee"
+
+# The number of buckets for running statistics
+num.stat.buckets: 20
+
+# Metrics v2 configuration
+storm.metrics.reporters:
+  # Graphite Reporter
+  - class: "org.apache.storm.metrics2.reporters.GraphiteStormReporter"
+    daemons:
+        - "supervisor"
+        - "nimbus"
+        - "worker"
+    report.period: 60
+    report.period.units: "SECONDS"
+    graphite.host: "{{graphite_host}}"
+    graphite.port: 2003

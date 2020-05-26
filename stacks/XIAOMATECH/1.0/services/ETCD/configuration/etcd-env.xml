@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>etcd_user</name>
+        <value>etcd</value>
+        <property-type>USER</property-type>
+        <description>Service user for etcd</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>conf_content</name>
+        <display-name>etcd.conf</display-name>
+        <description>content</description>
+        <value><![CDATA[
+ETCD_NAME=default
+ETCD_DATA_DIR="{{data_dir}}"
+ETCD_LISTEN_PEER_URLS="http://{{hostname}}:2380"
+ETCD_LISTEN_CLIENT_URLS="http://{{hostname}}:2379"
+#[cluster]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="http://{{hostname}}:2380"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
+ETCD_ADVERTISE_CLIENT_URLS="http://{{hostname}}:2379"
+ETCD_INITIAL_CLUSTER="{{initial_cluster}}"
+ETCD_INITIAL_CLUSTER_STATE="new"
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>data_dir</name>
+        <value>/data/etcd</value>
+        <description>Log directory</description>
+    </property>
+
+</configuration>

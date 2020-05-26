@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+
+    <property>
+        <name>master_content</name>
+        <display-name>master content</display-name>
+        <description>master content</description>
+        <value><![CDATA[
+{
+  "role": "master",
+  "ip": "127.0.0.1",
+   "port": "8080",
+  "prof":"10088",
+  "id":"1",
+  "peers": "1:127.0.0.1:8080,1:127.0.0.1:8081,1:127.0.0.1:8082",
+  "logDir": "/var/log/master",
+  "logLevel":"INFO",
+  "retainLogs":"2000",
+  "walDir":"/data/raft",
+  "storeDir":"/data/rocks",
+  "clusterName":"baudfs"
+}
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>metanode_content</name>
+        <display-name>metanode content</display-name>
+        <description>metanode content</description>
+        <value><![CDATA[
+{
+    "role": "metanode",
+    "listen": "9021",
+    "prof": "9092",
+    "logLevel": "info",
+    "metaDir": "/data/baudfs/metanode_meta",
+    "logDir": "/var/log",
+    "raftDir": "/data/baudfs/metanode_raft",
+    "raftHeartbeatPort": "9093",
+    "raftReplicatePort": "9094",
+    "masterAddrs": [
+        {{master_host}}
+    ]
+}
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>datanode_content</name>
+        <display-name>datanode content</display-name>
+        <description>datanode content</description>
+        <value><![CDATA[
+{
+    "role": "datanode",
+    "port": "6000",
+    "prof": "6001",
+    "clusterID": "data",
+    "logDir": "/var/logs",
+    "logLevel": "info",
+    "masterAddr": [
+        {{master_host}}
+    ],
+    "rack": "main",
+    "disks": [
+        "/data0:1:20000",
+        "/data1:1:20000",
+        "/data2:1:20000",
+        "/data3:1:20000",
+        "/data4:1:20000",
+        "/data5:1:20000",
+        "/data6:1:20000",
+        "/data7:1:20000",
+        "/data8:1:20000",
+        "/data9:1:20000",
+        "/data10:1:20000",
+        "/data11:1:20000",
+    ]
+}
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>client_content</name>
+        <display-name>client content</display-name>
+        <description>client content</description>
+        <value><![CDATA[
+{
+  "mountpoint": "/mnt/fuse",
+  "volname": "containerfs",
+  "master": "{{containerfs_master_host}}",
+  "logpath": "/var/log/baudstorage",
+  "loglvl": "info",
+  "profport": "10094"
+}
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+</configuration>

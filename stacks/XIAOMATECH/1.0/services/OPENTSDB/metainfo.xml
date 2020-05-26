@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>OPENTSDB</name>
+            <displayName>OpenTSDB</displayName>
+            <comment>The Scalable Time Series Database. Store and serve massive amounts of time series data without
+                losing granularity
+            </comment>
+            <version>2.3.0</version>
+            <components>
+                <component>
+                    <name>OPENTSDB_MASTER</name>
+                    <displayName>OpenTSDB</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1</cardinality>
+                    <dependencies>
+                        <dependency>
+                            <name>HBASE/HBASE_CLIENT</name>
+                            <scope>host</scope>
+                            <auto-deploy>
+                                <enabled>true</enabled>
+                            </auto-deploy>
+                        </dependency>
+                        <dependency>
+                            <name>ZOOKEEPER/ZOOKEEPER_CLIENT</name>
+                            <scope>host</scope>
+                            <auto-deploy>
+                                <enabled>true</enabled>
+                            </auto-deploy>
+                        </dependency>
+                    </dependencies>
+                    <commandScript>
+                        <script>scripts/tsd.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>5000</timeout>
+                    </commandScript>
+                </component>
+            </components>
+
+            <configuration-dependencies>
+                <config-type>opentsdb-env</config-type>
+            </configuration-dependencies>
+
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+
+            <restartRequiredAfterChange>false</restartRequiredAfterChange>
+        </service>
+    </services>
+</metainfo>

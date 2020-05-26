@@ -1,0 +1,335 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+
+    <property>
+        <name>conf_content</name>
+        <display-name>filebeat.conf</display-name>
+        <description>filbeat.conf content</description>
+        <value><![CDATA[
+
+filebeat.prospectors:
+  - type: log
+    paths:
+      - /data1/log/web.log
+    fields:
+        service: spring-service
+        log_topic: log4j
+    multiline.pattern: '^[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}'
+    multiline.negate: true
+    multiline.match: after
+    exclude_files: [".gz$"]
+
+  - type: log
+    fields:
+      service: python-service
+      log_topic: python-logging
+    paths: ['/data1/log/python/*.log']
+    multiline.pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+    multiline.negate: true
+    multiline.match: after
+    exclude_files: [".gz$"]
+
+  - type: log
+    fields:
+      service: spring-web
+      log_topic: tomcat
+    paths: ['/data1/log/tomcat/*.log']
+    multiline.pattern: '^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}:[0-9]{3}'
+    multiline.negate: true
+    multiline.match: after
+    exclude_files: [".gz$"]
+
+  - type: log
+    paths: ['/data1/log/*-warg.log']
+    fields:
+      service: spring-web-access
+      log_topic: log4j
+    multiline.pattern: '^\['
+    multiline.negate: true
+    multiline.match: after
+    exclude_files: [".gz$"]
+
+  - type: log
+    paths: ['/data1/log/error*.log']
+    fields:
+      service: spring-web-error
+      log_topic: log4j
+    multiline.pattern: "^\s"
+    multiline.negate: true
+    multiline.match: before
+    exclude_files: [".gz$"]
+
+filebeat.modules:
+  - module: system
+    syslog:
+      enabled: true
+    auth:
+      enabled: true
+    fields:
+      log_topic: system
+
+  - module: auditd
+    log:
+      enabled: true
+    fields:
+      log_topic: auditd
+
+  - module: nginx
+    access:
+      enabled: true
+      var.paths: ["/data1/log/nginx/access.log*"]
+    fields:
+      log_topic: access_log
+
+  - module: mysql
+    slowlog:
+      enabled: true
+      var.paths:
+        - /data1/log/mysql/mysql-slow*.log
+        - /var/lib/mysql/{{.builtin.hostname}}-slow.log
+    fields:
+      log_topic: mysql_slowlog
+
+queue.spool:
+  file:
+    path: "${path.data}/spool.dat"
+    size: 512MiB
+    page_size: 16KiB
+    prealloc: true
+  write:
+    buffer_size: 10MiB
+    flush.timeout: 5s
+    flush.events: 8192
+
+output.kafka:
+  hosts: [{{kafka_url}}]
+  topic: '%{[fields.log_topic]}'
+  partition.round_robin:
+    reachable_only: false
+  required_acks: 1
+  compression: snappy
+  max_message_bytes: 1000000
+
+setup.kibana:
+  host: "{{kibana_host}}:5601"
+  enabled: true
+
+logging.level: warning
+logging.to_files: true
+logging.to_syslog: false
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat.log
+  keepfiles: 7
+  permissions: 0644
+
+
+setup.template.name: "filebeat"
+setup.template.fields: "fields.yml"
+setup.template.overwrite: false
+setup.template.settings:
+  index.number_of_shards: 32
+  index.number_of_replicas: 2
+
+xpack.monitoring:
+  enabled: true
+  elasticsearch:
+    hosts: [{{es_url}}]
+    username: beats_system
+#    password: test
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>metricbeat_content</name>
+        <display-name>metricbeat.conf</display-name>
+        <description>metricbeat.conf content</description>
+        <value><![CDATA[
+metricbeat.config:
+  modules:
+    - module: system
+      period: 10s
+      metricsets:
+        - cpu
+        - load
+        - memory
+        - network
+        - process
+        - process_summary
+        - core
+        - diskio
+        - socket
+      process.include_top_n:
+        by_cpu: 5      # include top 5 processes by CPU
+        by_memory: 5   # include top 5 processes by memory
+
+      processes: ['.*']
+      cpu.metrics:  ["percentages"]
+      core.metrics: ["percentages"]
+
+    - module: system
+      period: 1m
+      metricsets:
+        - filesystem
+        - fsstat
+      processors:
+      - drop_event.when.regexp:
+          system.filesystem.mount_point: '^/(sys|cgroup|proc|dev|etc|host|lib)($|/)'
+
+    - module: system
+      period: 15m
+      metricsets:
+        - uptime
+
+metricbeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+
+processors:
+  - add_cloud_metadata: ~
+
+setup.dashboards.enabled: true
+setup.kibana.host: "{{kibana_host}}:5601"
+setup.kibana.protocol: "http"
+setup.template.name: "metricbeat"
+setup.template.pattern: "metricbeat-*"
+setup.template.overwrite: true
+
+output.elasticsearch:
+  hosts: '[{{es_url}}]'
+  index: "metricbeat-%{+yyyy.MM.dd}"
+#  username: 'hearbeat'
+#  password: 'example~!@'
+
+xpack.monitoring:
+  enabled: true
+  elasticsearch:
+    hosts: [{{es_url}}]
+#    username: beats_system
+#    password: test
+
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>heartbeat_content</name>
+        <display-name>heartbeat.conf</display-name>
+        <description>heartbeat.conf content</description>
+        <value><![CDATA[
+heartbeat.config:
+  monitors:
+    path: ${path.config}/monitors.d/*.yml
+    reload.enabled: true
+    reload.period: 5s
+
+heartbeat.monitors:
+  - type: http
+    enabled: true
+    schedule: '@every 10s'
+    ipv4: true
+    timeout: 5s
+    wait: 5s
+    urls: ["http://google.com"]
+    mode: any
+  - type: tcp
+    enabled: true
+    schedule: '@every 10s'
+    ipv4: true
+    timeout: 5s
+    wait: 5s
+
+processors:
+  - add_cloud_metadata: ~
+
+setup.dashboards.enabled: true
+setup.kibana.host: "{{kibana_host}}:5601"
+setup.kibana.protocol: "http"
+setup.template.name: "heartbeat"
+setup.template.pattern: "heartbeat-*"
+setup.template.overwrite: true
+
+output.elasticsearch:
+  hosts: [{{es_url}}]
+  index: "heartbeat-%{+yyyy.MM.dd}"
+#  username: 'hearbeat'
+#  password: 'example~!@'
+
+xpack.monitoring:
+  enabled: true
+  elasticsearch:
+    hosts: [{{es_url}}]
+#    username: beats_system
+#    password: test
+
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+
+    <property>
+        <name>apm_server_content</name>
+        <description>This is the jinja template for apm-server.yml file</description>
+        <value><![CDATA[
+apm-server:
+  host: 0.0.0.0:8200
+  rum:
+    enabled: true
+
+queue.mem.events: 8192
+setup.template.name: "apm-server"
+setup.template.pattern: "apm-*"
+setup.template.fields: "fields.yml"
+setup.template.overwrite: true
+setup.template.settings:
+  index.number_of_shards: 64
+  index.number_of_replicas: 1
+  _source.enabled: false
+
+logging.level:  warning
+logging.to_files: true
+logging.files:
+  path: /var/log/apm-server
+  name: apm-server
+  keepfiles: 7
+  permissions: 0644
+
+setup.kibana.host: "{{kibana_host}}:5601"
+setup.dashboards.enabled: true
+
+output.elasticsearch:
+  hosts: [{{es_host}}]
+  bulk_max_size: 5120
+  ilm.enabled: true
+  pipelines:
+  - pipeline: "apm"
+#  username: "elastic"
+#  password: "elastic"
+xpack.monitoring:
+  enabled: true
+  elasticsearch:
+    hosts: [{{es_url}}]
+    username: apm_system
+#    password: somepassword
+          ]]>
+        </value>
+    </property>
+
+
+</configuration>

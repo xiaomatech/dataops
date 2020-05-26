@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+
+    <property>
+        <name>gitlab_content</name>
+        <display-name>gitlab.rb</display-name>
+        <description>gitlab.rb content</description>
+        <value><![CDATA[
+external_url 'http://{{hostname}}'
+unicorn['listen'] = '0.0.0.0'
+unicorn['port'] = 8089
+sidekiq['listen_address'] = '0.0.0.0'
+sidekiq['listen_port'] = 8082
+pgbouncer['listen_addr'] = '0.0.0.0'
+
+#mattermost_external_url 'http://{{hostname}}'
+#mattermost['enable'] = true
+
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+</configuration>

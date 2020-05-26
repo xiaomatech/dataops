@@ -1,0 +1,31 @@
+{
+  "input":[
+    {
+      "type":"ranger_kms",
+      "rowtype":"service",
+      "path":"{{default('/configurations/kms-env/kms_log_dir', '/var/log/ranger/kms')}}/kms.log"
+    }
+  ],
+  "filter":[
+    {
+      "filter":"grok",
+      "conditions":{
+        "fields":{
+          "type":[
+            "ranger_kms"
+          ]
+        }
+      },
+      "log4j_format":"%d{ISO8601} %-5p %c{1} - %m%n",
+      "multiline_pattern":"^(%{TIMESTAMP_ISO8601:logtime})",
+      "message_pattern":"(?m)^%{TIMESTAMP_ISO8601:logtime}%{SPACE}%{LOGLEVEL:level}%{SPACE}%{JAVACLASS:logger_name}%{SPACE}-%{SPACE}%{GREEDYDATA:log_message}",
+      "post_map_values":{
+        "logtime":{
+          "map_date":{
+            "target_date_pattern":"yyyy-MM-dd HH:mm:ss,SSS"
+          }
+        }
+      }
+    }
+  ]
+}

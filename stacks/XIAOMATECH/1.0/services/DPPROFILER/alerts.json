@@ -1,0 +1,110 @@
+{
+  "DPPROFILER": {
+    "DP_PROFILER_AGENT": [
+      {
+        "name": "profiler_agent_process",
+        "label": "Profiler Agent Process",
+        "description": "This host-level alert is triggered if Profiler Agent instance is not running",
+        "interval": 1,
+        "scope": "HOST",
+        "source": {
+          "type": "SCRIPT",
+          "path": "DPPROFILER/1.0.0/package/scripts/dpprofiler_process_alert.py"
+        }
+      },
+      {
+        "name": "profiler_agent_rest_api",
+        "label": "Profiler Agent REST API",
+        "description": "This host-level alert is triggered if the Profiler Agent REST API is unreachable.",
+        "interval": 1,
+        "scope": "HOST",
+        "enabled": true,
+        "source": {
+          "type": "WEB",
+          "uri": {
+            "http": "http://0.0.0.0:{{dpprofiler-env/dpprofiler.http.port}}",
+            "kerberos_keytab": "{{dpprofiler-env/dpprofiler.spnego.kerberos.keytab}}",
+            "kerberos_principal": "{{dpprofiler-env/dpprofiler.spnego.kerberos.principal}}",
+            "connection_timeout": 5.0,
+            "acceptable_codes": [
+              200
+            ]
+          },
+          "reporting": {
+            "ok": {
+              "text": "HTTP {0} response in {2:.3f}s"
+            },
+            "warning": {
+              "text": "HTTP {0} response from {1} in {2:.3f}s ({3})"
+            },
+            "critical": {
+              "text": "Connection failed to {1} ({3})"
+            }
+          }
+        }
+      },
+      {
+        "name": "profiler_agent_metrics_read_rest_api",
+        "label": "Profiler Agent Metrics Read REST API",
+        "description": "This host-level alert is triggered if the Profiler Agent Metrics Read REST API is unreachable. Please fix the problem with livy session and restart Profiler Agent",
+        "interval": 1,
+        "scope": "HOST",
+        "enabled": true,
+        "source": {
+          "type": "WEB",
+          "uri": {
+            "http": "http://0.0.0.0:{{dpprofiler-env/dpprofiler.http.port}}/asset/metrics/status?sessionType=read",
+            "kerberos_keytab": "{{dpprofiler-env/dpprofiler.spnego.kerberos.keytab}}",
+            "kerberos_principal": "{{dpprofiler-env/dpprofiler.spnego.kerberos.principal}}",
+            "connection_timeout": 5.0,
+            "acceptable_codes": [
+              200
+            ]
+          },
+          "reporting": {
+            "ok": {
+              "text": "HTTP {0} response in {2:.3f}s"
+            },
+            "warning": {
+              "text": "HTTP {0} response from {1} in {2:.3f}s ({3})"
+            },
+            "critical": {
+              "text": "Connection failed to {1} ({3})"
+            }
+          }
+        }
+      },
+      {
+        "name": "profiler_agent_metrics_write_rest_api",
+        "label": "Profiler Agent Metrics Write REST API",
+        "description": "This host-level alert is triggered if the Profiler Agent Metrics Write REST API is unreachable. Please fix the problem with livy session and restart Profiler Agent",
+        "interval": 1,
+        "scope": "HOST",
+        "enabled": true,
+        "source": {
+          "type": "WEB",
+          "uri": {
+            "http": "http://0.0.0.0:{{dpprofiler-env/dpprofiler.http.port}}/asset/metrics/status?sessionType=write",
+            "kerberos_keytab": "{{dpprofiler-env/dpprofiler.spnego.kerberos.keytab}}",
+            "kerberos_principal": "{{dpprofiler-env/dpprofiler.spnego.kerberos.principal}}",
+            "connection_timeout": 5.0,
+            "acceptable_codes": [
+              200
+            ]
+          },
+          "reporting": {
+            "ok": {
+              "text": "HTTP {0} response in {2:.3f}s"
+            },
+            "warning": {
+              "text": "HTTP {0} response from {1} in {2:.3f}s ({3})"
+            },
+            "critical": {
+              "text": "Connection failed to {1} ({3})"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property require-input="true">
+        <name>download_url</name>
+        <value>https://assets.example.com/harbor-offline-installer-v1.5.4.tgz</value>
+        <description>download url</description>
+    </property>
+
+     <property>
+        <name>harbor_cfg_content</name>
+        <display-name>harbor cfg script</display-name>
+        <description>harbor cfg script</description>
+        <value><![CDATA[
+hostname = {{hostname}}
+ui_url_protocol = http
+
+max_job_workers = 500
+
+secretkey_path = /data
+
+admiral_url = NA
+
+log_rotate_count = 50
+log_rotate_size = 200M
+
+email_identity =
+email_server = smtp.mydomain.com
+email_server_port = 25
+email_username = sample_admin@mydomain.com
+email_password = abc
+email_from = admin <sample_admin@mydomain.com>
+email_ssl = false
+email_insecure = false
+
+harbor_admin_password = admin
+
+auth_mode = db_auth
+
+ldap_url = ldaps://ldap.mydomain.com
+ldap_basedn = ou=Users,dc=mydomain,dc=com
+
+ldap_uid = uid
+
+ldap_scope = 2
+
+ldap_timeout = 5
+
+ldap_verify_cert = true
+
+ldap_group_basedn = ou=Groups,dc=mydomain,dc=com
+
+ldap_group_filter = objectclass=group
+
+ldap_group_gid = cn
+
+ldap_group_scope = 2
+
+self_registration = on
+
+token_expiration = 30
+
+db_host = mysql
+db_password = root123
+db_port = 3306
+db_user = root
+redis_url = redis:6379
+
+registry_storage_provider_name = filesystem
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>install_content</name>
+        <display-name>docker install script</display-name>
+        <description>docker install script</description>
+        <value><![CDATA[
+#!/usr/bin/env bash
+
+DEVS="{{disk_dev}}"
+REG_URL="{{docker_registry_url}}"
+
+#docker storage
+if [ ! -f /dev/mapper/docker--pool-thinpool ];then
+    sudo pvcreate $DEVS
+    sudo vgcreate docker-pool $DEVS
+    sudo lvcreate --wipesignatures y -n thinpool docker-pool -l 95%VG
+    sudo lvcreate --wipesignatures y -n thinpoolmeta docker-pool -l 1%VG
+    sudo lvconvert -y --zero n -c 512K --thinpool docker-pool/thinpool --poolmetadata docker-pool/thinpoolmeta
+    sudo lvchange --metadataprofile docker-thinpool docker-pool/thinpool
+    sudo rm -rf  /var/lib/docker
+fi
+
+#docker network
+ip link show docker0 >/dev/null 2>&1 || rc="$?"
+if [[ "$rc" -eq "0" ]]; then
+  sudo ip link set dev docker0 down
+  sudo ip link delete docker0
+fi
+
+echo -ne 'activation {
+  thin_pool_autoextend_threshold=80
+  thin_pool_autoextend_percent=20
+}
+'>/etc/lvm/profile/docker-thinpool.profile
+
+echo -ne '
+OPTIONS=" --max-concurrent-downloads=10 --selinux-enabled=false --log-driver=journald -s devicemapper --default-ulimit nofile=1048576:1048576 "
+DOCKER_CERT_PATH=/etc/docker
+ADD_REGISTRY="--add-registry='$REG_URL'"
+INSECURE_REGISTRY="--insecure-registry='$REG_URL'"
+DOCKER_TMPDIR=/var/tmp
+LOGROTATE=true
+'>/etc/sysconfig/docker
+
+
+echo -ne '
+DOCKER_NETWORK_OPTIONS="-b=none"
+'>/etc/sysconfig/docker-network
+
+echo -ne '
+DOCKER_STORAGE_OPTIONS=" --storage-driver devicemapper --storage-opt dm.fs=xfs --storage-opt dm.thinpooldev=/dev/mapper/docker--pool-thinpool --storage-opt dm.use_deferred_removal=true --storage-opt dm.use_deferred_deletion=true "
+'>/etc/sysconfig/docker-storage
+
+echo -ne '
+[Unit]
+Description=Docker Application Container Engine
+Documentation=http://docs.docker.com
+After=network.target rhel-push-plugin.socket
+Wants=docker-storage-setup.service
+
+[Service]
+Type=notify
+NotifyAccess=all
+EnvironmentFile=-/etc/sysconfig/docker
+EnvironmentFile=-/etc/sysconfig/docker-storage
+EnvironmentFile=-/etc/sysconfig/docker-network
+Environment=GOTRACEBACK=crash
+ExecStart=/usr/bin/docker-current daemon \
+          --exec-opt native.cgroupdriver=systemd \
+          $OPTIONS \
+          $DOCKER_STORAGE_OPTIONS \
+          $DOCKER_NETWORK_OPTIONS \
+          $ADD_REGISTRY \
+          $BLOCK_REGISTRY \
+          $INSECURE_REGISTRY
+LimitNOFILE=1048576
+LimitNPROC=1048576
+LimitCORE=infinity
+TimeoutStartSec=0
+MountFlags=slave
+Restart=on-abnormal
+
+[Install]
+WantedBy=multi-user.target
+'>/usr/lib/systemd/system/docker.service
+
+echo -ne '[Unit]
+Description=FUSE filesystem for LXC
+ConditionVirtualization=!container
+Before=lxc.service
+Documentation=man:lxcfs(1)
+
+[Service]
+ExecStart=/usr/bin/lxcfs /var/lib/lxcfs/
+KillMode=process
+Restart=on-failure
+ExecStopPost=-/bin/fusermount -u /var/lib/lxcfs
+Delegate=yes
+
+[Install]
+WantedBy=multi-user.target
+'>/usr/lib/systemd/system/lxcfs.service
+
+systemctl daemon-reload
+systemctl enable docker lxcfs
+systemctl start docker lxcfs
+
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>docker_registry_url</name>
+        <value>registry.example.com</value>
+        <description>docker registry</description>
+    </property>
+    <property>
+        <name>disk_dev</name>
+        <value>/dev/sdb /dev/sdc /dev/sdd /dev/sde /dev/sdf /dev/sdg</value>
+        <description>the devs for the lvm </description>
+    </property>
+
+</configuration>

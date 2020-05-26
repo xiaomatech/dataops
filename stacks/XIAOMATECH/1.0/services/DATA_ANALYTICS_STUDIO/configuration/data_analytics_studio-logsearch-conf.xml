@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration supports_final="false" supports_adding_forbidden="true">
+    <property>
+        <name>service_name</name>
+        <display-name>Service name</display-name>
+        <description>Service name for Logsearch Portal (label)</description>
+        <value>Data Analytics Studio</value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>component_mappings</name>
+        <display-name>Component mapping</display-name>
+        <description>Logsearch component logid mapping list (e.g.: COMPONENT1:logid1,logid2;COMPONENT2:logid3)
+        </description>
+        <value>
+            DATA_ANALYTICS_STUDIO_WEBAPP:data_analytics_studio_webapp,data_analytics_studio_webapp_access;DATA_ANALYTICS_STUDIO_EVENT_PROCESSOR:data_analytics_studio_event_processor,data_analytics_studio_event_processor_access
+        </value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>content</name>
+        <display-name>Logfeeder Config</display-name>
+        <description>Metadata jinja template for Logfeeder which contains grok patterns for reading service specific
+            logs.
+        </description>
+        <value>
+            {
+            "input":[
+            {
+            "type":"data_analytics_studio_webapp",
+            "rowtype":"service",
+            "path":"{{default('/configurations/data_analytics_studio-env/data_analytics_studio_log_dir',
+            '/var/log/das')}}/das-webapp.log"
+            },
+            {
+            "type": "data_analytics_studio_event_processor",
+            "rowtype":"service",
+            "path":"{{default('/configurations/data_analytics_studio-env/data_analytics_studio_log_dir',
+            '/var/log/das')}}/event-processor.log"
+            }
+            ],
+            "filter":[
+            {
+            "filter":"grok",
+            "conditions":{
+            "fields":{
+            "type":[
+            "data_analytics_studio_webapp",
+            "data_analytics_studio_event_processor"
+            ]
+            }
+            },
+            "log4j_format":"",
+            "multiline_pattern":"^(%{LOGLEVEL:level})",
+            "message_pattern":"(?m)^%{LOGLEVEL:level}%{SPACE}\\[%{TIMESTAMP_ISO8601:logtime}\\]%{SPACE}%{JAVACLASS:logger_name}:%{SPACE}%{GREEDYDATA:log_message}",
+            "post_map_values":{
+            "logtime":{
+            "map_date":{
+            "target_date_pattern":"yyyy-MM-dd HH:mm:ss,SSS"
+            }
+            }
+            }
+            }
+            ]
+            }
+        </value>
+        <value-attributes>
+            <type>content</type>
+            <show-property-name>false</show-property-name>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+</configuration>

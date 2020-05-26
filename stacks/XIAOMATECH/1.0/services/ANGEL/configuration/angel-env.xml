@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration supports_adding_forbidden="true">
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/angel-2.0.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>angel_conf_dir</name>
+        <display-name>angel Conf Dir</display-name>
+        <value>/etc/angel</value>
+        <description>Location to save configuration files</description>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+            <editable-only-at-install>true</editable-only-at-install>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>angel_log_dir</name>
+        <display-name>angel Log Dir</display-name>
+        <value>/var/log/angel</value>
+        <description>Location to save log files</description>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>angel_run_dir</name>
+        <value>/var/run/angel</value>
+        <description>Location to save information about running agents</description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>angel_user</name>
+        <display-name>angel User</display-name>
+        <value>angel</value>
+        <property-type>USER</property-type>
+        <description>angel User</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <!-- angel-env.sh -->
+    <property>
+        <name>content</name>
+        <display-name>angel-env template</display-name>
+        <description>This is the jinja template for angel-env.sh file</description>
+        <value>
+export JAVA_HOME={{java_home}}
+export HADOOP_HOME={{hadoop_home}}
+export SPARK_HOME={{spark_home}}
+export ANGEL_HOME={{angel_home}}
+        </value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+</configuration>

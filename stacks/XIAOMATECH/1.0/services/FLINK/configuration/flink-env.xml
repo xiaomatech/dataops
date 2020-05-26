@@ -1,0 +1,239 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+    <property>
+        <name>download_url</name>
+        <value>http://assets.example.com/flink-1.10.1-bin-scala_2.12.tgz</value>
+        <description>Snapshot download location. Downloaded when setup_prebuilt is true</description>
+    </property>
+
+    <property>
+        <name>streamsql_download_url</name>
+        <value>http://assets.example.com/flinkStreamSQL-1.0.tar.gz</value>
+        <description>https://github.com/DTStack/flinkStreamSQL</description>
+    </property>
+
+    <property>
+        <name>flink_log_dir</name>
+        <value>/var/log/flink</value>
+        <description>flink Log dir</description>
+    </property>
+
+    <property>
+        <name>flink_hdfs_dir</name>
+        <value>/flink</value>
+        <description>flink hdfs dir</description>
+    </property>
+
+    <property>
+        <name>flink_checkpoints_dir</name>
+        <value>/flink/checkpoints</value>
+        <description>flink hdfs dir</description>
+    </property>
+
+    <property>
+        <name>flink_recovery_dir</name>
+        <value>/flink/recovery</value>
+        <description>flink hdfs dir</description>
+    </property>
+
+    <property>
+        <name>flink_savepoint_dir</name>
+        <value>/flink/savepoints</value>
+        <description>flink hdfs dir</description>
+    </property>
+
+    <property>
+        <name>flink_pid_dir</name>
+        <value>/var/run/flink</value>
+        <description>Dir containing process ID file</description>
+    </property>
+
+    <property>
+        <name>flink_user</name>
+        <value>flink</value>
+        <property-type>USER</property-type>
+        <description>User flink daemon runs as</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>flink.principal</name>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>
+            Kerberos principal name for the flink.
+        </description>
+        <property-type>KERBEROS_PRINCIPAL</property-type>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>flink.keytab</name>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>
+            Location of the kerberos keytab file for the flink.
+        </description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>env_content</name>
+        <value> <![CDATA[
+export FLINK_ROOT_DIR={{install_dir}}
+export FLINK_LIB_DIR=$FLINK_ROOT_DIR/lib
+export FLINK_OPT_DIR=$FLINK_ROOT_DIR/opt
+export FLINK_CONF_DIR={{conf_dir}}
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>content</name>
+        <value> <![CDATA[
+#==============================================================================
+# Common
+#==============================================================================
+env.log.dir: /var/log/flink
+env.hadoop.conf.dir: /etc/hadoop
+env.yarn.conf.dir: /etc/hadoop
+fs.hdfs.hadoopconf: /etc/hadoop
+#env.java.opts.historyserver:
+#env.java.opts.jobmanager:
+#env.java.opts.taskmanager:
+fs.default-scheme: hdfs://{{cluster_name}}/
+jobmanager.rpc.address: 0.0.0.0
+jobmanager.rpc.port: 6123
+jobmanager.heap.size: {{jm_heapsize}}g
+taskmanager.heap.size: {{tm_heap_size}}g
+taskmanager.numberOfTaskSlots: {{task_slot_num}}
+parallelism.default: 8
+
+#==============================================================================
+# High Availability
+#==============================================================================
+high-availability: zookeeper
+high-availability.storageDir: hdfs://{{cluster_name}}/flink/ha/
+high-availability.zookeeper.quorum: {{zookeeper_quorum}}
+high-availability.zookeeper.path.root: /flink
+high-availability.cluster-id: /cluster_one
+yarn.application-attempts: 10
+high-availability.zookeeper.client.acl: open
+
+#==============================================================================
+# Fault tolerance and checkpointing
+#==============================================================================
+state.backend: rocksdb
+state.checkpoints.dir: hdfs://{{cluster_name}}/flink/checkpoints
+state.savepoints.dir: hdfs://{{cluster_name}}/link/savepoints
+state.backend.incremental: true
+state.backend.async: true
+state.backend.local-recovery: true
+state.backend.rocksdb.localdir: /data1/flink
+
+# akka config
+akka.watch.heartbeat.interval: 5 s
+akka.watch.heartbeat.pause: 20 s
+akka.ask.timeout: 300 s
+akka.lookup.timeout: 300 s
+akka.framesize: 20971520b
+web.timeout: 300000
+heartbeat.timeout: 600000
+jobstore.expiration-time: 36000
+
+#==============================================================================
+# Web Frontend
+jobmanager.web.address: 0.0.0.0
+rest.port: 8081
+jobmanager.web.submit.enable: true
+cluster.evenly-spread-out-slots: true
+
+#==============================================================================
+# Advanced
+#==============================================================================
+taskmanager.tmp.dirs: {{tmp_dir}}
+taskmanager.memory.off-heap: true
+taskmanager.memory.preallocate: true
+taskmanager.network.memory.fraction: 0.99
+taskmanager.network.memory.min: 64mb
+taskmanager.network.memory.max: 2200mb
+taskmanager.network.numberOfBuffers: 2048  # slots-per-TM^2 * #TMs * 4
+
+#==============================================================================
+# HistoryServer
+#==============================================================================
+jobmanager.archive.fs.dir: hdfs://{{cluster_name}}/flink/completed-jobs/
+historyserver.web.address: 0.0.0.0
+historyserver.web.port: 8082
+historyserver.archive.fs.dir: hdfs://{{cluster_name}}/flink/completed-jobs/
+historyserver.archive.fs.refresh-interval: 10000
+
+#=============================================================================
+# metrics
+#=============================================================================
+#metrics.reporters: graphite,jmx,promgateway
+#metrics.reporters: graphite
+#metrics.reporter.graphite.class: org.apache.flink.metrics.graphite.GraphiteReporter
+#metrics.reporter.graphite.host: graphite.example.com
+#metrics.reporter.graphite.port: 2003
+#metrics.reporter.graphite.protocol: TCP
+#metrics.reporter.jmx.class: org.apache.flink.metrics.jmx.JMXReporter
+#metrics.reporter.jmx.port: 8789
+#metrics.reporter.promgateway.class: org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter
+#metrics.reporter.promgateway.host: promgateway.example.com
+#metrics.reporter.promgateway.port: 9091
+#metrics.reporter.promgateway.jobName: myJob
+#metrics.reporter.promgateway.randomJobNameSuffix: true
+#metrics.reporter.promgateway.deleteOnShutdown: false
+
+#yarn.tags: a,b,c
+taskmanager.runtime.hashjoin-bloom-filters: true
+restart-strategy: fixed-delay
+restart-strategy.fixed-delay.attempts: 50
+restart-strategy.fixed-delay.delay: 10 s
+
+# batch
+jobmanager.execution.failover-strategy = region
+restart-strategy.fixed-delay.delay = 30 s
+resourcemanager.taskmanager-timeout = 900000
+
+# taskmanager
+taskmanager.memory.process.size: 22000m
+containerized.heap-cutoff-ratio: 0.3
+taskmanager.memory.managed.size: 8000m
+taskmanager.numberOfTaskSlots: 10
+taskmanager.network.memory.exclusive-buffers-request-timeout-ms: 1000000
+taskmanager.network.blocking-shuffle.type: mmap
+taskmanager.network.blocking-shuffle.compression.enabled = true
+
+]]>
+        </value>
+        <description>Template for flink-conf.yaml</description>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+</configuration>
+

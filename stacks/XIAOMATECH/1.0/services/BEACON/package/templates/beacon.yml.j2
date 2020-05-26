@@ -1,0 +1,78 @@
+engine:
+    hostName: {{beacon_host_name}}
+    bindHost: {{beacon_bind_host}}
+    tlsPort: {{beacon_tls_port}}
+    port: {{beacon_port}}
+    principal: {{beacon_principal}}
+    tlsEnabled: {{beacon_tls_enabled}}
+    keyStore: {{beacon_key_store}}
+    trustStore: {{beacon_trust_store}}
+{% if not credential_store_enabled %}
+    keyStorePassword: {{beacon_key_store_password}}
+    trustStorePassword: {{beacon_trust_store_password}}
+    keyPassword: {{beacon_key_password}}
+{% endif %}
+{% if credential_store_enabled %}
+    keyStorePasswordAlias: {{beacon_key_store_password_alias}}
+    trustStorePasswordAlias: {{beacon_trust_store_password_alias}}
+    keyPasswordAlias: {{beacon_key_password_alias}}
+    credentialProviderPath: {{beacon_credential_provider_path}}
+{% endif %}
+    appPath: {{beacon_app_path}}
+    pluginStagingPath: {{beacon_plugin_staging_dir}}
+    localClusterName: {{beacon_cluster_name}}
+    loadNumThreads: 10
+    loadTimeout: 10
+    knoxProxyEnabled: {{beacon_knox_proxy_enabled}}
+    knoxPreAuthTopology: {{beacon_knox_preauth_topology}}
+    knoxProxyTopology: {{beacon_knox_proxy_topology}}
+    knoxProxyTokenThreshold: {{beacon_knox_proxy_token_threshold}}
+    resultsPerPage: {{beacon_results_per_page}}
+    maxResultsPerPage: {{beacon_max_results_per_page}}
+    maxInstanceCount: {{beacon_max_instance_count}}
+    socketBufferSize: {{beacon_socket_buffer_size}}
+    services: {{beacon_services}}
+    hadoopJobLookupRetries: {{beacon_hadoop_job_lookup_retries}}
+    hadoopJobLookupDelay: {{beacon_hadoop_job_lookup_delay}}
+    authReloginSeconds : {{beacon_auth_relogin_seconds}}
+    excludeFileRegex: {{beacon_exclude_file_regex}}
+    refreshEncryptionZones: {{beacon_encryption_zones_refresh_frequency}}
+    refreshSnapshotDirs: {{beacon_snapshot_dirs_refresh_frequency}}
+    snapshotRetentionNumber: {{beacon_snapshot_retention_number}}
+    preserveMeta: {{beacon_preserve_meta}}
+    cloudCredProviderPath: {{beacon_cloud_cred_provider_path}}
+    hiveBootstrapJobRetryAttempts : {{hive_bootstrap_job_retry_attempts}}
+    rangerClientConnectTimeout: {{ranger_client_connect_timeout}}
+    rangerClientReadTimeout: {{ranger_client_read_timeout}}
+    maxFileListPerPage: {{beacon_max_file_list_per_page}}
+    atlasClientConnectTimeout: {{atlas_client_connect_timeout}}
+    atlasClientReadTimeout: {{atlas_client_read_timeout}}
+
+dbStore:
+    driver: {{beacon_store_driver}}
+    url: {{beacon_store_url}}
+    user: {{beacon_store_user}}
+{% if not credential_store_enabled %}
+    password: {{beacon_store_password}}
+{% endif %}
+{% if credential_store_enabled %}
+    passwordAlias: {{beacon_store_alias}}
+{% endif %}
+    maxConnections: {{beacon_store_max_connections}}
+    maxIdleConnections: {{beacon_store_max_idle_connections}}
+    minIdleConnections: {{beacon_store_min_idle_connections}}
+    maxWaitMSecs: {{beacon_store_waittime_msecs}}
+    connectTimeoutMSecs: {{beacon_store_connect_timeout_msecs}}
+    schemaDirectory : {{beacon_store_schema_dir}}
+
+scheduler:
+    quartzPrefix: {{beacon_quartz_prefix}}
+    quartzThreadPool: {{beacon_quartz_thread_pool}}
+    retiredPolicyOlderThan: {{beacon_retired_policy_older_than}}
+    cleanupFrequency: {{beacon_cleanup_service_frequency}}
+    housekeepingThreads: {{beacon_house_keeping_threads}}
+    housekeepingSyncFrequency: {{beacon_house_keeping_sync_frequency}}
+    housekeepingSyncMaxRetry: {{beacon_house_keeping_sync_max_retry}}
+    minReplicationFrequency: {{beacon_min_replication_frequency}}
+    replicationMetricsInterval: {{beacon_replication_metrics_interval}}
+    policyCheckFrequency: {{beacon_policy_check_frequency}}

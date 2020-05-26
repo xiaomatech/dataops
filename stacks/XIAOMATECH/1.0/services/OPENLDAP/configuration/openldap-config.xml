@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+ 
+<configuration>
+
+  <property>
+    <name>stack.log</name>
+    <value>/var/log/openldap.log</value>
+    <description>Log file for setup/start/stop scripts</description>
+  </property> 
+
+  <property>
+    <name>ldap.adminuser</name>
+    <value>admin</value>
+    <description>Admin user for LDAP</description>
+  </property>
+
+  <property require-input="true">
+    <name>ldap.password</name>
+    <value>example!@#</value>
+    <property-type>PASSWORD</property-type>
+    <description>Password for OpenLDAP</description>
+    <value-attributes>
+      <overridable>false</overridable>
+      <type>password</type>
+    </value-attributes>
+  </property>
+
+  <property>
+    <name>ldap.domain</name>
+    <value>dc=example,dc=com</value>
+    <description>Domain for LDAP. Will be used for lapd.conf and slapd.conf </description>
+  </property> 
+
+  <property>
+    <name>ldap.ou</name>
+    <value>example.com</value>
+    <description>Organization unit LDAP. Will be used for base.ldif</description>
+  </property>
+
+  <property>
+    <name>binddn</name>
+    <value>cn=Manager,ou=Control,dc=example,dc=com</value>
+    <description>binddn</description>
+  </property>
+
+  <property>
+    <name>people_dn</name>
+    <value>ou=Users,dc=example,dc=com</value>
+    <description>people_dn</description>
+  </property>
+
+
+   
+</configuration>
+

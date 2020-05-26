@@ -1,0 +1,9 @@
+Client {
+   com.sun.security.auth.module.Krb5LoginModule required
+   useKeyTab=true
+   useTicketCache=false
+   storeKey=true
+   doNotPrompt=false
+   keyTab="{{opentsdb_keytab}}"
+   principal="{{opentsdb_principal}}";
+};

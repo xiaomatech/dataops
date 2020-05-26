@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/dbuskeeper_web.zip</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>log_dir</name>
+        <value>/var/log/dbus</value>
+        <description>Log directory for dbus</description>
+    </property>
+    <property>
+        <name>pid_dir</name>
+        <value>/var/run/dbus</value>
+        <description>run directory for dbus</description>
+    </property>
+
+    <property>
+        <name>db_url</name>
+        <value>jdbc:mysql://mysql_server_ip:3306/dbusmgr?characterEncoding=utf-8</value>
+        <description>dbus db</description>
+    </property>
+    <property>
+        <name>db_user</name>
+        <value>dbus</value>
+        <description>dbus database user</description>
+    </property>
+    <property>
+        <name>db_password</name>
+        <value>example!@#</value>
+        <property-type>PASSWORD</property-type>
+        <description>password for db</description>
+        <value-attributes>
+            <type>password</type>
+        </value-attributes>
+    </property>
+
+    <property>
+        <name>dbus_user</name>
+        <value>dbus</value>
+        <property-type>USER</property-type>
+        <description>Service user for dbus</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>conf_content</name>
+        <display-name>config.properties</display-name>
+        <description>aconfig.properties content</description>
+        <value><![CDATA[
+register.server.port=9090
+gateway.server.port=5090
+mgr.server.port=8901
+service.server.port=10001
+pubKeyPath=~/.ssh/id_rsa
+eureka.client.serviceUrl.defaultZone=http://localhost:9090/eureka/
+zk.str={{zk_url}}
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+spring.datasource.url={{db_url}}
+spring.datasource.username={{db_user}}
+spring.datasource.password={{db_password}}
+bootstrap.servers={{kafka_broker_url}}
+bootstrap.servers.version=1.1.0
+influxdb_url_web=http://{{influxdb_server}}:8086
+influxdb_url_dbus=http://{{influxdb_server}}:8086
+nginx.ip={{hostname}}
+nginx.port=80
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+</configuration>

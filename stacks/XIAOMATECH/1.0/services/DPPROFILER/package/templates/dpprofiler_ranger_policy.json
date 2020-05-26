@@ -1,0 +1,44 @@
+{
+  "isEnabled": true,
+  "version": 1,
+  "service": "{{service_name}}",
+  "name": "dpprofiler-audit-read",
+  "policyType": 0,
+  "description": "Policy for dpprofiler-audit-read",
+  "isAuditEnabled": true,
+  "resources": {
+    "path": {
+      "values": [
+        "{{ranger_audit_hdfs_path}}",
+        "dpprofiler_default"
+      ],
+      "isExcludes": false,
+      "isRecursive": true
+    }
+  },
+  "policyItems": [
+    {
+      "accesses": [
+        {
+          "type": "read",
+          "isAllowed": true
+        },
+        {
+          "type": "execute",
+          "isAllowed": true
+        }
+      ],
+      "users": [
+        "{{dpprofiler_user}}"
+      ],
+      "groups": [],
+      "conditions": [],
+      "delegateAdmin": false
+    }
+  ],
+  "denyPolicyItems": [],
+  "allowExceptions": [],
+  "denyExceptions": [],
+  "dataMaskPolicyItems": [],
+  "rowFilterPolicyItems": []
+}

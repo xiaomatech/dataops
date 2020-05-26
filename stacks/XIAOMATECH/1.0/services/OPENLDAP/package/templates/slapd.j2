@@ -1,0 +1,152 @@
+include		/etc/openldap/schema/corba.schema
+include		/etc/openldap/schema/core.schema
+include		/etc/openldap/schema/cosine.schema
+include		/etc/openldap/schema/duaconf.schema
+include		/etc/openldap/schema/dyngroup.schema
+include		/etc/openldap/schema/inetorgperson.schema
+include		/etc/openldap/schema/java.schema
+include		/etc/openldap/schema/misc.schema
+include		/etc/openldap/schema/nis.schema
+include		/etc/openldap/schema/openldap.schema
+include		/etc/openldap/schema/ppolicy.schema
+include		/etc/openldap/schema/collective.schema
+include     /etc/openldap/schema/kerberos.schema
+include     /etc/openldap/schema/sudoers.schema
+include     /etc/openldap/schema/tacacs.schema
+include     /etc/openldap/schema/cisco.schema
+include     /etc/openldap/schema/radius.schema
+include     /etc/openldap/schema/dnsdomain2.schema
+include     /etc/openldap/schema/public_key.schema
+access to attrs=userPassword
+    by self read
+    by dn.exact="{{binddn}}" write
+    by anonymous auth
+
+access to dn.subtree="{{ldap_kerberos_container_dn}}"
+    by dn.exact="{{ldap_kadmind_dn}}" write
+    by dn.exact="{{ldap_kdc_dn}}" read
+    by * none
+
+access to dn.base=""
+    by * read
+
+access to *
+    by self write
+    by dn.base="{{binddn}}" write
+    by users read
+    by anonymous read
+    by * break
+
+authz-regexp
+    uid([^,]+),cn={{kdc_realm}},{{ldap_kerberos_container_dn}}
+    uid($1),{{people_dn}}
+
+authz-regexp
+    uid=(.*),cn={{kdc_realm}},{{ldap_kerberos_container_dn}}
+    ldap:///{{people_dn}}??sub?(&(uid=$1)(objectClass=inetOrgPerson))
+
+allow bind_v2
+
+
+pidfile		/var/run/openldap/slapd.pid
+argsfile	/var/run/openldap/slapd.args
+
+
+modulepath /usr/lib64/openldap
+moduleload syncprov.la
+
+TLSCACertificatePath /etc/openldap/certs
+TLSCertificateFile "\"OpenLDAP Server\""
+TLSCertificateKeyFile /etc/openldap/certs/password
+
+database config
+access to *
+	by dn.exact="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
+	by * none
+
+database monitor
+access to *
+	by dn.exact="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" read
+        by dn.exact="{{binddn}}" read
+        by * none
+
+
+moduleload ppolicy.la
+password-hash {SSHA}
+overlay ppolicy
+ppolicy_default "cn=default,ou=Policy,{{ldap_domain}}"
+ppolicy_hash_cleartext
+ppolicy_use_lockout
+
+
+database	bdb
+suffix		"{{ldap_domain}}"
+checkpoint	1024 15
+rootdn		"{{binddn}}"
+rootpw		{SSHA}G6Aw3/FdtOYECh74qDkyp1WoCFvnWJ1Q
+
+loglevel  32768
+cachesize 51200
+idlcachesize 512000
+dbcachesize 512000000
+concurrency 512
+threads 512
+disallow bind_anon
+idletimeout 0
+sizelimit 5000
+timelimit 60
+gentlehup on
+
+directory	/var/lib/ldap
+
+index objectClass                       eq,pres
+index ou,cn,mail,surname,givenname      eq,pres,sub
+index uidNumber,gidNumber,loginShell    eq,pres
+index uid,memberUid                     eq,pres,sub
+index nisMapName,nisMapEntry            eq,pres,sub
+index krbPrincipalName            eq,pres,sub
+index entryCSN,entryUUID             eq
+
+overlay syncprov
+syncprov-checkpoint 1000 60
+syncprov-sessionlog 100
+syncprov-nopresent TRUE
+syncprov-reloadhint TRUE
+
+serverID    {{server_id}}
+
+syncrepl    rid=001
+            provider=ldap://{{other_host}}:389
+            bindmethod=simple
+            binddn="{{binddn}}"
+            credentials={{ldap_password}}
+            searchbase="{{ldap_domain}}"
+            schemachecking=on
+            type=refreshAndPersist
+            retry="5 5 300 +"
+            interval=00:00:00:01
+
+#mirrormode  on
+
+# Load the hdb backend
+moduleload back_hdb.la
+
+# Load the accesslog overlay
+moduleload accesslog.la
+# Accesslog database definitions
+database hdb
+suffix cn=accesslog
+directory /db/accesslog
+rootdn cn=accesslog
+index default eq
+index entryCSN,objectClass,reqEnd,reqResult,reqStart
+
+# accesslog overlay definitions for primary db
+overlay accesslog
+logdb cn=accesslog
+logops writes
+logsuccess TRUE
+# scan the accesslog DB every day, and purge entries older than 7 days
+logpurge 07+00:00 01+00:00
+# Let the replica DN have limitless searches
+limits dn.exact="{{binddn}}" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited

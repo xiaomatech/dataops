@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>DORIS</name>
+            <displayName>Apache Doris(Baidu DORIS)</displayName>
+            <comment>OLAP</comment>
+            <version>0.11.0</version>
+            <components>
+                <component>
+                    <name>DORISFE</name>
+                    <displayName>DORIS FE</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/fe.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+                <component>
+                    <name>DORISBE</name>
+                    <displayName>DORIS BE</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/be.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                    <bulkCommands>
+                        <displayName>DORIS BEs</displayName>
+                        <masterComponent>DORISBE</masterComponent>
+                    </bulkCommands>
+                </component>
+                <component>
+                    <name>DORISHDFSBROKER</name>
+                    <displayName>DORIS HDFS Broker</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>0+</cardinality>
+                    <commandScript>
+                        <script>scripts/hdfs_broker.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>600</timeout>
+                    </commandScript>
+                </component>
+            </components>
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+            <configuration-dependencies>
+                <config-type>doris-env</config-type>
+            </configuration-dependencies>
+            <restartRequiredAfterChange>true</restartRequiredAfterChange>
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+        </service>
+    </services>
+</metainfo>

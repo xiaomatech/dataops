@@ -1,0 +1,273 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration supports_adding_forbidden="true">
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/apache-flume-1.9.0-bin.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>flume_conf_dir</name>
+        <display-name>Flume Conf Dir</display-name>
+        <value>/etc/flume</value>
+        <description>Location to save configuration files</description>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+            <editable-only-at-install>true</editable-only-at-install>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>flume_log_dir</name>
+        <display-name>Flume Log Dir</display-name>
+        <value>/var/log/flume</value>
+        <description>Location to save log files</description>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>flume_run_dir</name>
+        <value>/var/run/flume</value>
+        <description>Location to save information about running agents</description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>flume_user</name>
+        <display-name>Flume User</display-name>
+        <value>flume</value>
+        <property-type>USER</property-type>
+        <description>Flume User</description>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <!-- flume-env.sh -->
+    <property>
+        <name>content</name>
+        <display-name>flume-env template</display-name>
+        <description>This is the jinja template for flume-env.sh file</description>
+        <value><![CDATA[
+
+export JAVA_HOME={{java_home}}
+
+# Give Flume more memory and pre-allocate, enable remote monitoring via JMX
+# export JAVA_OPTS="-Xms1024m -Xmx4096m -Dcom.sun.management.jmxremote"
+
+# Note that the Flume conf directory is always included in the classpath.
+# Add flume sink to classpath
+if [ -e "/usr/lib/flume/lib/ambari-metrics-flume-sink.jar" ]; then
+  export FLUME_CLASSPATH=$FLUME_CLASSPATH:/usr/lib/flume/lib/ambari-metrics-flume-sink.jar
+fi
+
+{% if security_enabled %}
+JAVA_OPTS="$JAVA_OPTS -Djava.security.krb5.conf=/etc/krb5.conf"
+JAVA_OPTS="$JAVA_OPTS -Djava.security.auth.login.config={{conf_dir}}/flume_jaas.conf"
+{% endif %}
+
+export HIVE_HOME={{flume_hive_home}}
+export HCAT_HOME={{flume_hcat_home}}
+      ]]>
+        </value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>conf_content</name>
+        <display-name>flume-conf template</display-name>
+        <description>Flume agent configurations.
+            Specifying the configuration here applies to all hosts in this configuration-group. Please use host specific
+            configuration-groups to provide different configurations on different hosts.
+            For configuring multiple agents on the same host, provide the combined agent configurations here. Each agent
+            should have a different name.
+        </description>
+        <value><![CDATA[
+ingest.sources = from_dir_src
+ingest.channels = memory_channel
+ingest.sinks = to_kafka_sink1 to_kafka_sink2 to_kafka_sink3
+
+ingest.sources.from_dir_src.type = TAILDIR
+ingest.sources.from_dir_src.positionFile = /var/log/flume/taildir_position.json
+ingest.sources.from_dir_src.filegroups = f1 f2
+ingest.sources.from_dir_src.filegroups.f1 = /data/log/nginx/*_access.log
+ingest.sources.from_dir_src.headers.f1.service = nginx
+ingest.sources.from_dir_src.headers.f1.module = access
+ingest.sources.from_dir_src.headers.f2.topic = nginx_access
+ingest.sources.from_dir_src.filegroups.f2 = /var/log/nginx/*_error.log
+ingest.sources.from_dir_src.headers.f2.service = nginx
+ingest.sources.from_dir_src.headers.f2.module = error
+ingest.sources.from_dir_src.headers.f2.topic = nginx_error
+ingest.sources.from_dir_src.fileHeader = true
+ingest.sources.from_dir_src.skipToEnd = True
+ingest.sources.from_dir_src.batchSize = 1000
+
+ingest.sources.from_dir_src.preserveExisting=true
+ingest.sources.from_dir_src.useIP=true
+
+ingest.sources.from_dir_src.interceptors = i1
+ingest.sources.from_dir_src.interceptors.i1.type = host
+ingest.sources.from_dir_src.interceptors.i1.useIP = true
+ingest.sources.from_dir_src.interceptors.i1.useHostname = true
+ingest.sources.from_dir_src.interceptors.i1.ip = flume_agent_ip
+ingest.sources.from_dir_src.interceptors.i1.hostname = flume_agent_host
+
+ingest.sources.from_dir_src.multiline = true
+ingest.sources.from_dir_src.multilinePattern = ^AGENT_IP:
+ingest.sources.from_dir_src.multilinePatternBelong = previous
+ingest.sources.from_dir_src.multilineMatched = true
+ingest.sources.from_dir_src.multilineEventTimeoutSeconds = 120
+ingest.sources.from_dir_src.multilineMaxBytes = 3145728
+ingest.sources.from_dir_src.multilineMaxLines = 3000
+
+ingest.channels.memory_channel.type = SPILLABLEMEMORY
+ingest.channels.memory_channel.memoryCapacity = 100000
+ingest.channels.memory_channel.overflowCapacity = 10000000
+ingest.channels.memory_channel.byteCapacity = 8000000
+ingest.channels.memory_channel.byteCapacityBufferPercentage = 20
+ingest.channels.memory_channel.checkpointDir = /var/log/flume/checkpoint
+ingest.channels.memory_channel.dataDirs = {{datadirs}}
+ingest.channels.memory_channel.transactionCapacity = 10000
+ingest.channels.memory_channel.capacity = 1000000
+
+ingest.sinkgroups = g1
+ingest.sinkgroups.g1.sinks = to_kafka_sink1 to_kafka_sink2 to_kafka_sink3
+ingest.sinkgroups.g1.processor.type = load_balance
+ingest.sinkgroups.g1.processor.backoff = true
+ingest.sinkgroups.g1.processor.selector = round_robin
+
+ingest.sinks.to_kafka_sink1.channel = memory_channel
+ingest.sinks.to_kafka_sink1.type = org.apache.flume.sink.kafka.KafkaSink
+ingest.sinks.to_kafka_sink1.kafka.bootstrap.servers = {{kafka_url}}
+ingest.sinks.to_kafka_sink1.kafka.flumeBatchSize = 2000
+ingest.sinks.to_kafka_sink1.kafka.producer.acks = 1
+ingest.sinks.to_kafka_sink1.kafka.producer.linger.ms = 1
+ingest.sinks.to_kafka_sink1.kafka.kafka.producer.type = async
+ingest.sinks.to_kafka_sink1.kafka.kafka.encoding = UTF-8
+
+ingest.sinks.to_kafka_sink2.channel = memory_channel
+ingest.sinks.to_kafka_sink2.type = org.apache.flume.sink.kafka.KafkaSink
+ingest.sinks.to_kafka_sink2.kafka.bootstrap.servers = {{kafka_url}}
+ingest.sinks.to_kafka_sink2.kafka.flumeBatchSize = 2000
+ingest.sinks.to_kafka_sink2.kafka.producer.acks = 1
+ingest.sinks.to_kafka_sink2.kafka.producer.linger.ms = 1
+ingest.sinks.to_kafka_sink2.kafka.kafka.producer.type = async
+ingest.sinks.to_kafka_sink2.kafka.kafka.encoding = UTF-8
+
+ingest.sinks.to_kafka_sink3.channel = memory_channel
+ingest.sinks.to_kafka_sink3.type = org.apache.flume.sink.kafka.KafkaSink
+ingest.sinks.to_kafka_sink3.kafka.bootstrap.servers = {{kafka_url}}
+ingest.sinks.to_kafka_sink3.kafka.flumeBatchSize = 2000
+ingest.sinks.to_kafka_sink3.kafka.producer.acks = 1
+ingest.sinks.to_kafka_sink3.kafka.producer.linger.ms = 1
+ingest.sinks.to_kafka_sink3.kafka.kafka.producer.type = async
+ingest.sinks.to_kafka_sink3.kafka.kafka.encoding = UTF-8
+
+
+
+#ingest.sources.source_spool.type=spooldir  
+#ingest.sources.source_spool.channels=spool_channel
+#ingest.sources.source_spool.spoolDir=/data/log/nginx  
+#ingest.sources.source_spool.fileHeader=true  
+#ingest.sources.source_spool.fileHeaderKey=file  
+#ingest.sources.source_spool.basenameHeader=true  
+#ingest.sources.source_spool.basenameHeaderKey=basename  
+#ingest.sources.source_spool.deletePolicy=never  
+#ingest.sources.source_spool.includePattern=^.*\.log
+#ingest.sources.source_spool.consumeOrder=oldest  
+#ingest.sources.source_spool.recursiveDirectorySearch=false  
+#ingest.sources.source_spool.batchSize=100  
+#ingest.sources.source_spool.inputCharset=UTF-8  
+#ingest.sources.source_spool.decodeErrorPolicy=IGNORE  
+#ingest.sources.source_spool.selector.type=replicating  
+#ingest.sources.source_spool.interceptors=i1 i2  
+#ingest.sources.source_spool.interceptors.i1.type=timestamp  
+#ingest.sources.source_spool.interceptors.i2.type=host  
+#ingest.sources.source_spool.interceptors.i2.useIP=true  
+#ingest.sources.source_spool.interceptors.i2.hostHeader=host
+#ingest.channels.spool_channel.type = SPILLABLEMEMORY
+#ingest.channels.spool_channel.memoryCapacity = 100000
+#ingest.channels.spool_channel.overflowCapacity = 10000000
+#ingest.channels.spool_channel.byteCapacity = 8000000
+#ingest.channels.spool_channel.byteCapacityBufferPercentage = 20
+#ingest.channels.spool_channel.checkpointDir = /var/log/flume/checkpoint_hdfs
+#ingest.channels.spool_channel.dataDirs = {{datadirs}}
+#ingest.channels.spool_channel.transactionCapacity = 10000
+#ingest.channels.spool_channel.capacity = 1000000
+#ingest.sinks.hdfs_spool.channel=spool_channel  
+#ingest.sinks.hdfs_spool.type=hdfs  
+#ingest.sinks.hdfs_spool.hdfs.fileType=DataStream  
+#ingest.sinks.hdfs_spool.hdfs.writeFormat=Text  
+#ingest.sinks.hdfs_spool.hdfs.path=hdfs:///logs/nginx/%Y-%m-%d  
+#ingest.sinks.hdfs_spool.hdfs.filePrefix=%{basename}.[%{host}]  
+#ingest.sinks.hdfs_spool.hdfs.fileSuffix=  
+#ingest.sinks.hdfs_spool.hdfs.inUseSuffix=.tmp  
+#ingest.sinks.hdfs_spool.hdfs.rollInterval=0  
+#ingest.sinks.hdfs_spool.hdfs.rollSize=1073741824  
+#ingest.sinks.hdfs_spool.hdfs.rollCount=0  
+#ingest.sinks.hdfs_spool.hdfs.idleTimeout=60
+
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+            <empty-value-valid>true</empty-value-valid>
+            <show-property-name>false</show-property-name>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>jaas_content</name>
+        <display-name>kafka_jaas template</display-name>
+        <description>Kafka jaas config</description>
+        <value><![CDATA[
+Client {
+    com.sun.security.auth.module.Krb5LoginModule required
+    useKeyTab=true
+    storeKey=true
+    keyTab="{{flume_keytab_path}}"
+    principal="{{flume_jaas_princ}}";
+};
+
+KafkaClient {
+    com.sun.security.auth.module.Krb5LoginModule required
+    useKeyTab=true
+    storeKey=true
+    keyTab="{{flume_keytab_path}}"
+    principal="{{flume_jaas_princ}}";
+};
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+            <show-property-name>false</show-property-name>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>flume_principal_name</name>
+        <description>Flume principal name</description>
+        <property-type>KERBEROS_PRINCIPAL</property-type>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>flume_keytab_path</name>
+        <description>Flume keytab path</description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+</configuration>

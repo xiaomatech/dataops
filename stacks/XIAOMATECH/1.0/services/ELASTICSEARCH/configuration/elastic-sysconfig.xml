@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>elastic_home</name>
+        <value>/usr/share/elasticsearch/</value>
+        <description>Elasticsearch Home Directory</description>
+    </property>
+    <property>
+        <name>work_dir</name>
+        <value>/tmp/elasticsearch/</value>
+        <description>Elasticsearch Work Directory</description>
+    </property>
+    <property>
+        <name>conf_dir</name>
+        <value>/etc/elasticsearch/</value>
+        <description>Elasticsearch Configuration Directory</description>
+    </property>
+    <property>
+        <name>heap_size</name>
+        <value>32g</value>
+        <description>Heap size</description>
+    </property>
+    <property>
+        <name>max_open_files</name>
+        <value>65535</value>
+        <description>Maximum number of open files</description>
+    </property>
+    <property>
+        <name>max_map_count</name>
+        <value>262144</value>
+        <description>Maximum number of memory map areas for process</description>
+    </property>
+
+    <!--/etc/sysconfig/elasticsearch-->
+    <property>
+        <name>content</name>
+        <description>This is the jinja template for elastic sysconfig file (/etc/sysconfig/elasticsearch)</description>
+        <value>
+# Directory where the Elasticsearch binary distribution resides
+ES_HOME={{elastic_home}}
+
+# Heap Size (defaults to 256m min, 1g max)
+ES_HEAP_SIZE={{heap_size}}
+
+# Maximum number of open files
+MAX_OPEN_FILES={{max_open_files}}
+
+# Maximum number of VMA (Virtual Memory Areas) a process can own
+MAX_MAP_COUNT={{max_map_count}}
+
+# Elasticsearch log directory
+LOG_DIR={{log_dir}}
+
+# Elasticsearch data directory
+DATA_DIR={{data_dir}}
+
+# Elasticsearch work directory
+WORK_DIR={{work_dir}}
+
+# Elasticsearch conf directory
+CONF_DIR={{conf_dir}}
+ES_PATH_CONF={{conf_dir}}
+
+RESTART_ON_UPGRADE=true
+# Elasticsearch pid directory
+PID_DIR={{pid_dir}}
+
+# JAVA_HOME must be provided here for OS that use systemd service launch
+JAVA_HOME={{java64_home}}
+
+# SysV init.d
+#
+# The number of seconds to wait before checking if Elasticsearch started successfully as a daemon process
+ES_STARTUP_SLEEP_TIME=5
+
+MAX_OPEN_FILES=65536
+
+#MAX_LOCKED_MEMORY=unlimited
+
+MAX_MAP_COUNT=262144
+
+# Additional Java OPTS
+ES_JAVA_OPTS="-Des.index.max_number_of_shards=1024 -verbose:gc -Xloggc:{{log_dir}}/elasticsearch_gc.log -XX:-CMSConcurrentMTEnabled \
+-XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps \
+-XX:ErrorFile={{log_dir}}/elasticsearch_err.log -XX:ParallelGCThreads=20"
+        </value>
+    </property>
+</configuration>

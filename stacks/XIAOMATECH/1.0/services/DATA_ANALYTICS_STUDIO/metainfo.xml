@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>DATA_ANALYTICS_STUDIO</name>
+            <displayName>Data Analytics Studio</displayName>
+            <comment>Data Analytics Studio is the one stop shop for Apache Hive warehousing. Query, optimize and
+                administrate your data with this powerful interface.
+            </comment>
+            <version>1.2.1.0</version>
+            <credential-store>
+                <supported>true</supported>
+                <enabled>true</enabled>
+            </credential-store>
+            <sso>
+                <supported>true</supported>
+                <enabledConfiguration>data_analytics_studio-security-site/knox_sso_enabled</enabledConfiguration>
+            </sso>
+            <components>
+
+                <component>
+                    <name>DATA_ANALYTICS_STUDIO_WEBAPP</name>
+                    <displayName>Data Analytics Studio Webapp</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1</cardinality>
+                    <versionAdvertised>false</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <clientsToUpdateConfigs></clientsToUpdateConfigs>
+                    <commandScript>
+                        <script>scripts/data_analytics_studio_webapp.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                    <logs>
+                        <log>
+                            <logId>data_analytics_studio_webapp</logId>
+                            <primary>true</primary>
+                        </log>
+                    </logs>
+                    <configuration-dependencies>
+                        <config-type>data_analytics_studio-properties</config-type>
+                        <config-type>data_analytics_studio-database</config-type>
+                        <config-type>data_analytics_studio-env</config-type>
+                        <config-type>data_analytics_studio-webapp-env</config-type>
+                        <config-type>data_analytics_studio-webapp-properties</config-type>
+                        <config-type>data_analytics_studio-security-site</config-type>
+                    </configuration-dependencies>
+                </component>
+
+                <component>
+                    <name>DATA_ANALYTICS_STUDIO_EVENT_PROCESSOR</name>
+                    <displayName>Data Analytics Studio Event Processor</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1</cardinality>
+                    <versionAdvertised>false</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/data_analytics_studio_event_processor.py</script>
+                        <scriptType>PYTHON</scriptType>
+                    </commandScript>
+                    <logs>
+                        <log>
+                            <logId>data_analytics_studio_event_processor</logId>
+                            <primary>true</primary>
+                        </log>
+                    </logs>
+                    <configuration-dependencies>
+                        <config-type>data_analytics_studio-properties</config-type>
+                        <config-type>data_analytics_studio-database</config-type>
+                        <config-type>data_analytics_studio-env</config-type>
+                        <config-type>data_analytics_studio-event_processor-env</config-type>
+                        <config-type>data_analytics_studio-event_processor-properties</config-type>
+                        <config-type>data_analytics_studio-security-site</config-type>
+                    </configuration-dependencies>
+                </component>
+
+            </components>
+
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+
+            <requiredServices>
+                <service>HIVE</service>
+            </requiredServices>
+
+            <configuration-dependencies>
+            </configuration-dependencies>
+        </service>
+    </services>
+</metainfo>

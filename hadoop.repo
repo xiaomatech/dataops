@@ -1,0 +1,5 @@
+[hadoop]
+name=hadoop
+baseurl=http://assets.example.com/$releasever
+gpgcheck=0
+enable=1

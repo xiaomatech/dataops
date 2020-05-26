@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration supports_final="true" supports_adding_forbidden="true">
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/presto-server-325.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property require-input="true">
+        <name>download_url_cli</name>
+        <value>http://assets.example.com/presto-cli-307-executable.jar</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>presto_user</name>
+        <value>presto</value>
+        <property-type>USER</property-type>
+        <description>User for Presto service</description>
+        <display-name>Presto user</display-name>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>presto_principal_name</name>
+        <description>Presto principal name</description>
+        <property-type>KERBEROS_PRINCIPAL</property-type>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>presto_keytab_path</name>
+        <description>Presto keytab path</description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>presto_plugins</name>
+        <description>presto plugins</description>
+        <value>{ 'carbondata':'apache-carbondata-1.5.2-bin-spark2.3.2-hadoop2.7.2.jar' }</value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>config_content</name>
+        <display-name>presto config.properties</display-name>
+        <description>The template for config.properties file.</description>
+        <value><![CDATA[
+coordinator={{coordinator}}
+node-scheduler.include-coordinator=false
+http-server.http.port=8000
+query.max-memory=1024GB
+query.max-memory-per-node=30GB
+discovery.uri=http://{{presto_coordinator_host_one}}:8000
+node-scheduler.max-splits-per-node=100
+node-scheduler.max-pending-splits-per-task=10
+node-scheduler.min-candidates=15
+task.concurrency=16
+task.max-worker-threads=80
+task.min-drivers=80
+task.http-response-threads=100
+task.http-timeout-threads=15
+task.info-update-interval=6s
+node-manager.http-client.request-timeout=120s
+node-manager.http-client.connect-timeout=20s
+node-manager.http-client.idle-timeout=30s
+sink.max-buffer-size=128MB
+task.max-partial-aggregation-memory=512MB
+exchange.max-buffer-size=64MB
+exchange.max-response-size=32MB
+exchange.http-client.max-content-length=32MB
+exchange.http-client.request-timeout=120s
+exchange.http-client.connect-timeout=20s
+exchange.http-client.idle-timeout=30s
+exchange.http-client.max-connections-per-server=4096
+exchange.http-client.max-requests-queued-per-destination=4096
+exchange.concurrent-request-multiplier=3
+exchange.client-threads=25
+
+{% if coordinator == 'true' %}
+discovery-server.enabled=true
+memoryManager.http-client.request-timeout=120s
+memoryManager.http-client.connect-timeout=20s
+memoryManager.http-client.idle-timeout=30s
+scheduler.http-client.request-timeout=120s
+scheduler.http-client.connect-timeout=20s
+scheduler.http-client.idle-timeout=30s
+scheduler.http-client.max-connections-per-server=4096
+scheduler.http-client.max-requests-queued-per-destination=4096
+{% endif %}
+
+query.max-run-time=2h
+query.max-concurrent-queries=100
+
+#http-server.authentication.type=PASSWORD
+#http-server.https.enabled=true
+#http-server.https.port=8443
+#http-server.https.keystore.path=/etc/presto/presto.keystore.jks
+#http-server.https.keystore.key=production-presto
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>jvm_content</name>
+        <display-name>presto jvm.config</display-name>
+        <description>The template for jvm.config</description>
+        <value><![CDATA[
+-server
+-Xmx{{men_gib}}G
+-Xms{{men_gib}}G
+-XX:+UseG1GC
+-XX:G1HeapRegionSize=32M
+-XX:+UseGCOverheadLimit
+-XX:+ExplicitGCInvokesConcurrent
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=/var/log/presto
+-XX:+ExitOnOutOfMemoryError
+-XX:ReservedCodeCacheSize=1024M
+
+-Xloggc:/var/log/presto/presto-gc.log
+-XX:+PrintGCDetails
+-XX:+PrintGCDateStamps
+-XX:+PrintTenuringDistribution
+-XX:+PrintReferenceGC
+-XX:+PrintAdaptiveSizePolicy
+
+-XX:-UseBiasedLocking
+-XX:AutoBoxCacheMax=20000
+-XX:+AlwaysPreTouch
+-XX:+UseStringDeduplication
+
+-Dcom.sun.management.jmxremote=true
+-Dcom.sun.management.jmxremote.port=9015
+-Dcom.sun.management.jmxremote.local.only=false
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.ssl=false
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>node_content</name>
+        <display-name>presto node.properties</display-name>
+        <description>The template node.properties</description>
+        <value><![CDATA[
+node.environment=production
+node.id=production-{{hostname}}
+node.data-dir=/data1/presto
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+
+    <property>
+        <name>event_listener_content</name>
+        <display-name>presto event-listener.properties</display-name>
+        <description>The template for event-listener.properties</description>
+        <value><![CDATA[
+event-listener.name=presto-querymonitor
+event-listener.mysql-url=jdbc:mysql://localhost/test
+event-listener.mysql-user=
+event-listener.mysql-password=
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>password_authenticator_content</name>
+        <display-name>presto password-authenticator.properties</display-name>
+        <description>The template for password-authenticator.properties</description>
+        <value><![CDATA[
+password-authenticator.name=ldap
+ldap.url=ldaps://10.65.205.106:636
+ldap.user-bind-pattern=uid=${USER},dc=example,dc=com
+#ldap.user-base-dn=
+#ldap.group-auth-pattern=
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>resource_groups_content</name>
+        <display-name>presto resource-groups.properties</display-name>
+        <description>The template resource-groups.properties</description>
+        <value><![CDATA[
+resource-groups.configuration-manager=file
+resource-groups.config-file=/etc/presto/resource_groups.json
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>resource_groups_json_content</name>
+        <display-name>presto resource_groups.json</display-name>
+        <description>The template for resource_groups.json</description>
+        <value><![CDATA[
+{
+  "rootGroups": [
+    {
+      "name": "global",
+      "softMemoryLimit": "98%",
+      "hardConcurrencyLimit": 130,
+      "maxQueued": 300,
+      "jmxExport": true,
+      "subGroups": [
+        {
+          "name": "lumos",
+          "softMemoryLimit": "88%",
+          "hardConcurrencyLimit": 1,
+          "maxQueued": 1
+        },
+        {
+          "name": "other",
+          "softMemoryLimit": "10%",
+          "hardConcurrencyLimit": 30,
+          "maxQueued": 100
+        }
+      ]
+    }
+  ],
+  "selectors": [
+    {
+      "user": "lumos",
+      "group": "global.lumos"
+    },
+    {
+      "group": "global.other"
+    }
+  ]
+}
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>rules_content</name>
+        <display-name>presto rules.json</display-name>
+        <description>The template for rules.json</description>
+        <value><![CDATA[
+{
+    "schemas": [
+      {
+        "user": "admin_de_presto",
+        "schema": ".*",
+        "owner": true
+      },
+      {
+        "user": "abc",
+        "schema": ".*",
+        "owner": false
+      },
+      {
+        "user": "bi",
+        "schema": "example_my_anlys",
+        "owner": true
+      }
+    ],
+    "tables": [
+      {
+        "user": "admin_de_presto",
+        "privileges": ["SELECT", "INSERT", "DELETE", "OWNERSHIP"]
+      },
+      {
+        "user": "abc",
+        "privileges": ["SELECT"]
+      },
+      {
+        "user": "bi",
+        "schema": "example_my",
+        "privileges": ["SELECT"]
+      },
+      {
+        "schema": "information_schema",
+        "table": ".*",
+        "privileges": ["SELECT"]
+      }
+    ]
+  }
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>catalog_hive_content</name>
+        <display-name>presto catalog/hive.properties</display-name>
+        <description>The template for catalog/hive.properties</description>
+        <value><![CDATA[
+connector.name=hive-hadoop2
+hive.metastore.uri={{hive_metastore_uri}}
+hive.config.resources={{hadoop_conf_dir}}/core-site.xml,{{hadoop_conf_dir}}/hdfs-site.xml
+hive.parquet.use-column-names=true
+hive.parquet-optimized-reader.enabled=true
+hive.parquet-predicate-pushdown.enabled=true
+hive.dfs-timeout=20m
+hive.dfs.connect.timeout=2m
+hive.metastore-timeout=5m
+hive.collect-column-statistics-on-write=true
+hive.storage-format=PARQUET
+hive.compression-codec=SNAPPY
+hive.force-local-scheduling=true
+hive.security=file
+security.config-file=/etc/presto/rules.json
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>catalog_kafka_content</name>
+        <display-name>presto catalog/kafka.properties</display-name>
+        <description>The template for catalog/kafka.properties</description>
+        <value><![CDATA[
+connector.name=kafka
+kafka.nodes={{kafka_hosts}}
+kafka.table-names=*
+kafka.hide-internal-columns=false
+kafka.table-description-dir=/etc/presto/kafka
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>catalog_jmx_content</name>
+        <display-name>presto catalog/jmx.properties</display-name>
+        <description>The template for catalog/jmx.properties</description>
+        <value><![CDATA[
+connector.name=jmx
+jmx.dump-tables=java.lang:type=Runtime,com.facebook.presto.execution.scheduler:name=NodeScheduler,com.facebook.presto.memory:type=memorypool\\,name=general
+jmx.dump-period=10s
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>catalog_pulsar_content</name>
+        <display-name>presto catalog/pulsar.properties</display-name>
+        <description>The template for catalog/pulsar.properties</description>
+        <value><![CDATA[
+connector.name=pulsar
+# the url of Pulsar broker service
+pulsar.broker-service-url=http://localhost:8080
+# URI of Zookeeper cluster
+pulsar.zookeeper-uri=127.0.0.1:2181
+# minimum number of entries to read at a single time
+pulsar.max-entry-read-batch-size=100
+# default number of splits to use per query
+pulsar.target-num-splits=2
+# max message queue size
+pulsar.max-split-message-queue-size=10000
+# max entry queue size
+pulsar.max-split-entry-queue-size = 1000
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>catalog_phoenix_content</name>
+        <display-name>presto catalog/phoenix.properties</display-name>
+        <description>The template for catalog/phoenix.properties</description>
+        <value><![CDATA[
+connector.name=phoenix
+connection-url={{phoenix_url}}
+connection-properties=phoenix.schema.isNamespaceMappingEnabled=true;hbase.regionserver.wal.codec=org.apache.hadoop.hbase.regionserver.wal.IndexedWALEditCodec
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>session_content</name>
+        <display-name>presto session-property-config.properties</display-name>
+        <description>The template session-property-config.properties</description>
+        <value><![CDATA[
+session-property-config.configuration-manager=file
+session-property-manager.config-file=/etc/presto/session_property_config.json
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>session_property_content</name>
+        <display-name>presto session_property_config.json</display-name>
+        <description>The template session_property_config.json</description>
+        <value><![CDATA[
+[
+  {
+    "group": "global.*",
+    "sessionProperties": {
+      "query_max_execution_time": "2h"
+    }
+  },
+  {
+    "group": "meta.*",
+    "sessionProperties": {
+      "query_max_execution_time": "0.1h"
+    }
+  }
+]
+
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>content</name>
+        <display-name>presto init template</display-name>
+        <description>The template for a init presto file.</description>
+        <value><![CDATA[
+#!/bin/bash
+#
+# Manages a Presto node service
+#
+# chkconfig: 345 85 15
+# description: Presto node
+#
+### BEGIN INIT INFO
+# Provides:          presto
+# Short-Description: presto node
+# Default-Start:     3 4 5
+# Default-Stop:      0 1 2 6
+# Required-Start:    $syslog $remote_fs
+# Required-Stop:     $syslog $remote_fs
+# Should-Start:
+# Should-Stop:
+### END INIT INFO
+
+JAVA_HOME={{java_home}}
+SCRIPT_NAME=$0
+ACTION_NAME=$1
+SERVICE_NAME='presto'
+SERVICE_USER='presto'
+
+# Launcher Config.
+# Use data-dir from node.properties file (assumes it to be at /etc/presto). For other args use defaults from rpm install
+NODE_PROPERTIES=/etc/presto/node.properties
+DATA_DIR=$(grep -Po "(?<=^node.data-dir=).*" $NODE_PROPERTIES)
+SERVER_LOG_FILE=$(grep -Po "(?<=^node.server-log-file=).*" $NODE_PROPERTIES)
+LAUNCHER_LOG_FILE=$(grep -Po "(?<=^node.launcher-log-file=).*" $NODE_PROPERTIES)
+CONFIGURATION=(--launcher-config /opt/presto-server/bin/launcher.properties --data-dir "$DATA_DIR" --node-config "$NODE_PROPERTIES" --pid-file /var/run/presto/presto.pid --jvm-config /etc/presto/jvm.config --config /etc/presto/config.properties --launcher-log-file "${LAUNCHER_LOG_FILE:-/var/log/presto/launcher.log}" --server-log-file "${SERVER_LOG_FILE:-/var/log/presto/server.log}")
+
+start () {
+    echo "Starting ${SERVICE_NAME} "
+    if [ -z "$JAVA_HOME" ]
+    then
+        echo "Warning: No value found for JAVA_HOME. Default Java will be used."
+        /opt/presto-server/bin/launcher start ${CONFIGURATION[@]}
+    else
+        JAVA_HOMEPATH=${JAVA_HOME}/bin:$PATH /opt/presto-server/bin/launcher start "${CONFIGURATION[@]}"
+    fi
+    return $?
+}
+
+stop () {
+    echo "Stopping ${SERVICE_NAME} "
+    /opt/presto-server/bin/launcher stop "${CONFIGURATION[@]}"
+    return $?
+}
+
+status () {
+    echo "Getting status for ${SERVICE_NAME} "
+    /opt/presto-server/bin/launcher status "${CONFIGURATION[@]}"
+    return $?
+}
+
+
+restart () {
+    /opt/presto-server/bin/launcher restart "${CONFIGURATION[@]}"
+    return $?
+}
+
+# TODO: Add kill
+
+usage () {
+    echo $"Usage: ${SCRIPT_NAME} {start|stop|restart|status}"
+    return 3
+}
+
+case "${ACTION_NAME}" in
+        start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    status)
+        status
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|restart|status}"
+        exit 3
+esac
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+</configuration>

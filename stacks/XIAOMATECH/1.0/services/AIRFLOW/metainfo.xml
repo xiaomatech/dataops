@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>AIRFLOW</name>
+            <comment>Airflow is a platform to programmatically author, schedule and monitor workflows.</comment>
+            <displayName>Airflow</displayName>
+            <version>1.10.0</version>
+            <components>
+                <component>
+                    <name>AIRFLOW_WORKER</name>
+                    <displayName>Airflow Worker</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>3+</cardinality>
+                    <commandScript>
+                        <script>scripts/worker.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>6000</timeout>
+                    </commandScript>
+                    <bulkCommands>
+                        <displayName>Airflow Workers</displayName>
+                        <masterComponent>AIRFLOW_WEBSERVER</masterComponent>
+                    </bulkCommands>
+                </component>
+                <component>
+                    <name>AIRFLOW_WEBSERVER</name>
+                    <displayName>Airflow Webserver</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/webserver.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>6000</timeout>
+                    </commandScript>
+                </component>
+                <component>
+                    <name>AIRFLOW_SCHEDULER</name>
+                    <displayName>Airflow Scheduler</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/scheduler.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>6000</timeout>
+                    </commandScript>
+                    <bulkCommands>
+                        <displayName>Airflow Schedulers</displayName>
+                        <masterComponent>AIRFLOW_WEBSERVER</masterComponent>
+                    </bulkCommands>
+                </component>
+                <component>
+                    <name>AIRFLOW_FLOWER</name>
+                    <displayName>Airflow Flower</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/flower.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>6000</timeout>
+                    </commandScript>
+                </component>
+                <component>
+                    <name>AIRFLOW_KERBEROS</name>
+                    <displayName>Airflow Kerberos</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>0+</cardinality>
+                    <commandScript>
+                        <script>scripts/kerberos.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>6000</timeout>
+                    </commandScript>
+                </component>
+            </components>
+            <configuration-dependencies>
+                <config-type>airflow-env</config-type>
+            </configuration-dependencies>
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+        </service>
+    </services>
+</metainfo>
+

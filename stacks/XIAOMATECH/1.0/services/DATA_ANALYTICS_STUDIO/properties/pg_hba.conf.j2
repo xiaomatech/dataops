@@ -1,0 +1,8 @@
+# PostgreSQL Client Authentication Configuration File
+
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+local   all             {{data_analytics_studio_database_username}}                              md5
+host    all             {{data_analytics_studio_database_username}}      0.0.0.0/0               md5
+host    all             {{data_analytics_studio_database_username}}      ::/0                    md5
+
+local   all             postgres                                ident

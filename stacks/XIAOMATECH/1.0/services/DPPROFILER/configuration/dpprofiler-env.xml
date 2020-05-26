@@ -1,0 +1,329 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+    <property>
+        <name>dpprofiler.pid.dir</name>
+        <value>/var/run/profiler_agent</value>
+        <description>Profiler service local PID file directory</description>
+        <display-name>Profiler service local PID file directory</display-name>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+            <editable-only-at-install>true</editable-only-at-install>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.data.dir</name>
+        <value>/var/lib/profiler_agent</value>
+        <description>Profiler service local data directory</description>
+        <display-name>Profiler service local data directory</display-name>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+            <editable-only-at-install>true</editable-only-at-install>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>dpprofiler_user</name>
+        <display-name>Dpprofiler User</display-name>
+        <value>dpprofiler</value>
+        <property-type>USER</property-type>
+        <description>Dpprofiler User Name.</description>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.user</name>
+        <value>dpprofiler</value>
+        <property-type>USER</property-type>
+        <description>User dataplane profiler daemon runs as</description>
+        <value-attributes>
+            <type>user</type>
+            <overridable>true</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.group</name>
+        <value>dpprofiler</value>
+        <property-type>GROUP</property-type>
+        <description>Dataplane profiler group</description>
+        <value-attributes>
+            <type>user</type>
+            <overridable>true</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.conf.dir</name>
+        <value>/etc/profiler_agent</value>
+        <description>Profiler service local configuration directory</description>
+        <display-name>Profiler service local configuration directory</display-name>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.hadoop.conf.dir</name>
+        <value>/etc/hadoop</value>
+        <description>Hadoop configuration directory</description>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.log.dir</name>
+        <value>/var/log/profiler_agent</value>
+        <description>Profiler service local log directory</description>
+        <display-name>Profiler service local log directory</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.http.port</name>
+        <value>21900</value>
+        <description>Profiler Service HTTP Port</description>
+        <display-name>Profiler Service HTTP Port</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.kerberos.enabled</name>
+        <value>false</value>
+        <description>Profiler Service Kerberos status</description>
+        <display-name>Profiler Service Kerberos status</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.kerberos.principal</name>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>Profiler Service Principal</description>
+        <display-name>Profiler Service Principal</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>dpprofiler.kerberos.keytab</name>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>Profiler Service Keytab</description>
+        <display-name>Profiler Service Keytab</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>hiveserver2.interactive.jdbc.url</name>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>false</empty-value-valid>
+        </value-attributes>
+        <description>URL for HiveServer2 Interactive.
+            In Ambari, get this from Hive Summary page.
+        </description>
+        <display-name>Hiveserver Interactive JDBC URL</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>security.credentials.hiveserver2.enabled</name>
+        <value>false</value>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>This configuration is required for a Kerberized cluster.
+            This has to be configured based on value of livy.spark.master.This
+            should be set to false for YARN client deploy mode, and true for
+            YARN cluster deploy mode.
+        </description>
+        <display-name>Hiveserver2 Security Credential Enabled</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.extra.jars</name>
+        <value></value>
+        <value-attributes>
+            <empty-value-valid>false</empty-value-valid>
+        </value-attributes>
+        <description>Comma separated list of extra JARs needed by profiler jobs.
+            Local paths need to be specified with prefix file:// .
+            For example : file:///usr/local/sample.jar
+        </description>
+        <display-name>DP Profiler Extra JARs</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.spnego.kerberos.principal</name>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>Profiler Service SPNEGO Kerberos Principal</description>
+        <display-name>Profiler Service SPNEGO Kerberos Principal</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.spnego.kerberos.keytab</name>
+        <value></value>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>Profiler Service SPNEGO Kerberos Keytab</description>
+        <display-name>Profiler Service SPNEGO Kerberos Keytab</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.kerberos.ticket.refresh.cron</name>
+        <value>00 00 0/6 * * ?</value>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>Cron expression for Profiler Service Kerberos ticket refresh interval E.g. 00 00 0/6 * * ?
+        </description>
+        <display-name>Profiler Service Kerberos ticket refresh interval</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.kerberos.ticket.refresh.retry.allowed</name>
+        <value>5</value>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>Number of retries allowed for refresh of kerbros ticket</description>
+        <display-name>Number of retries for refresh of kerbros ticket</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.incremental.changedetector.cron</name>
+        <value>0 0 0/1 1/1 * ? *</value>
+        <description>Cron expression for interval at which job ,which detects change in hive table for incremental
+            profiling, runs. E.g. 0 0 0/1 1/1 * ? *
+        </description>
+        <display-name>Incremental change detector job run interval</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.incremental.changedetector.keeprange</name>
+        <value>86400</value>
+        <description>All the changes detected within this interval for incremental profiling will be kept and others
+            will be purged. E.g. 86400
+        </description>
+        <display-name>Keep range for logged incremental change events in seconds</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.incremental.changedetector.purge.oldlogs</name>
+        <value>true</value>
+        <description>Enable or disable purging of logged incremental change events which are older than keep range
+        </description>
+        <display-name>Enable purging of logged incremental change events</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.sso.knox.enabled</name>
+        <value>false</value>
+        <value-attributes>
+            <empty-value-valid>false</empty-value-valid>
+        </value-attributes>
+        <description>Enable Knox Single Sign On</description>
+        <display-name>Enable Knox Single Sign On for Profiler Service</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>dpprofiler.sso.knox.public.key</name>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>Knox SSO Public Key</description>
+        <display-name>Knox SSO Public Key</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>logback.content</name>
+        <description>Content for logback.xml file</description>
+        <display-name>Profiler Service Logging configuration</display-name>
+        <value>
+            &lt;configuration&gt;
+
+            &lt;conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel" /&gt;
+
+            &lt;appender name="FILE" class="ch.qos.logback.core.FileAppender"&gt;
+            &lt;file&gt;{{dpprofiler_log_dir}}/application.log&lt;/file&gt;
+            &lt;encoder&gt;
+            &lt;pattern&gt;%date [%level] from %logger in %thread - %message%n%xException&lt;/pattern&gt;
+            &lt;/encoder&gt;
+            &lt;/appender&gt;
+
+            &lt;appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender"&gt;
+            &lt;encoder&gt;
+            &lt;pattern&gt;%coloredLevel %logger{15} - %message%n%xException{10}&lt;/pattern&gt;
+            &lt;/encoder&gt;
+            &lt;/appender&gt;
+
+            &lt;appender name="ASYNCFILE" class="ch.qos.logback.classic.AsyncAppender"&gt;
+            &lt;appender-ref ref="FILE" /&gt;
+            &lt;/appender&gt;
+
+            &lt;appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender"&gt;
+            &lt;appender-ref ref="STDOUT" /&gt;
+            &lt;/appender&gt;
+
+            &lt;logger name="play" level="INFO" /&gt;
+            &lt;logger name="application" level="DEBUG" /&gt;
+            &lt;logger name="job" level="DEBUG" /&gt;
+            &lt;logger name="controllers" level="DEBUG" /&gt;
+
+
+            &lt;!-- Off these ones as they are annoying, and anyway we manage configuration ourselves --&gt;
+            &lt;logger name="com.avaje.ebean.config.PropertyMapLoader" level="OFF" /&gt;
+            &lt;logger name="com.avaje.ebeaninternal.server.core.XmlConfigLoader" level="OFF" /&gt;
+            &lt;logger name="com.avaje.ebeaninternal.server.lib.BackgroundThread" level="OFF" /&gt;
+            &lt;logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" /&gt;
+
+            &lt;root level="WARN"&gt;
+            &lt;appender-ref ref="ASYNCFILE" /&gt;
+            &lt;appender-ref ref="ASYNCSTDOUT" /&gt;
+            &lt;/root&gt;
+
+            &lt;/configuration&gt;
+        </value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+</configuration>

@@ -1,0 +1,228 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<configuration supports_adding_forbidden="true">
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/apache-zookeeper-3.5.6.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property require-input="true">
+        <name>ldap_hosts</name>
+        <description>ldap hosts(hadoop218.example.com hadoop219.example.com)</description>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property require-input="true">
+        <name>kdc_hosts</name>
+        <description>kdc hosts(hadoop218.example.com hadoop219.example.com)</description>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>zk_user</name>
+        <display-name>ZooKeeper User</display-name>
+        <value>zookeeper</value>
+        <property-type>USER</property-type>
+        <description>ZooKeeper User.</description>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>zk_log_dir</name>
+        <value>/var/log/zookeeper</value>
+        <display-name>ZooKeeper Log Dir</display-name>
+        <description>ZooKeeper Log Dir</description>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>zk_pid_dir</name>
+        <value>/var/run/zookeeper</value>
+        <display-name>ZooKeeper PID Dir</display-name>
+        <description>ZooKeeper Pid Dir</description>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+            <editable-only-at-install>true</editable-only-at-install>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>zk_server_heapsize</name>
+        <value>1024</value>
+        <description>Maximum amount of memory each Zookeeper Server can use.</description>
+        <display-name>Zookeeper Server Maximum Memory</display-name>
+        <value-attributes>
+            <type>int</type>
+            <minimum>256</minimum>
+            <maximum>32768</maximum>
+            <unit>MB</unit>
+            <increment-step>256</increment-step>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>zookeeper_principal_name</name>
+        <description>ZooKeeper principal name</description>
+        <property-type>KERBEROS_PRINCIPAL</property-type>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>zookeeper_keytab_path</name>
+        <description>ZooKeeper keytab path</description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <!-- zookeeper-env.sh -->
+    <property>
+        <name>content</name>
+        <display-name>zookeeper-env template</display-name>
+        <description>This is the jinja template for zookeeper-env.sh file</description>
+        <value><![CDATA[
+export JAVA_HOME={{java64_home}}
+export ZOOKEEPER_HOME={{zk_home}}
+export ZOO_LOG_DIR={{zk_log_dir}}
+export ZOOPIDFILE={{zk_pid_file}}
+export SERVER_JVMFLAGS={{zk_server_heapsize}}
+export JAVA=$JAVA_HOME/bin/java
+export CLASSPATH=$CLASSPATH:{{install_dir}}/*
+
+{% if security_enabled %}
+export SERVER_JVMFLAGS="$SERVER_JVMFLAGS -Djava.security.auth.login.config={{zk_server_jaas_file}}"
+export CLIENT_JVMFLAGS="$CLIENT_JVMFLAGS -Djava.security.auth.login.config={{zk_client_jaas_file}}"
+{% endif %}
+            ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>zkui_content</name>
+        <display-name>zkui config template</display-name>
+        <description>This is the jinja template for zkui config file</description>
+        <value><![CDATA[
+#Server Port
+serverPort=9090
+#Comma seperated list of all the zookeeper servers
+zkServer={{zookeeper_quorum}}
+#Http path of the repository. Ignore if you dont intent to upload files from repository.
+scmRepo=http://myserver.com/@rev1=
+#Path appended to the repo url. Ignore if you dont intent to upload files from repository.
+scmRepoPath=//appconfig.txt
+#if set to true then userSet is used for authentication, else ldap authentication is used.
+ldapAuth=false
+ldapDomain=mycompany,mydomain
+#ldap authentication url. Ignore if using file based authentication.
+ldapUrl=ldap://127.0.0.1:581/dc=example,dc=com
+#Specific roles for ldap authenticated users. Ignore if using file based authentication.
+ldapRoleSet={"users": [{ "username":"domain\\user1" , "role": "ADMIN" }]}
+userSet = {"users": [{ "username":"admin" , "password":"manager","role": "ADMIN" },{ "username":"appconfig" , "password":"appconfig","role": "USER" }]}
+#Set to prod in production and dev in local. Setting to dev will clear history each time.
+env=prod
+jdbcClass=org.h2.Driver
+jdbcUrl=jdbc:h2:zkui
+jdbcUser=root
+jdbcPwd=manager
+#If you want to use mysql db to store history then comment the h2 db section.
+#jdbcClass=com.mysql.jdbc.Driver
+#jdbcUrl=jdbc:mysql://localhost:3306/zkui
+#jdbcUser=root
+#jdbcPwd=manager
+loginMessage=Please login using admin/manager or appconfig/appconfig.
+#session timeout 5 mins/300 secs.
+sessionTimeout=300
+#Default 5 seconds to keep short lived zk sessions. If you have large data then the read will take more than 30 seconds so increase this accordingly.
+#A bigger zkSessionTimeout means the connection will be held longer and resource consumption will be high.
+zkSessionTimeout=5
+#Block PWD exposure over rest call.
+blockPwdOverRest=false
+#ignore rest of the props below if https=false.
+https=false
+keystoreFile=/home/user/keystore.jks
+keystorePwd=password
+keystoreManagerPwd=password
+# The default ACL to use for all creation of nodes. If left blank, then all nodes will be universally accessible
+# Permissions are based on single character flags: c (Create), r (read), w (write), d (delete), a (admin), * (all)
+# For example defaultAcl={"acls": [{"scheme":"ip", "id":"192.168.1.192", "perms":"*"}, {"scheme":"ip", id":"192.168.1.0/24", "perms":"r"}]
+defaultAcl=
+# Set X-Forwarded-For to true if zkui is behind a proxy
+X-Forwarded-For=false
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>zkui_script_content</name>
+        <display-name>zkui script template</display-name>
+        <description>This is the jinja template for script file</description>
+        <value><![CDATA[
+#!/bin/sh
+export ZK_SERVER={{zookeeper_quorum}}
+ZK_SERVER=${ZK_SERVER:-"localhost:2181"}
+
+USER_SET=${USER_SET:-"{\"users\": [{ \"username\":\"admin\" , \"password\":\"manager\",\"role\": \"ADMIN\" \},{ \"username\":\"appconfig\" , \"password\":\"appconfig\",\"role\": \"USER\" \}]\}"}
+LOGIN_MESSAGE=${LOGIN_MESSAGE:-"Please login using admin/manager or appconfig/appconfig."}
+
+sed -i "s/^zkServer=.*$/zkServer=$ZK_SERVER/" /etc/zkui/config.cfg
+
+sed -i "s/^userSet = .*$/userSet = $USER_SET/" /etc/zkui/config.cfg
+sed -i "s/^loginMessage=.*$/loginMessage=$LOGIN_MESSAGE/" /etc/zkui/config.cfg
+
+echo "Starting zkui with server $ZK_SERVER"
+
+exec java -jar /opt/zkui/zkui-2.0.jar
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+</configuration>

@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/apollo-configservice-1.1.2-github.zip</value>
+        <description>download url</description>
+    </property>
+
+    <property require-input="true">
+        <name>download_url_adminservice</name>
+        <value>http://assets.example.com/apollo-adminservice-1.1.2-github.zip</value>
+        <description>download url</description>
+    </property>
+
+    <property require-input="true">
+        <name>download_url_portal</name>
+        <value>http://assets.example.com/apollo-portal-1.1.2-github.zip</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>log_dir</name>
+        <value>/var/log/apollo</value>
+        <description>Log directory for apollo</description>
+    </property>
+    <property>
+        <name>pid_dir</name>
+        <value>/var/run/apollo</value>
+        <description>run directory for apollo</description>
+    </property>
+
+    <property>
+        <name>apollo_user</name>
+        <value>apollo</value>
+        <property-type>USER</property-type>
+        <description>Service user for apollo</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>configdb_url</name>
+        <value>jdbc:mysql://localhost:3306/ApolloConfigDB?useUnicode=true&amp;characterEncoding=UTF-8&amp;useSSL=false
+        </value>
+        <description>apollo ApolloConfigDB url</description>
+    </property>
+    <property>
+        <name>dev_configdb_url</name>
+        <value>jdbc:mysql://localhost:3306/ApolloConfigDB_dev?useUnicode=true&amp;characterEncoding=UTF-8&amp;useSSL=false
+        </value>
+        <description>apollo dev ApolloConfigDB url</description>
+    </property>
+    <property>
+        <name>uat_configdb_url</name>
+        <value>jdbc:mysql://localhost:3306/ApolloConfigDB_uat?useUnicode=true&amp;characterEncoding=UTF-8&amp;useSSL=false
+        </value>
+        <description>apollo uat ApolloConfigDB url</description>
+    </property>
+
+    <property>
+        <name>pro_portaldb_url</name>
+        <value>jdbc:mysql://localhost:3306/ApolloPortalDB_pro?useUnicode=true&amp;characterEncoding=UTF-8&amp;useSSL=false
+        </value>
+        <description>apollo pro ApolloPortalDB url</description>
+    </property>
+
+    <property>
+        <name>db_host</name>
+        <value>localhost</value>
+        <description>database host</description>
+    </property>
+
+    <property>
+        <name>db_user</name>
+        <value>apollo</value>
+        <description>database user</description>
+    </property>
+
+    <property>
+        <name>db_password</name>
+        <value></value>
+        <value-attributes>
+            <type>password</type>
+        </value-attributes>
+        <description>database password</description>
+    </property>
+
+    <property>
+        <name>configservice_conf_content</name>
+        <display-name>configservice conf</display-name>
+        <description>configservice conf</description>
+        <value>
+spring.datasource.url = {{configdb_url}}
+spring.datasource.username = {{db_user}}
+spring.datasource.password = {{db_password}}
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>portal_conf_content</name>
+        <display-name>portal conf</display-name>
+        <description>portal conf</description>
+        <value>
+spring.datasource.url = {{portaldb_url}}
+spring.datasource.username = {{db_user}}
+spring.datasource.password = {{db_password}}
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>adminservice_conf_content</name>
+        <display-name>adminservice conf</display-name>
+        <description>adminservice conf</description>
+        <value>
+spring.datasource.url = {{configdb_url}}
+spring.datasource.username = {{db_user}}
+spring.datasource.password = {{db_password}}
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>env_conf_content</name>
+        <display-name>apollo-env.properties</display-name>
+        <description>apollo-env.properties</description>
+        <value>
+dev.meta=http://{{dev_meta_host}}:8080
+uat.meta=http://{{uat_meta_host}}:8080
+pro.meta=http://{{pro_meta_host}}:8080
+
+#fat.meta=http://fill-in-fat-meta-server:8080
+#local.meta=http://localhost:8080
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+</configuration>

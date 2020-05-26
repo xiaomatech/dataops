@@ -1,0 +1,35 @@
+{
+  "services": [
+    {
+      "name": "OPENTSDB",
+      "components": [
+        {
+          "name": "OPENTSDB_MASTER",
+          "identities": [
+            {
+              "name": "opentsdb_user",
+              "principal": {
+                "value": "${opentsdb-env/opentsdb_user}/_HOST@${realm}",
+                "type": "user",
+                "configuration": "opentsdb-env/opentsdb_principal",
+                "local_username": "${opentsdb-env/opentsdb_user}"
+              },
+              "keytab": {
+                "file": "${keytab_dir}/opentsdb_keytab",
+                "owner": {
+                  "name": "${opentsdb-env/opentsdb_user}",
+                  "access": "r"
+                },
+                "group": {
+                  "name": "${cluster-env/user_group}",
+                  "access": ""
+                },
+                "configuration": "opentsdb-env/opentsdb_keytab"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

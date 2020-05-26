@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration supports_final="true" supports_adding_forbidden="true">
+
+    <property require-input="true">
+        <name>master_host</name>
+        <value></value>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>the one master host for redis cluster</description>
+    </property>
+
+
+    <property>
+        <name>redis_content</name>
+        <display-name>redis.conf</display-name>
+        <description>The template for redis.conf</description>
+        <value><![CDATA[
+appendonly yes
+daemonize yes
+timeout 0
+tcp-keepalive 0
+databases 1
+stop-writes-on-bgsave-error no
+rdbcompression yes
+rdbchecksum yes
+maxmemory-policy allkeys-lru
+appendfsync everysec
+no-appendfsync-on-rewrite no
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 512mb
+aof-load-truncated yes
+hash-max-ziplist-entries 64
+hash-max-ziplist-value 128
+list-max-ziplist-entries 64
+list-max-ziplist-value 128
+set-max-intset-entries 64
+zset-max-ziplist-entries 64
+zset-max-ziplist-value 128
+list-max-ziplist-size -2
+list-compress-depth 0
+hll-sparse-max-bytes 3000
+activerehashing yes
+client-output-buffer-limit normal 0 0 0
+client-output-buffer-limit slave 256mb 64mb 60
+client-output-buffer-limit pubsub 32mb 8mb 60
+hz 10
+aof-rewrite-incremental-fsync yes
+protected-mode no
+tcp-backlog 32767
+latency-monitor-threshold 100
+notify-keyspace-events ""
+slave-serve-stale-data yes
+slave-read-only yes
+repl-disable-tcp-nodelay no
+slave-priority 100
+repl-diskless-sync no
+repl-diskless-sync-delay 5
+maxclients 1024000
+maxmemory 8gb
+
+cluster-enabled yes
+cluster-node-timeout 15000
+cluster-migration-barrier 1
+cluster-slave-validity-factor 10
+cluster-node-timeout 5000
+slowlog-log-slower-than 10000
+slowlog-max-len 128
+cluster-require-full-coverage no
+
+slowlog-log-slower-than 10000
+slowlog-max-len 128
+loglevel notice
+lua-time-limit 5000
+
+io-threads 16
+io-threads-do-reads yes
+
+#loadmodule /usr/lib64/redis/modules/redisgraph.so
+#loadmodule /usr/lib64/redis/modules/redisearch.so
+#loadmodule /usr/lib64/redis/modules/rebloom.so
+#loadmodule /usr/lib64/redis/modules/rejson.so
+
+        ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+</configuration>

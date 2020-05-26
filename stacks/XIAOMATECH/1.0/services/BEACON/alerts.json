@@ -1,0 +1,51 @@
+{
+  "BEACON": {
+    "BEACON_SERVER": [
+      {
+        "name": "beacon_server_process",
+        "label": "DLM Engine Process",
+        "description": "This host-level alert is triggered if Beacon Server instance is not running",
+        "interval": 1,
+        "scope": "HOST",
+        "source": {
+          "type": "SCRIPT",
+          "path": "XIAOMATECH/1.0/BEACON/package/scripts/beacon_process_alert.py"
+        }
+      },
+      {
+        "name": "beacon_server_rest_api",
+        "label": "DLM Engine REST API",
+        "description": "This host-level alert is triggered if the Beacon Server REST API is unreachable.",
+        "interval": 1,
+        "scope": "HOST",
+        "enabled": true,
+        "source": {
+          "type": "WEB",
+          "uri": {
+            "http": "http://0.0.0.0:{{beacon-env/beacon_port}}/api/beacon/cluster/list",
+            "https": "https://0.0.0.0:{{beacon-env/beacon_tls_port}}/api/beacon/cluster/list",
+            "https_property": "{{beacon-env/beacon_tls_enabled}}",
+            "https_property_value": "true",
+            "kerberos_keytab": "{{beacon-security-site/beacon.kerberos.spnego.keytab}}",
+            "kerberos_principal": "{{beacon-security-site/beacon.kerberos.spnego.principal}}",
+            "connection_timeout": 5.0,
+            "acceptable_codes": [
+              401
+            ]
+          },
+          "reporting": {
+            "ok": {
+              "text": "HTTP {0} response in {2:.3f}s"
+            },
+            "warning": {
+              "text": "HTTP {0} response from {1} in {2:.3f}s ({3})"
+            },
+            "critical": {
+              "text": "Connection failed to {1} ({3})"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

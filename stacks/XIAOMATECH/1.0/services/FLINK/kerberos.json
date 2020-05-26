@@ -1,0 +1,41 @@
+{
+  "services": [
+    {
+      "name": "FLINK",
+      "identities": [
+        {
+          "name": "/smokeuser"
+        },
+        {
+          "name": "flink_user",
+          "principal": {
+            "value": "${flink-env/flink_user}/_HOST@${realm}",
+            "type" : "user",
+            "configuration": "flink-env/flink.principal",
+            "local_username" : "${flink-env/flink_user}"
+          },
+          "keytab": {
+            "file": "${keytab_dir}/flink.keytab",
+            "owner": {
+              "name": "${flink-env/flink_user}",
+              "access": "r"
+            },
+            "group": {
+              "name": "${cluster-env/user_group}",
+              "access": ""
+            },
+            "configuration": "flink-env/flink.keytab"
+          }
+        }
+      ],
+      "components": [
+        {
+          "name": "FLINK_JOBMANAGER"
+        },
+        {
+          "name":  "FLINK_CLIENT"
+        }
+      ]
+    }
+  ]
+}

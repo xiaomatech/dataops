@@ -1,0 +1,9 @@
+ldap
+if ((ok || updated) && User-Password) {
+    update {
+        control:Auth-Type := ldap
+    }
+}
+Auth-Type LDAP {
+    ldap
+}

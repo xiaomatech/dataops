@@ -1,0 +1,24 @@
+{
+  "name": "default",
+  "description": "default quick links configuration",
+  "configuration": {
+    "protocol": {
+      "type": "HTTP_ONLY"
+    },
+    "links": [
+      {
+        "name": "profiler_agent",
+        "label": "Profiler Agent",
+        "requires_user_name": "false",
+        "component_name": "DP_PROFILER_AGENT",
+        "url": "%@://%@:%@/",
+        "port": {
+          "http_property": "dpprofiler.http.port",
+          "http_default_port": "9000",
+          "regex": "^(\\d+)$",
+          "site": "dpprofiler-env"
+        }
+      }
+    ]
+  }
+}

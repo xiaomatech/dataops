@@ -1,0 +1,249 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/wherehows-frontend-1.0.0.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property require-input="true">
+        <name>download_url_backend</name>
+        <value>http://assets.example.com/wherehows-backend-1.0.0.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+
+    <property>
+        <name>wherehows_log_dir</name>
+        <value>/var/log/wherehows</value>
+        <description>Log directory for wherehows</description>
+    </property>
+
+    <property>
+        <name>wherehows_user</name>
+        <value>wherehows</value>
+        <property-type>USER</property-type>
+        <description>Service user for Palo</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>mysql_user</name>
+        <value>root</value>
+        <description>mysql user</description>
+    </property>
+
+    <property require-input="true">
+        <name>mysql_password</name>
+        <value/>
+        <property-type>PASSWORD</property-type>
+        <display-name>Database Password</display-name>
+        <description>password to use database</description>
+        <value-attributes>
+            <type>password</type>
+            <overridable>false</overridable>
+            <keystore>true</keystore>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>wherehows_env_content</name>
+        <display-name>wherehows env</display-name>
+        <description>wherehows env</description>
+        <value>
+export java_HOME={{java64_home}}
+export PID_DIR=/var/run/wherehows
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>frontend_conf</name>
+        <display-name>wherehows frontend conf</display-name>
+        <description>wherehows frontend conf</description>
+        <value>
+# Secret key
+# ~~~~~
+# The secret key is used to secure cryptographics functions.
+#
+# This must be changed for production, but we recommend not changing it in this file.
+#
+# See http://www.playframework.com/documentation/latest/ApplicationSecret for more details.
+play.crypto.secret = "test"
+
+# The application languages
+# ~~~~~
+play.i18n.langs = [ "en" ]
+
+# Play http parser settings
+#
+# Increase default buffer size to handle large post request
+play.http.parser.maxMemoryBuffer = 10MB
+
+# Router
+# ~~~~~
+# Define the Router object to use for this application.
+# This router will be looked up first when the application is starting up,
+# so make sure this is the entry point.
+# Furthermore, it's assumed your route file is named properly.
+# So for an application router like `my.application.Router`,
+# you may need to define a router file `conf/my.application.routes`.
+# Default to Routes in the root package (and conf/routes)
+# play.http.router = my.application.Routes
+
+# Database configuration
+# ~~~~~
+# You can declare as many datasources as you want.
+# By convention, the default datasource is named `default`
+#
+# db.default.url="jdbc:h2:mem:play"
+# db.default.username=sa
+# db.default.password=""
+
+# Evolutions
+# ~~~~~
+# You can disable evolutions if needed
+# play.evolutions.enabled=false
+
+# You can disable evolutions for a specific datasource if necessary
+# play.evolutions.db.default.enabled=false
+
+app.version = "1.0.0"
+
+datasets.tree.name = "/var/tmp/wherehows/resource/dataset.json"
+flows.tree.name = "/var/tmp/wherehows/resource/flow.json"
+
+database.opensource.username = wherehows
+database.opensource.password = wherehows
+database.opensource.url = "jdbc:mysql://localhost:3306/wherehows?useSSL=false"
+
+# Hibernate HIKARICP connection driver name
+# HikariCP is an open source JDBC connection pooling library
+hikaricp.dataSourceClassName = "com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
+
+# dialect for DB
+# example values for different db: org.hibernate.dialect.MySQL5InnoDBDialect
+hikaricp.dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
+
+search.engine = "default"
+
+elasticsearch.dataset.url = "http://localhost:9200/wherehows/dataset/_search"
+elasticsearch.metric.url = "http://localhost:9200/wherehows/metric/_search"
+elasticsearch.flow.url = "http://localhost:9200/wherehows/flow_jobs/_search"
+
+# authentication.ldap.context_factory_class = "com.sun.jndi.ldap.LdapCtxFactory"
+# authentication.ldap.url =
+# authentication.principal.domain =
+# authentication.ldap.search.base =
+
+dataset.hdfs_browser.link = "https://localhost:8888/filebrowser/#"
+
+lineage.look.back.time = 60
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>backend_conf</name>
+        <display-name>wherehows backend conf</display-name>
+        <description>wherehows backend conf</description>
+        <value>
+# Secret key
+# ~~~~~
+# The secret key is used to secure cryptographics functions.
+#
+# This must be changed for production, but we recommend not changing it in this file.
+#
+# See http://www.playframework.com/documentation/latest/ApplicationSecret for more details.
+play.crypto.secret = "test"
+
+# The application languages
+# ~~~~~
+play.i18n.langs = ["en"]
+
+# Play http parser settings
+#
+# Increase default buffer size to handle large post request
+play.http.parser.maxMemoryBuffer = 10MB
+
+# Global object class
+# ~~~~~
+# Define the Global object class for this application.
+# Default to Global in the root package.
+application.global = shared.Global
+
+# Router
+# ~~~~~
+# Define the Router object to use for this application.
+# This router will be looked up first when the application is starting up,
+# so make sure this is the entry point.
+# Furthermore, it's assumed your route file is named properly.
+# So for an application router like `my.application.Router`,
+# you may need to define a router file `conf/my.application.routes`.
+# Default to Routes in the root package (and conf/routes)
+# play.http.router = my.application.Routes
+
+# Database configuration
+# ~~~~~
+# You can declare as many datasources as you want.
+# By convention, the default datasource is named `default`
+#
+# connection to wherehows mysql database
+db.wherehows.driver = "com.mysql.jdbc.Driver"
+db.wherehows.url = "jdbc:mysql://localhost:3306/wherehows?useSSL=false"
+db.wherehows.username = wherehows
+db.wherehows.password = wherehows
+
+# Hibernate HIKARICP connection driver name
+# HikariCP is an open source JDBC connection pooling library
+hikaricp.dataSourceClassName = "com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
+
+# dialect for DB
+# example values for different db: org.hibernate.dialect.MySQL5InnoDBDialect
+hikaricp.dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
+
+# You can expose this datasource via JNDI if needed (Useful for JPA)
+# db.default.jndiName=DefaultDS
+
+# Evolutions
+# ~~~~~
+# You can disable evolutions if needed
+# play.evolutions.enabled=false
+
+# You can disable evolutions for a specific datasource if necessary
+# play.evolutions.db.default.enabled=false
+
+# if does not have this variable, every job will run
+# if have this varialbe, only the id in this list will be scheduled
+scheduler.check.interval = 5
+
+etl.java.cmd = "java"
+etl.jobs.dir = "/etc/wherehows/jobs"
+etl.temp.dir = "/tmp/wherehows"
+etl.max.concurrent.jobs = 5
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+</configuration>

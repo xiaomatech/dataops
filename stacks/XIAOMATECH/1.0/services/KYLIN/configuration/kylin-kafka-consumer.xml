@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!--
+ for more kafka consumer configs, please refer to http://kafka.apache.org/documentation#consumerconfigs
+-->
+<configuration>
+    <property>
+        <name>session.timeout.ms</name>
+        <value>10000</value>
+    </property>
+    <property>
+        <name>request.timeout.ms</name>
+        <value>20000</value>
+    </property>
+</configuration>

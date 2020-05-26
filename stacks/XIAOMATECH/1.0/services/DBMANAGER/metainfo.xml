@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>DBMANAGER</name>
+            <displayName>DBmanager</displayName>
+            <comment>DBmanager admin/backup</comment>
+            <version>1.0.0</version>
+            <components>
+                <component>
+                    <name>DBMANAGER</name>
+                    <displayName>DBmanager</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/admin.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>MYSQL_INCEPTION</name>
+                    <displayName>MySQL Inception</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <commandScript>
+                        <script>scripts/inception.py</script>
+                        <scriptType>PYTHON</scriptType>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>PROXYSQL</name>
+                    <displayName>MySQL ProxySQL</displayName>
+                    <category>MASTER</category>
+                    <cardinality>3+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <commandScript>
+                        <script>scripts/proxy.py</script>
+                        <scriptType>PYTHON</scriptType>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>MYSQL_ROUTER</name>
+                    <displayName>MySQL Router</displayName>
+                    <category>MASTER</category>
+                    <cardinality>0+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <commandScript>
+                        <script>scripts/router.py</script>
+                        <scriptType>PYTHON</scriptType>
+                    </commandScript>
+                </component>
+
+            </components>
+
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+
+            <osSpecifics>
+                <osSpecific>
+                    <osFamily>any</osFamily>
+                    <packages>
+                        <package>
+                            <name>sqladvisor</name>
+                        </package>
+                        <package>
+                            <name>percona-xtrabackup-80</name>
+                        </package>
+                        <package>
+                            <name>percona-toolkit</name>
+                        </package>
+                        <package>
+                            <name>qpress</name>
+                        </package>
+                        <package>
+                            <name>pigz</name>
+                        </package>
+                        <package>
+                            <name>inception</name>
+                        </package>
+                        <package>
+                            <name>python36</name>
+                        </package>
+                        <package>
+                            <name>mysql-connector-python</name>
+                        </package>
+                        <package>
+                            <name>python2-PyMySQL</name>
+                        </package>
+                        <package>
+                            <name>python-redis</name>
+                        </package>
+                        <package>
+                            <name>MySQL-python</name>
+                        </package>
+                    </packages>
+                </osSpecific>
+            </osSpecifics>
+
+            <requiredServices>
+                <service>NGINX</service>
+                <service>MYSQL</service>
+                <service>MONGODB</service>
+            </requiredServices>
+
+        </service>
+    </services>
+</metainfo>

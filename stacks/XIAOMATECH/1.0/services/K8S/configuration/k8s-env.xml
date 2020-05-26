@@ -1,0 +1,697 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>cluster_cidr</name>
+        <value>172.30.0.0/16</value>
+        <description>Cluster CIDR</description>
+    </property>
+    <property>
+        <name>service_cidr</name>
+        <value>10.254.0.0/16</value>
+        <description>Service CIDR</description>
+    </property>
+    <property>
+        <name>node_port_range</name>
+        <value>1400-65532</value>
+        <description>NodePort Range</description>
+    </property>
+    <property>
+        <name>cluster_dns_svc_ip</name>
+        <value>10.254.0.1</value>
+        <description>Service CIDR first ip</description>
+    </property>
+    <property>
+        <name>cluster_dns_domain</name>
+        <value>cluster.local.</value>
+        <description>cluster dns domain</description>
+    </property>
+    <property>
+        <name>apiserver_vip</name>
+        <value>10.138.232.21</value>
+        <description>the vip of apiserver</description>
+    </property>
+    <property>
+        <name>docker_registry_url</name>
+        <value></value>
+        <description>docker registry</description>
+    </property>
+
+    <property>
+        <name>ca_init_content</name>
+        <display-name>ca init script</display-name>
+        <description>ca init script</description>
+        <value><![CDATA[
+#!/usr/bin/env bash
+
+sudo mkdir -p /etc/kubernetes/ca /etc/kubernetes/ssl
+
+echo -ne '''{
+  "CN": "admin",
+  "hosts": [],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "system:masters",
+      "OU": "System"
+    }
+  ]
+}
+'''>/etc/kubernetes/ca/admin-csr.json
+
+echo -ne '''{
+  "signing": {
+    "default": {
+      "expiry": "8760h"
+    },
+    "profiles": {
+      "kubernetes": {
+        "usages": [
+          "signing",
+          "key encipherment",
+          "server auth",
+          "client auth"
+        ],
+        "expiry": "8760h"
+      }
+    }
+  }
+}
+'''>/etc/kubernetes/ca/ca-config.json
+
+
+echo -ne '''{
+  "CN": "kubernetes",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+'''>/etc/kubernetes/ca/ca-csr.json
+
+echo -ne '''{
+  "CN": "etcd",
+  "hosts": [],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+'''>/etc/kubernetes/ca/etcd-csr.json
+
+echo -ne '''{
+  "CN": "harbor",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+'''>/etc/kubernetes/ca/harbor-csr.json
+
+
+echo -ne '''{
+  "CN": "system:kube-proxy",
+  "hosts": [],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+'''>/etc/kubernetes/ca/kube-proxy-csr.json
+
+
+echo -ne '''{
+  "CN": "kubernetes",
+  "hosts": [],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+'''>/etc/kubernetes/ca/kubernetes-csr.json
+
+echo -ne '''{
+  "CN": "registry",
+  "hosts": [],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+'''>/etc/kubernetes/ca/registry-csr.json
+
+
+cd /etc/kubernetes/ssl
+
+cfssl gencert -initca /etc/kubernetes/ca/ca-csr.json | cfssljson -bare ca
+
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=/etc/kubernetes/ca/ca-config.json -profile=kubernetes /etc/kubernetes/ca/kubernetes-csr.json | cfssljson -bare kubernetes
+
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=/etc/kubernetes/ca/ca-config.json -profile=kubernetes /etc/kubernetes/ca/admin-csr.json | cfssljson -bare admin
+
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=/etc/kubernetes/ca/ca-config.json -profile=kubernetes  /etc/kubernetes/ca/kube-proxy-csr.json | cfssljson -bare kube-proxy
+
+
+# TLS Bootstrapping 使用的 Token
+if [ ! -f /etc/kubernetes/token.csv ] ; then
+    BOOTSTRAP_TOKEN=$(head -c 16 /dev/urandom | od -An -t x | tr -d ' ')
+    cat > /etc/kubernetes/token.csv <<EOF
+${BOOTSTRAP_TOKEN},kubelet-bootstrap,10001,"system:bootstrappers"
+EOF
+fi
+
+export BOOTSTRAP_TOKEN=$(cat /etc/kubernetes/token.csv)
+
+cd /etc/kubernetes
+
+# 创建 kubelet bootstrapping kubeconfig 文件
+
+# 设置集群参数
+kubectl config set-cluster kubernetes \
+  --certificate-authority=/etc/kubernetes/ssl/ca.pem \
+  --embed-certs=true \
+  --server={{kuber_apiserver}} \
+  --kubeconfig=bootstrap.kubeconfig
+
+# 设置客户端认证参数
+kubectl config set-credentials kubelet-bootstrap \
+  --token=${BOOTSTRAP_TOKEN} \
+  --kubeconfig=bootstrap.kubeconfig
+# 设置上下文参数
+kubectl config set-context default \
+  --cluster=kubernetes \
+  --user=kubelet-bootstrap \
+  --kubeconfig=bootstrap.kubeconfig
+# 设置默认上下文
+kubectl config use-context default --kubeconfig=bootstrap.kubeconfig
+
+
+#创建 kube-proxy kubeconfig 文件
+
+# 设置集群参数
+kubectl config set-cluster kubernetes \
+  --certificate-authority=/etc/kubernetes/ssl/ca.pem \
+  --embed-certs=true \
+  --server={{kuber_apiserver}} \
+  --kubeconfig=kube-proxy.kubeconfig
+# 设置客户端认证参数
+kubectl config set-credentials kube-proxy \
+  --client-certificate=/etc/kubernetes/ssl/kube-proxy.pem \
+  --client-key=/etc/kubernetes/ssl/kube-proxy-key.pem \
+  --embed-certs=true \
+  --kubeconfig=kube-proxy.kubeconfig
+# 设置上下文参数
+kubectl config set-context default \
+  --cluster=kubernetes \
+  --user=kube-proxy \
+  --kubeconfig=kube-proxy.kubeconfig
+# 设置默认上下文
+kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
+
+tar -czvf ca.tar.gz ssl bootstrap.kubeconfig kube-proxy.kubeconfig token.csv
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>apiserver_install_content</name>
+        <display-name>apiserver install script</display-name>
+        <description>apiserver install script</description>
+        <value><![CDATA[
+sudo mkdir -p /etc/cni/net.d /etc/kubernetes /etc/kubernetes/ssl /var/log/kube
+
+if [ ! -f /etc/kubernetes/token.csv ] ; then
+    wget {{download_url_base}}/k8s/ca.tar.gz -O /tmp/ca.tar.gz
+    sudo tar -zxvf /tmp/ca.tar.gz -C /etc/kubernetes/
+    rm -rf /tmp/ca.tar.gz
+fi
+
+id kube >& /dev/null
+if [ $? -ne 0 ]
+then
+   groupadd kube
+   useradd -g kube kube -s /sbin/nologin
+fi
+
+SERVER_IP=`/sbin/ifconfig  | grep 'inet'| grep -v '127.0.0.1' |head -n1 |tr -s ' '|cut -d ' ' -f3 | cut -d: -f2`
+
+echo -ne '
+KUBE_LOGTOSTDERR="--logtostderr=false --log-dir=/var/log/kube"
+KUBE_LOG_LEVEL="--v=4"
+KUBE_ALLOW_PRIV="--allow-privileged=true"
+KUBE_MASTER="--master='{{kuber_apiserver}}'"
+'>/etc/kubernetes/config
+
+echo -ne '[Manager]
+DefaultCPUAccounting=yes
+DefaultMemoryAccounting=yes
+'>/etc/systemd/system.conf.d/kubernetes-accounting.conf
+
+echo -ne 'd /var/run/kubernetes 0755 kube kube -
+'>/usr/lib/tmpfiles.d/kubernetes.conf
+
+if [ ! -f /usr/bin/kube-apiserver ] ; then
+    wget {{download_url_base}}/k8s/kube-apiserver -O /usr/bin/kube-apiserver
+    chmod a+x /usr/bin/kube-apiserver
+fi
+
+echo -ne '[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/kubernetes/kubernetes
+After=network.target
+After=etcd.service
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/apiserver
+User=kube
+ExecStart=/usr/bin/kube-apiserver \
+    $KUBE_LOGTOSTDERR \
+    $KUBE_LOG_LEVEL \
+    $KUBE_ETCD_SERVERS \
+    $KUBE_API_ADDRESS \
+    $KUBE_API_PORT \
+    $KUBE_ALLOW_PRIV \
+    $KUBE_SERVICE_ADDRESSES \
+    $KUBE_ADMISSION_CONTROL \
+    $KUBE_API_ARGS \
+    $KUBE_API_METRIC_SERVER_ARGS
+Restart=on-failure
+Type=notify
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+'>/usr/lib/systemd/system/kube-apiserver.service
+
+echo -ne '
+KUBE_API_PORT=" --insecure-port=8080 --secure-port=443"
+KUBE_API_ADDRESS=" --advertise-address='$SERVER_IP' --bind-address='$SERVER_IP' --insecure-bind-address='$SERVER_IP'"
+KUBE_ETCD_SERVERS=" --etcd-servers='{{etcd_endpoints}}' --etcd-servers-overrides="/events#'{{etcd_event_endpoints}}'""
+KUBE_SERVICE_ADDRESSES=" --service-cluster-ip-range='{{service_cidr}}' --service-node-port-range={{node_port_range}} --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem --client-ca-file=/etc/kubernetes/ssl/ca.pem --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem --token-auth-file=/etc/kubernetes/token.csv"
+KUBE_ADMISSION_CONTROL=" --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,ResourceQuota,DefaultStorageClass,Initializers,PersistentVolumeClaimResize,PodNodeSelector,PodPreset,PodTolerationRestriction,Priority,DefaultTolerationSeconds,NamespaceExists,NodeRestriction,DenyEscalatingExec,PersistentVolumeLabel"
+KUBE_API_ARGS=" --max-requests-inflight=3000 --max-mutating-requests-inflight=1000 --runtime-config=api/all=true --authorization-mode=RBAC --max-requests-inflight=10000 --audit-log-maxage=30 --audit-log-maxbackup=3 --audit-log-maxsize=100 --audit-log-path=/var/log/audit.log --feature-gates=AllAlpha=true "
+KUBE_API_METRIC_SERVER_ARGS = "--requestheader-client-ca-file=/etc/kubernetes/ssl/proxy-ca.crt --proxy-client-cert-file=/etc/kubernetes/ssl/proxy.crt --proxy-client-key-file=/etc/kubernetes/ssl/proxy.key --requestheader-allowed-names=aggregator --requestheader-extra-headers-prefix=X-Remote-Extra- --requestheader-group-headers=X-Remote-Group --requestheader-username-headers=X-Remote-User"
+'>/etc/kubernetes/apiserver
+
+chown -R kube:kube /etc/kubernetes /var/log/kube
+systemctl daemon-reload
+systemctl enable kube-apiserver
+systemctl start kube-apiserver
+
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+    <property>
+        <name>controller_manager_install_content</name>
+        <display-name>kube controller-manager install script</display-name>
+        <description>kube controller-manager install script</description>
+        <value><![CDATA[
+sudo mkdir -p /etc/cni/net.d /etc/kubernetes /etc/kubernetes/ssl /var/log/kube
+
+if [ ! -f /etc/kubernetes/token.csv ] ; then
+    wget {{download_url_base}}/k8s/ca.tar.gz -O /tmp/ca.tar.gz
+    sudo tar -zxvf /tmp/ca.tar.gz -C /etc/kubernetes/
+    rm -rf /tmp/ca.tar.gz
+fi
+
+id kube >& /dev/null
+if [ $? -ne 0 ]
+then
+   groupadd kube
+   useradd -g kube kube -s /sbin/nologin
+fi
+
+SERVER_IP=`/sbin/ifconfig  | grep 'inet'| grep -v '127.0.0.1' |head -n1 |tr -s ' '|cut -d ' ' -f3 | cut -d: -f2`
+
+if [ ! -f /usr/bin/kube-controller-manager ] ; then
+    wget {{download_url_base}}/k8s/kube-controller-manager -O /usr/bin/kube-controller-manager
+    chmod a+x /usr/bin/kube-controller-manager
+fi
+
+
+echo -ne '
+KUBE_LOGTOSTDERR="--logtostderr=false --log-dir=/var/log/kube"
+KUBE_LOG_LEVEL="--v=4"
+KUBE_ALLOW_PRIV="--allow-privileged=true"
+KUBE_MASTER="--master='{{kuber_apiserver}}'"
+'>/etc/kubernetes/config
+
+echo -ne '[Manager]
+DefaultCPUAccounting=yes
+DefaultMemoryAccounting=yes
+'>/etc/systemd/system.conf.d/kubernetes-accounting.conf
+
+echo -ne 'd /var/run/kubernetes 0755 kube kube -
+'>/usr/lib/tmpfiles.d/kubernetes.conf
+
+echo -ne '
+[Unit]
+Description=Kubernetes Controller Manager
+Documentation=https://github.com/kubernetes/kubernetes
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/controller-manager
+User=kube
+ExecStart=/usr/bin/kube-controller-manager \
+    $KUBE_LOGTOSTDERR \
+    $KUBE_LOG_LEVEL \
+    $KUBE_MASTER \
+    $KUBE_CONTROLLER_MANAGER_ARGS
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+'>/usr/lib/systemd/system/kube-controller-manager.service
+
+echo -ne '
+KUBE_CONTROLLER_MANAGER_ARGS=" --kube-api-qps=100 --kube-api-burst=100 --feature-gates=AllAlpha=true --address='$SERVER_IP' --service-cluster-ip-range='{{service_cidr}}' --cluster-name=kubernetes --controllers=*,bootstrapsigner,tokencleaner --cluster-signing-cert-file=/etc/kubernetes/ssl/ca.pem --cluster-signing-key-file=/etc/kubernetes/ssl/ca-key.pem  --service-account-private-key-file=/etc/kubernetes/ssl/ca-key.pem --root-ca-file=/etc/kubernetes/ssl/ca.pem --leader-elect=true --cloud-config= --cloud-provider="
+'>/etc/kubernetes/controller-manager
+
+chown -R kube:kube /etc/kubernetes /var/log/kube
+systemctl daemon-reload
+systemctl enable kube-controller-manager
+systemctl start kube-controller-manager
+
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+    <property>
+        <name>scheduler_install_content</name>
+        <display-name>kube scheduler install script</display-name>
+        <description>kube scheduler install script</description>
+        <value><![CDATA[
+sudo mkdir -p /etc/cni/net.d /etc/kubernetes /etc/kubernetes/ssl /var/log/kube
+
+if [ ! -f /etc/kubernetes/token.csv ] ; then
+    wget {{download_url_base}}/k8s/ca.tar.gz -O /tmp/ca.tar.gz
+    sudo tar -zxvf /tmp/ca.tar.gz -C /etc/kubernetes/
+    rm -rf /tmp/ca.tar.gz
+fi
+
+id kube >& /dev/null
+if [ $? -ne 0 ]
+then
+   groupadd kube
+   useradd -g kube kube -s /sbin/nologin
+fi
+
+SERVER_IP=`/sbin/ifconfig  | grep 'inet'| grep -v '127.0.0.1' |head -n1 |tr -s ' '|cut -d ' ' -f3 | cut -d: -f2`
+
+echo -ne '
+KUBE_LOGTOSTDERR="--logtostderr=false --log-dir=/var/log/kube"
+KUBE_LOG_LEVEL="--v=4"
+KUBE_ALLOW_PRIV="--allow-privileged=true"
+KUBE_MASTER="--master='{{kuber_apiserver}}'"
+'>/etc/kubernetes/config
+
+echo -ne '[Manager]
+DefaultCPUAccounting=yes
+DefaultMemoryAccounting=yes
+'>/etc/systemd/system.conf.d/kubernetes-accounting.conf
+
+echo -ne 'd /var/run/kubernetes 0755 kube kube -
+'>/usr/lib/tmpfiles.d/kubernetes.conf
+
+if [ ! -f /usr/bin/kube-scheduler ] ; then
+    wget {{download_url_base}}/k8s/kube-scheduler -O /usr/bin/kube-scheduler
+    chmod a+x /usr/bin/kube-scheduler
+fi
+
+echo '
+[Unit]
+Description=Kubernetes Scheduler Plugin
+Documentation=https://github.com/kubernetes/kubernetes
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/scheduler
+User=kube
+ExecStart=/usr/bin/kube-scheduler \
+    $KUBE_LOGTOSTDERR \
+    $KUBE_LOG_LEVEL \
+    $KUBE_MASTER \
+    $KUBE_SCHEDULER_ARGS
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+'>/usr/lib/systemd/system/kube-scheduler.service
+
+echo -ne '
+KUBE_SCHEDULER_ARGS=" --kube-api-qps=100 --address='$SERVER_IP' --feature-gates=AllAlpha=true"
+'>/etc/kubernetes/scheduler
+
+chown -R kube:kube /etc/kubernetes /var/log/kube
+systemctl daemon-reload
+systemctl enable kube-scheduler
+systemctl start kube-scheduler
+
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>node_install_content</name>
+        <display-name>kube node install script</display-name>
+        <description>kube node install script</description>
+        <value><![CDATA[
+sudo mkdir -p /etc/cni/net.d /etc/kubernetes /etc/kubernetes/ssl /etc/kubernetes/manifests /var/log/kube
+
+if [ ! -f /etc/kubernetes/token.csv ] ; then
+    wget {{download_url_base}}/k8s/ca.tar.gz -O /tmp/ca.tar.gz
+    sudo tar -zxvf /tmp/ca.tar.gz -C /etc/kubernetes/
+    rm -rf /tmp/ca.tar.gz
+fi
+
+id kube >& /dev/null
+if [ $? -ne 0 ]
+then
+   groupadd kube
+   useradd -g kube kube -s /sbin/nologin
+fi
+
+SERVER_IP=`/sbin/ifconfig  | grep 'inet'| grep -v '127.0.0.1' |head -n1 |tr -s ' '|cut -d ' ' -f3 | cut -d: -f2`
+
+if [ ! -f /usr/bin/kubelet ] ; then
+    wget {{download_url_base}}/k8s/kubelet -O /usr/bin/kubelet
+    chmod a+x /usr/bin/kubelet
+fi
+
+if [ ! -f /usr/bin/kube-proxy ] ; then
+    wget {{download_url_base}}/k8s/kube-proxy -O /usr/bin/kube-proxy
+    chmod a+x /usr/bin/kube-proxy
+fi
+
+
+echo -ne '
+KUBE_LOGTOSTDERR="--logtostderr=false --log-dir=/var/log/kube"
+KUBE_LOG_LEVEL="--v=4"
+KUBE_ALLOW_PRIV="--allow-privileged=true"
+KUBE_MASTER="--master='{{kuber_apiserver}}'"
+'>/etc/kubernetes/config
+
+echo -ne '
+[Unit]
+Description=Kubernetes Kubelet Server
+Documentation=https://github.com/kubernetes/kubernetes
+After=docker.service
+Requires=docker.service
+
+[Service]
+WorkingDirectory=/var/lib/kubelet
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/kubelet
+ExecStartPre=/usr/bin/mkdir -p /sys/fs/cgroup/cpuset/system.slice/kubelet.service
+ExecStartPre=/usr/bin/mkdir -p /sys/fs/cgroup/hugetlb/system.slice/kubelet.service
+ExecStart=/usr/bin/kubelet \
+    $KUBE_LOGTOSTDERR \
+    $KUBE_LOG_LEVEL \
+    $KUBELET_API_SERVER \
+    $KUBELET_ADDRESS \
+    $KUBELET_PORT \
+    $KUBELET_HOSTNAME \
+    $KUBE_ALLOW_PRIV \
+    $KUBELET_POD_INFRA_CONTAINER \
+    $KUBELET_ARGS
+Restart=on-failure
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+'>/usr/lib/systemd/system/kubelet.service
+
+echo -ne '
+KUBELET_ADDRESS="--address='$SERVER_IP'"
+KUBELET_PORT="--port=10250"
+KUBELET_HOSTNAME="--hostname-override='{{hostname}}'"
+KUBELET_POD_INFRA_CONTAINER="--pod-infra-container-image={{docker_registry_url}}/kube/pause-amd64:3.0"
+KUBELET_ARGS=" --image-pull-progress-deadline=30m --max-pods=60 --rotate-certificates --network-plugin=cni --pod-manifest-path=/etc/kubernetes/manifests --runtime-cgroups=/systemd/system.slice --cgroup-driver=systemd --bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig --kubeconfig=/etc/kubernetes/kubelet.kubeconfig --fail-swap-on=false --cert-dir=/etc/kubernetes/ssl --cluster-dns='{{cluster_dns_svc_ip}}' --cluster-domain='{{cluster_dns_domain}}' --serialize-image-pulls=false --register-node=true  --feature-gates=AllAlpha=true --cgroups-per-qos=true --enforce-node-allocatable=pods,kube-reserved,system-reserved --kube-reserved-cgroup=/kubelet.service --system-reserved-cgroup=/system.slice --kube-reserved=cpu=1,memory=2Gi,ephemeral-storage=1Gi --system-reserved=cpu=500m,memory=1Gi,ephemeral-storage=1Gi --eviction-hard=memory.available<500Mi,nodefs.available<10%  --protect-kernel-defaults  --feature-gates=CPUManager=true  --cpu-manager-policy=static --cpu-manager-reconcile-period=5s"
+'>/etc/kubernetes/kubelet
+
+echo -ne '
+[Unit]
+Description=Kubernetes Kube-Proxy Server
+Documentation=https://github.com/kubernetes/kubernetes
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/proxy
+ExecStart=/usr/bin/kube-proxy \
+    $KUBE_LOGTOSTDERR \
+    $KUBE_LOG_LEVEL \
+    $KUBE_MASTER \
+    $KUBE_PROXY_ARGS \
+    $KUBE_PROXY_IPVS_ARGS
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+'>/usr/lib/systemd/system/kube-proxy.service
+
+echo -ne '
+KUBE_PROXY_ARGS=" --enable-aggregator-routing=true --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig --bind-address='$SERVER_IP' --hostname-override='{{hostname}}' --cluster-cidr='{{cluster_cidr}}'  --feature-gates=AllAlpha=true"
+KUBE_PROXY_IPVS_ARGS=" --masquerade-all --proxy-mode=ipvs --ipvs-min-sync-period=5s --ipvs-sync-period=5s --ipvs-scheduler=rr "
+'>/etc/kubernetes/proxy
+
+echo -ne '[Manager]
+DefaultCPUAccounting=yes
+DefaultMemoryAccounting=yes
+'>/etc/systemd/system.conf.d/kubernetes-accounting.conf
+
+echo -ne 'd /var/run/kubernetes 0755 kube kube -
+'>/usr/lib/tmpfiles.d/kubernetes.conf
+
+
+chown -R kube:kube /etc/kubernetes /var/log/kube
+
+systemctl daemon-reload
+systemctl enable kube-proxy
+systemctl start kube-proxy
+systemctl status kube-proxy
+
+systemctl enable kubelet
+systemctl start kubelet
+systemctl status kubelet
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+    <property>
+        <name>etcd_content</name>
+        <display-name>etcd.conf</display-name>
+        <description>content</description>
+        <value><![CDATA[
+ETCD_NAME={{etcd_name}}
+ETCD_DATA_DIR="{{data_dir}}"
+ETCD_LISTEN_PEER_URLS="http://{{hostname}}:2380"
+ETCD_LISTEN_CLIENT_URLS="http://{{hostname}}:2379"
+#[cluster]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="http://{{hostname}}:2380"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
+ETCD_ADVERTISE_CLIENT_URLS="http://{{hostname}}:2379"
+ETCD_INITIAL_CLUSTER="{{initial_cluster}}"
+ETCD_INITIAL_CLUSTER_STATE="new"
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>etcd_data_dir</name>
+        <value>/data/etcd</value>
+        <description>Log directory</description>
+    </property>
+</configuration>

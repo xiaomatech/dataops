@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+    <property>
+        <name>livy.session.lifetime.minutes</name>
+        <value>2880</value>
+        <description>Maximum time in minutes a session can be active before it is swapped</description>
+        <display-name>Session Lifetime in Minutes</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.lifetime.requests</name>
+        <value>500</value>
+        <description>Maximum number of requests processed by a session before it is swapped</description>
+        <display-name>Session Lifetime in Requests</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.max.errors</name>
+        <value>20</value>
+        <description>Maximum number of attempts for session creation. Session will be declared dead after these many
+            retries
+        </description>
+        <display-name>Session creation retry count</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.read.name</name>
+        <value>dpprofiler-read</value>
+        <description>The name of read session</description>
+        <display-name>Read session name</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.read.heartbeatTimeoutInSecond</name>
+        <value>172800</value>
+        <description>Timeout in seconds to which read session be orphaned</description>
+        <display-name>Read session heartbeat timeout</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.read.timeoutInSeconds</name>
+        <value>90</value>
+        <description>Timeout in seconds for requests to read session</description>
+        <display-name>Read session timeout</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.read.queue</name>
+        <value>default</value>
+        <description>Yarn queue for read sessions</description>
+        <display-name>Read session queue name</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.read.driverMemory</name>
+        <value>1g</value>
+        <description>Amount of memory to use for the driver process for read session E.g. 1g</description>
+        <display-name>Read session driver memory size</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.read.driverCores</name>
+        <value>1</value>
+        <description>Number of cores to use for the driver process for read session E.g. 1</description>
+        <display-name>Read session driver core count</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.read.executorMemory</name>
+        <value>1g</value>
+        <description>Amount of memory to use per executor process for read session E.g. 1g</description>
+        <display-name>Read session executor memory size</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.read.executorCores</name>
+        <value>1</value>
+        <description>Number of cores to use for each executor for read session E.g. 1</description>
+        <display-name>Read session executor core count</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.read.numExecutors</name>
+        <value>1</value>
+        <description>Number of executors to launch for read session E.g. 1</description>
+        <display-name>Read session executor count</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.write.name</name>
+        <value>dpprofiler-write</value>
+        <description>The name of write session</description>
+        <display-name>Write session name</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.write.heartbeatTimeoutInSecond</name>
+        <value>172800</value>
+        <description>Timeout in seconds to which write session be orphaned</description>
+        <display-name>Write session heartbeat timeout</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.write.timeoutInSeconds</name>
+        <value>90</value>
+        <description>Timeout in seconds for requests to write session</description>
+        <display-name>Write session timeout</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.write.queue</name>
+        <value>default</value>
+        <description>Yarn queue for write sessions</description>
+        <display-name>Write session queue name</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.write.driverMemory</name>
+        <value>1g</value>
+        <description>Amount of memory to use for the driver process for write session E.g. 1g</description>
+        <display-name>Write session driver memory size</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.write.driverCores</name>
+        <value>1</value>
+        <description>Number of cores to use for the driver process for write session E.g. 1</description>
+        <display-name>Write session driver core count</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.write.executorMemory</name>
+        <value>1g</value>
+        <description>Amount of memory to use per executor process for write session E.g. 1g</description>
+        <display-name>Write session executor memory size</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.write.executorCores</name>
+        <value>1</value>
+        <description>Number of cores to use for each executor for write session E.g. 1</description>
+        <display-name>Write session executor core count</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>livy.session.config.write.numExecutors</name>
+        <value>1</value>
+        <description>Number of executors to launch for write session E.g. 1</description>
+        <display-name>Write session executor count</display-name>
+        <on-ambari-upgrade add="true"/>
+    </property>
+</configuration>

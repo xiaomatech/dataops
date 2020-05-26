@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration supports_final="true" supports_adding_forbidden="true">
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/beacon-1.1.0.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>beacon_user</name>
+        <value>beacon</value>
+        <property-type>USER</property-type>
+        <description>Service user for beacon</description>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>beacon_database</name>
+        <value>Existing MySQL / MariaDB Database</value>
+        <display-name>Beacon Database</display-name>
+        <description>Beacon Server Database.</description>
+        <value-attributes>
+            <overridable>false</overridable>
+            <type>value-list</type>
+            <entries>
+                <entry>
+                    <value>New Derby Database</value>
+                    <label>New Derby</label>
+                </entry>
+                <entry>
+                    <value>Existing MySQL / MariaDB Database</value>
+                    <label>Existing MySQL / MariaDB</label>
+                </entry>
+                <entry>
+                    <value>Existing Postgresql Database</value>
+                    <label>Existing PostgreSQL</label>
+                </entry>
+            </entries>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>beacon_store_driver</name>
+        <value>com.mysql.jdbc.Driver</value>
+        <description>Beacon store Driver</description>
+        <display-name>JDBC Driver Class</display-name>
+        <value-attributes>
+            <overridable>false</overridable>
+        </value-attributes>
+        <depends-on>
+            <property>
+                <name>beacon_database</name>
+                <type>beacon-env</type>
+            </property>
+        </depends-on>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>beacon_store_url</name>
+        <value>jdbc:mysql:{beacon_data_dir}/beacon-db;create=true;</value>
+        <description>Database url</description>
+        <display-name>Database URL</display-name>
+        <value-attributes>
+            <overridable>false</overridable>
+        </value-attributes>
+        <depends-on>
+            <property>
+                <name>beacon_database</name>
+                <type>beacon-env</type>
+            </property>
+            <property>
+                <name>beacon_store_db_name</name>
+                <type>beacon-env</type>
+            </property>
+        </depends-on>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>beacon_store_db_name</name>
+        <value>beacon</value>
+        <description>Database Name</description>
+        <display-name>Database Name</display-name>
+    </property>
+    <property>
+        <name>beacon_store_user</name>
+        <value>beacon</value>
+        <description>Database Username</description>
+        <display-name>Database Username</display-name>
+    </property>
+    <property>
+        <name>beacon_store_password</name>
+        <value/>
+        <property-type>PASSWORD</property-type>
+        <description>Database Password</description>
+        <display-name>Database Password</display-name>
+        <value-attributes>
+            <type>password</type>
+            <overridable>false</overridable>
+            <keystore>true</keystore>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>beacon_home</name>
+        <value>{{stack_root}}/beacon-server</value>
+        <description>Beacon home directory</description>
+        <display-name>Beacon Home</display-name>
+    </property>
+    <property>
+        <name>beacon_port</name>
+        <value>25968</value>
+        <display-name>Beacon Port</display-name>
+        <description>Beacon listen port.</description>
+    </property>
+    <property>
+        <name>beacon_tls_port</name>
+        <value>25443</value>
+        <display-name>Beacon TLS Port</display-name>
+        <description>Beacon TLS listen port.</description>
+        <value-attributes>
+            <type>int</type>
+        </value-attributes>
+    </property>
+    <property>
+        <name>beacon_user</name>
+        <value>beacon</value>
+        <property-type>USER</property-type>
+        <description>The user for Beacon</description>
+        <display-name>Beacon User</display-name>
+        <value-attributes>
+            <user-groups>
+                <property>
+                    <type>hdfs-site</type>
+                    <name>dfs.permissions.superusergroup</name>
+                </property>
+                <property>
+                    <type>beacon-env</type>
+                    <name>beacon_group</name>
+                </property>
+                <property>
+                    <type>beacon-env</type>
+                    <name>users_group</name>
+                </property>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+    </property>
+    <property>
+        <name>users_group</name>
+        <value>users</value>
+        <property-type>GROUP</property-type>
+        <description>'Users' group.</description>
+    </property>
+    <property>
+        <name>beacon_group</name>
+        <value>beacon</value>
+        <property-type>GROUP</property-type>
+        <description>The group for Beacon</description>
+        <display-name>Beacon Group Name</display-name>
+    </property>
+    <property>
+        <name>beacon_data_dir</name>
+        <value>/data1/beacon/data</value>
+        <description>Beacon data directory</description>
+        <display-name>Beacon Data Directory</display-name>
+    </property>
+    <property>
+        <name>beacon_knox_proxy_enabled</name>
+        <value>false</value>
+        <description>Whether Knox proxy is enabled</description>
+        <display-name>Beacon Knox proxy Enabled</display-name>
+        <value-attributes>
+            <type>value-list</type>
+            <entries>
+                <entry>
+                    <value>true</value>
+                    <label>Yes</label>
+                </entry>
+                <entry>
+                    <value>false</value>
+                    <label>No</label>
+                </entry>
+            </entries>
+            <selection-cardinality>1</selection-cardinality>
+        </value-attributes>
+    </property>
+    <property>
+        <name>beacon_knox_preauth_topology</name>
+        <value>beacon-preauth</value>
+        <description>Knox preauth topology to use when proxying is enabled</description>
+        <display-name>Knox preauth topology to use when proxying is enabled</display-name>
+    </property>
+    <property>
+        <name>beacon_knox_proxy_topology</name>
+        <value>dp-proxy</value>
+        <description>Knox proxy topology to use when proxying is enabled</description>
+        <display-name>Knox proxy topology to use when proxying is enabled</display-name>
+    </property>
+    <property>
+        <name>beacon_knox_proxy_token_threshold</name>
+        <value>300</value>
+        <display-name>Knox token threshold in seconds.</display-name>
+        <description>Knox token threshold in seconds. If a token will be renewed if expiry time is within threshold.
+        </description>
+        <value-attributes>
+            <type>int</type>
+        </value-attributes>
+    </property>
+    <property>
+        <name>beacon_principal</name>
+        <value>beacon/_HOST@EXAMPLE.COM</value>
+        <description>Beacon Kerberos Principal</description>
+        <display-name>Beacon Kerberos Principal</display-name>
+    </property>
+    <property>
+        <name>beacon_tls_enabled</name>
+        <value>false</value>
+        <description>Whether TLS is enabled</description>
+        <display-name>Beacon TLS Enabled</display-name>
+        <value-attributes>
+            <type>value-list</type>
+            <entries>
+                <entry>
+                    <value>true</value>
+                    <label>Yes</label>
+                </entry>
+                <entry>
+                    <value>false</value>
+                    <label>No</label>
+                </entry>
+            </entries>
+            <selection-cardinality>1</selection-cardinality>
+        </value-attributes>
+    </property>
+    <property>
+        <name>beacon_key_store</name>
+        <value></value>
+        <description>Key store path</description>
+        <display-name>KeyStore Path</display-name>
+    </property>
+    <property>
+        <name>beacon_trust_store</name>
+        <value></value>
+        <description>Trust store path</description>
+        <display-name>TrustStore Path</display-name>
+    </property>
+    <property>
+        <name>beacon_key_store_password</name>
+        <value>changeit</value>
+        <property-type>PASSWORD</property-type>
+        <description>Key store password</description>
+        <display-name>KeyStore Password</display-name>
+        <value-attributes>
+            <type>password</type>
+            <overridable>false</overridable>
+            <keystore>true</keystore>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>beacon_trust_store_password</name>
+        <value>changeit</value>
+        <property-type>PASSWORD</property-type>
+        <description>Trust store password</description>
+        <display-name>TrustStore Password</display-name>
+        <value-attributes>
+            <type>password</type>
+            <overridable>false</overridable>
+            <keystore>true</keystore>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>beacon_key_password</name>
+        <value>changeit</value>
+        <property-type>PASSWORD</property-type>
+        <description>Key password</description>
+        <display-name>Key Password</display-name>
+        <value-attributes>
+            <type>password</type>
+            <overridable>false</overridable>
+            <keystore>true</keystore>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>beacon_results_per_page</name>
+        <value>10</value>
+        <description>Results Per Page</description>
+        <display-name>Results Per Page</display-name>
+    </property>
+    <property>
+        <name>beacon_max_results_per_page</name>
+        <value>1000</value>
+        <description>Max Results Per Page</description>
+        <display-name>Max Results Per Page</display-name>
+    </property>
+    <property>
+        <name>beacon_max_instance_count</name>
+        <value>10</value>
+        <description>Max Instance Count Policy Listing</description>
+        <display-name>Max Instance Count</display-name>
+    </property>
+    <property>
+        <name>beacon_socket_buffer_size</name>
+        <value>32768</value>
+        <description>Socket buffer size for Beacon</description>
+        <display-name>Beacon Socket Buffer Size</display-name>
+    </property>
+    <property>
+        <name>beacon_pid_dir</name>
+        <value>/var/run/beacon</value>
+        <display-name>Beacon PID Dir</display-name>
+        <description>Beacon pid-file directory.</description>
+    </property>
+    <property>
+        <name>beacon_log_dir</name>
+        <value>/var/log/beacon</value>
+        <display-name>Beacon log Dir</display-name>
+        <description>Beacon log directory.</description>
+    </property>
+    <property>
+        <name>beacon_store_schema_dir</name>
+        <value>{beacon_home}/sql</value>
+        <description>Beacon Store Schema Directory</description>
+        <display-name>Beacon Store Schema Directory</display-name>
+    </property>
+    <property>
+        <name>beacon_store_max_connections</name>
+        <value>20</value>
+        <description>Beacon Store Max Connections</description>
+        <display-name>Beacon Store Max Connections</display-name>
+    </property>
+    <property>
+        <name>beacon_store_max_idle_connections</name>
+        <value>5</value>
+        <description>Beacon Store Max Idle Connections</description>
+        <display-name>Beacon Store Max Idle Connections</display-name>
+    </property>
+    <property>
+        <name>beacon_store_min_idle_connections</name>
+        <value>2</value>
+        <description>Beacon Store Min Idle Connections</description>
+        <display-name>Beacon Store Min Idle Connections</display-name>
+    </property>
+    <property>
+        <name>beacon_store_connect_timeout_msecs</name>
+        <value>2000</value>
+        <description>Beacon Store connect timeout in msecs</description>
+        <display-name>Beacon Store connect timeout in msecs</display-name>
+    </property>
+    <property>
+        <name>beacon_store_waittime_msecs</name>
+        <value>60000</value>
+        <description>Beacon Store wait time in msecs</description>
+        <display-name>Beacon Store wait time in msecs</display-name>
+    </property>
+    <property>
+        <name>beacon_services</name>
+        <value>com.hortonworks.beacon.scheduler.internal.StoreCleanupService,
+            com.hortonworks.beacon.scheduler.internal.AdminJobService,
+            com.hortonworks.beacon.scheduler.RecoveryService,
+            com.hortonworks.beacon.plugin.service.MetaDataPluginManagerService,
+            com.hortonworks.dlmengine.DataPluginManagerService,
+            com.hortonworks.beacon.service.PolicyRecoveryService
+        </value>
+        <description>Comma separated list of Beacon Services</description>
+        <display-name>Beacon Services</display-name>
+    </property>
+    <property>
+        <name>beacon_hadoop_job_lookup_retries</name>
+        <value>10</value>
+        <description>Hadoop job retries</description>
+        <display-name>Hadoop Job Retries</display-name>
+    </property>
+    <property>
+        <name>beacon_hadoop_job_lookup_delay</name>
+        <value>2</value>
+        <description>Hadoop job retry delay</description>
+        <display-name>Hadoop Job Retry Delay</display-name>
+    </property>
+    <property>
+        <name>beacon_quartz_prefix</name>
+        <value>QUARTZ_</value>
+        <description>Prefix to the DB for the quartz scheduler</description>
+        <display-name>Beacon Quartz Prefix</display-name>
+    </property>
+    <property>
+        <name>beacon_quartz_thread_pool</name>
+        <value>500</value>
+        <description>Number of threads for running replication jobs.</description>
+        <display-name>Beacon Scheduler Threads</display-name>
+    </property>
+    <property>
+        <name>beacon_retired_policy_older_than</name>
+        <value>30</value>
+        <description>Number of days after retired (deleted) policy data cleaned up from Beacon DB.</description>
+        <display-name>Cleanup Retired Policy Data (Days)</display-name>
+    </property>
+    <property>
+        <name>beacon_cleanup_service_frequency</name>
+        <value>24</value>
+        <description>Frequency of Beacon housekeeping services.</description>
+        <display-name>Frequency of HouseKeeping Service (Hours)</display-name>
+    </property>
+    <property>
+        <name>beacon_house_keeping_threads</name>
+        <value>5</value>
+        <description>Number of threads for running housekeeping jobs.</description>
+        <display-name>HouseKeeping Service Threads</display-name>
+    </property>
+    <property>
+        <name>beacon_house_keeping_sync_frequency</name>
+        <value>5</value>
+        <description>Frequency for policy status sync service</description>
+        <display-name>Frequency of Policy Sync Service (Minutes)</display-name>
+    </property>
+    <property>
+        <name>beacon_house_keeping_sync_max_retry</name>
+        <value>30</value>
+        <description>HouseKeeping Sync Max Retry</description>
+        <display-name>HouseKeeping Sync Max Retry</display-name>
+    </property>
+    <property>
+        <name>beacon_min_replication_frequency</name>
+        <value>60</value>
+        <description>Minimum Frequency for Replication policies (Seconds)</description>
+        <display-name>Minimum Frequency for Replication policies (Seconds)</display-name>
+    </property>
+    <property>
+        <name>beacon_replication_metrics_interval</name>
+        <value>60</value>
+        <description>Interval period to capture replication metrics (Seconds). Default 60 seconds.</description>
+        <display-name>Interval period to capture replication metrics (Seconds). Default 60 seconds.</display-name>
+    </property>
+    <property>
+        <name>beacon_policy_check_frequency</name>
+        <value>1</value>
+        <description>Beacon policy check frequency</description>
+        <display-name>Policy check frequency(Min.)</display-name>
+    </property>
+    <property>
+        <name>beacon_auth_relogin_seconds</name>
+        <value>3600</value>
+        <description>Kerberos authentication relogin thread frequency.</description>
+        <display-name>Kerberos authentication relogin thread frequency.</display-name>
+    </property>
+    <property>
+        <name>beacon_exclude_file_regex</name>
+        <value>\/.*_COPYING_$|\/.*_COPYING$|^.*\/\.[^\/]*$|\/_temporary$|\/\_temporary\/|.*/\.Trash\/.*</value>
+        <description>Regex to exclude file(s).</description>
+        <display-name>Regex to exclude file(s).</display-name>
+    </property>
+    <property>
+        <name>set_hive_configs</name>
+        <value>true</value>
+        <value-attributes>
+            <type>boolean</type>
+        </value-attributes>
+        <description>Set hive configs to enable replication(if hive installed)</description>
+        <display-name>Manage HIVE configuration</display-name>
+    </property>
+    <property>
+        <name>beacon_encryption_zones_refresh_frequency</name>
+        <value>60</value>
+        <description>Refresh frequency of listing encryption zones (Seconds). Default 60 seconds.</description>
+        <display-name>Refresh frequency of listing encryption zones (Seconds). Default 60 seconds.</display-name>
+    </property>
+    <property>
+        <name>beacon_snapshot_dirs_refresh_frequency</name>
+        <value>60</value>
+        <description>Refresh frequency of listing snapshot dirs (Seconds). Default 60 seconds.</description>
+        <display-name>Refresh frequency of listing snapshot dirs (Seconds). Default 60 seconds.</display-name>
+    </property>
+    <property>
+        <name>beacon_snapshot_retention_number</name>
+        <value>3</value>
+        <display-name>Snapshot retention number</display-name>
+        <description>Number of snapshots to be retained for a replication directory.</description>
+        <value-attributes>
+            <type>int</type>
+            <minimum>1</minimum>
+            <maximum>50</maximum>
+        </value-attributes>
+    </property>
+    <property>
+        <name>beacon_bind_host</name>
+        <value>0.0.0.0</value>
+        <description>The hostname that the beacon server should bind to. This is an optional field. If not set,
+            the beacon server will bind to the ip address resolved by local hostname. Use 0.0.0.0 to bind on
+            all interfaces of the machine
+        </description>
+    </property>
+    <property>
+        <name>beacon_cloud_cred_provider_path</name>
+        <value>jceks://hdfs/user/beacon/credential</value>
+        <description>HDFS path for storing cloud credential provider</description>
+    </property>
+    <property>
+        <name>beacon_plugin_staging_dir</name>
+        <value>/apps/beacon/plugin/stage</value>
+        <description>Staging directory for DLM plugins</description>
+    </property>
+    <property>
+        <name>beacon_preserve_meta</name>
+        <value>false</value>
+        <description>Preserve ACL(s)/Permissions of files copied to cloud</description>
+    </property>
+    <property>
+        <name>hive_bootstrap_job_retry_attempts</name>
+        <value>7</value>
+        <description>Hive bootstrap job retry attempts</description>
+        <display-name>Hive bootstrap job retry attempts</display-name>
+    </property>
+    <property>
+        <name>ranger_client_connect_timeout</name>
+        <value>10</value>
+        <description>Ranger http client connect timeout (in seconds)</description>
+        <display-name>Ranger http client connect timeout (in seconds)</display-name>
+    </property>
+    <property>
+        <name>ranger_client_read_timeout</name>
+        <value>60</value>
+        <description>Ranger http client read timeout (in seconds)</description>
+        <display-name>Ranger http client read timeout (in seconds)</display-name>
+    </property>
+    <property>
+        <name>beacon_max_file_list_per_page</name>
+        <value>5000</value>
+        <description>Max no. of file(s)/dir(s) list per page in HDFS API</description>
+        <display-name>Max no. of file(s)/dir(s) list per page in HDFS API</display-name>
+    </property>
+
+    <property>
+        <name>atlas_client_connect_timeout</name>
+        <value>10</value>
+        <description>Atlas http client connect timeout (in seconds)</description>
+        <display-name>Atlas http client connect timeout (in seconds)</display-name>
+    </property>
+    <property>
+        <name>atlas_client_read_timeout</name>
+        <value>7200</value>
+        <description>Atlas http client read timeout (in seconds)</description>
+        <display-name>Atlas http client read timeout (in seconds)</display-name>
+    </property>
+
+</configuration>

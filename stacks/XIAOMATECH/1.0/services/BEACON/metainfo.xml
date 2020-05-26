@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>BEACON</name>
+            <displayName>DLM Engine</displayName>
+            <comment>Data Lifecycle Manager Engine</comment>
+            <version>1.1.0</version>
+            <components>
+                <component>
+                    <name>BEACON_SERVER</name>
+                    <displayName>Beacon Server</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1</cardinality>
+                    <versionAdvertised>false</versionAdvertised>
+                    <commandScript>
+                        <script>scripts/beacon_server.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                    <logs>
+                        <log>
+                            <logId>becon_app</logId>
+                            <primary>true</primary>
+                        </log>
+                    </logs>
+                </component>
+            </components>
+
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+
+            <themes>
+                <theme>
+                    <fileName>theme.json</fileName>
+                    <default>true</default>
+                </theme>
+            </themes>
+
+            <configuration-dependencies>
+                <config-type>beacon-env</config-type>
+                <config-type>beacon-security-site</config-type>
+            </configuration-dependencies>
+
+            <restartRequiredAfterChange>true</restartRequiredAfterChange>
+
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+
+            <credential-store>
+                <supported>true</supported>
+                <enabled>true</enabled>
+            </credential-store>
+
+        </service>
+    </services>
+</metainfo>

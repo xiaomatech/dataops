@@ -1,0 +1,45 @@
+{
+  "layouts": [
+    {
+      "layout_name": "default_kafka_feeder_dashboard",
+      "display_name": "Standard Kafka Feeder Dashboard",
+      "section_name": "KAFKAFEEDER_SUMMARY",
+      "widgetLayoutInfo": [
+        {
+          "widget_name": "Kafka Feeder HTTP and JVM",
+          "description": "Kafka Feeder HTTP and JVM",
+          "widget_type": "GRAPH",
+          "is_visible": true,
+          "metrics": [
+            {
+              "metric_path": "jvm/memory/heap/usage",
+              "name": "jvm.memory.heap.usage.",
+              "service_name": "KAFKAFEEDER",
+              "component_name": "KAFKA_FEEDER"
+            },
+            {
+              "metric_path": "jvm/memory/total/max",
+              "name": "jvm.memory.total.max.",
+              "service_name": "KAFKAFEEDER",
+              "component_name": "KAFKA_FEEDER"
+            }
+          ],
+          "values": [
+            {
+              "name": "Jvm Heap Usage",
+              "value": "${jvm.memory.heap.usage.}"
+            },
+            {
+              "name": "Jvm Heap max",
+              "value": "${jvm.memory.heap.max.}"
+            }
+          ],
+          "properties": {
+            "graph_type": "LINE",
+            "time_range": "1"
+          }
+        }
+      ]
+    }
+  ]
+}

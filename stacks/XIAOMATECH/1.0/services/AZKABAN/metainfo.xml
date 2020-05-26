@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>AZKABAN</name>
+            <displayName>Azkaban</displayName>
+            <comment>Azkaban is a batch workflow job scheduler created at LinkedIn to run Hadoop jobs. Azkaban resolves
+                the ordering through job dependencies and provides an easy to use web user interface to maintain and
+                track your workflows.
+            </comment>
+            <version>3.38.0</version>
+
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+
+            <components>
+                <component>
+                    <name>AZKABAN_WEB</name>
+                    <displayName>Azkaban Web Server</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <commandScript>
+                        <script>scripts/web.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                </component>
+
+                <component>
+                    <name>AZKABAN_EXECUTOR</name>
+                    <displayName>Azkaban Executor Server</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>3+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <commandScript>
+                        <script>scripts/executor.py</script>
+                        <scriptType>PYTHON</scriptType>
+                    </commandScript>
+                </component>
+
+            </components>
+
+            <configuration-dependencies>
+                <config-type>azkaban-env.xml</config-type>
+            </configuration-dependencies>
+
+        </service>
+    </services>
+</metainfo>

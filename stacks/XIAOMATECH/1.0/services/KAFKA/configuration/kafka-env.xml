@@ -1,0 +1,352 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<configuration supports_adding_forbidden="true">
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/kafka_2.12-2.3.1.tgz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>kafka_user</name>
+        <display-name>Kafka User</display-name>
+        <value>kafka</value>
+        <property-type>USER</property-type>
+        <description/>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>kafka_keytab</name>
+        <description>Kafka keytab path</description>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>kafka_principal_name</name>
+        <description>Kafka principal name</description>
+        <property-type>KERBEROS_PRINCIPAL</property-type>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>kafka_log_dir</name>
+        <display-name>Kafka Log directory</display-name>
+        <value>/var/log/kafka</value>
+        <description/>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>kafka_pid_dir</name>
+        <value>/var/run/kafka</value>
+        <display-name>Kafka PID dir</display-name>
+        <description/>
+        <value-attributes>
+            <type>directory</type>
+            <editable-only-at-install>true</editable-only-at-install>
+            <overridable>false</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>kafka_user_nofile_limit</name>
+        <value>1048576</value>
+        <description>Max open files limit setting for KAFKA user.</description>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <property>
+        <name>kafka_user_nproc_limit</name>
+        <value>65536</value>
+        <description>Max number of processes limit setting for KAFKA user.</description>
+        <on-ambari-upgrade add="false"/>
+    </property>
+    <!-- kafka-env.sh -->
+    <property>
+        <name>content</name>
+        <display-name>kafka-env template</display-name>
+        <description>This is the jinja template for kafka-env.sh file</description>
+        <value><![CDATA[
+#!/bin/bash
+
+# Set KAFKA specific environment variables here.
+
+# The java implementation to use.
+export JAVA_HOME={{java64_home}}
+export PATH=$PATH:$JAVA_HOME/bin
+export PID_DIR={{kafka_pid_dir}}
+export LOG_DIR={{kafka_log_dir}}
+{% if kerberos_security_enabled or kafka_other_sasl_enabled %}
+export KAFKA_KERBEROS_PARAMS="-Djavax.security.auth.useSubjectCredsOnly=false {{kafka_kerberos_params}}"
+{% else %}
+export KAFKA_KERBEROS_PARAMS={{kafka_kerberos_params}}
+{% endif %}
+# Add kafka sink to classpath and related depenencies
+if [ -e "/usr/lib/ambari-metrics-kafka-sink/ambari-metrics-kafka-sink.jar" ]; then
+  export CLASSPATH=$CLASSPATH:/usr/lib/ambari-metrics-kafka-sink/ambari-metrics-kafka-sink.jar
+  export CLASSPATH=$CLASSPATH:/usr/lib/ambari-metrics-kafka-sink/lib/*
+fi
+
+
+if [ -d "{{stack_root}}/ranger-kafka-plugin" ]; then
+    export CLASSPATH=${CLASSPATH}:{{stack_root}}/ranger-kafka-plugin/lib/*
+fi
+
+if [ -d "{{stack_root}}/atlas-kafka-plugin" ]; then
+    export CLASSPATH=${CLASSPATH}:{{stack_root}}/atlas-kafka-plugin/atlas-kafka-plugin-impl/*:{{stack_root}}/atlas-kafka-plugin/*
+fi
+
+      ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>kafka-init-content</name>
+        <display-name>kafka init template</display-name>
+        <description>This is template for kafka init file</description>
+        <value><![CDATA[
+# Home dir
+KAFKA_HOME={{install_dir}}
+# kafka env script
+. $KAFKA_HOME/config/kafka-env.sh
+#Kafka PID
+PID=0
+
+JAVA_HOME={{java64_home}}
+
+# Start, stop, status, clean or setup
+KAFKA_LAUNCH_COMMAND=$1
+
+# User Name for setup parameter
+KAFKA_USER={{kafka_user}}
+
+
+#App name
+APP_NAME=kafka
+
+#The Kafka's broker
+KAFKA_BROKER_CMD="$KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties"
+
+#PID & LOG DIRs
+
+[ -z $PID_DIR ] && PID_DIR="/var/run/$APP_NAME"
+[ -z $LOG_DIR ] && LOG_DIR="/var/log/$APP_NAME"
+
+#Name of PID file
+PID_FILE="$PID_DIR/$APP_NAME.pid"
+
+#Name of LOG ERR file
+ERR_FILE="$LOG_DIR/$APP_NAME.err"
+
+[ -z $MAX_WAIT_TIME ] && MAX_WAIT_TIME=120
+
+function main {
+   case "$1" in
+      start)
+         kafkaStart
+         ;;
+      stop)
+         kafkaStop
+         ;;
+      status)
+         kafkaStatus
+         ;;
+      clean)
+         kafkaClean
+         ;;
+      *)
+         printf "Usage: $0 {start|stop|status|clean}\n"
+         ;;
+   esac
+}
+
+function kafkaStart {
+
+   getPID
+   kafkaIsRunning $PID
+   if [ $? -eq 1 ]; then
+     printf "Kafka is already running with PID=$PID.\n"
+     exit 0
+   fi
+
+   printf "Starting Kafka "
+
+   rm -f $PID_FILE
+   nohup $KAFKA_BROKER_CMD >>/dev/null 2>>$ERR_FILE & echo $! > $PID_FILE
+
+   getPID
+   kafkaIsRunning $PID
+   if [ $? -ne 1 ]; then
+      printf "failed.\n"
+      exit 1
+   fi
+
+   printf "succeeded with PID=$PID.\n"
+   return 0
+}
+
+function kafkaStop {
+   getPID
+   kafkaIsRunning $PID
+   if [ $? -eq 0 ]; then
+     printf "Kafka is not running.\n"
+     rm -f $PID_FILE
+     return 0
+   fi
+
+   printf "Stopping Kafka [$PID] "
+   kafkaKill $PID >>/dev/null 2>>$ERR_FILE
+
+   if [ $? -ne 0 ]; then
+     printf "failed. \n"
+     exit 1
+   else
+     rm -f $PID_FILE
+     printf "succeeded.\n"
+     return 0
+   fi
+}
+
+function kafkaStatus {
+   printf "Kafka "
+   getPID
+   if [ $? -eq 1 ]; then
+     printf "is not running. No pid file found.\n"
+     return 0
+   fi
+
+   kafkaIsRunning $PID
+   if [ $? -eq 1 ]; then
+     printf "is running with PID=$PID.\n"
+     exit 1
+   else
+     printf "is not running.\n"
+     return 0
+   fi
+}
+
+# Removed the Kafka PID file if Kafka is not run
+function kafkaClean {
+   getPID
+   kafkaIsRunning $PID
+   if [ $? -eq 0 ]; then
+     deleteLogFiles
+     return 0
+   else
+     printf "Can't clean files.  Kafka is running with PID=$PID.\n"
+     exit 1
+   fi
+}
+
+# Returns 0 if the Knox is running and sets the $PID variable.
+function getPID {
+   if [ ! -d $PID_DIR ]; then
+      printf "Can't find pid dir.\n"
+      exit 1
+   fi
+   if [ ! -f $PID_FILE ]; then
+     PID=0
+     return 1
+   fi
+
+   PID="$(<$PID_FILE)"
+   return 0
+}
+
+function kafkaIsRunning {
+   if [ $1 -eq 0 ]; then return 0; fi
+
+   ps -p $1 > /dev/null
+
+   if [ $? -eq 1 ]; then
+     return 0
+   else
+     return 1
+   fi
+}
+
+function kafkaKill {
+   local localPID=$1
+   kill $localPID || return 1
+   for ((i=0; i<MAX_WAIT_TIME; i++)); do
+      kafkaIsRunning $localPID
+      if [ $? -eq 0 ]; then return 0; fi
+      sleep 1
+   done
+
+   kill -s KILL $localPID || return 1
+   for ((i=0; i<MAX_WAIT_TIME; i++)); do
+      kafkaIsRunning $localPID
+      if [ $? -eq 0 ]; then return 0; fi
+      sleep 1
+   done
+
+   return 1
+}
+
+function createLogFiles {
+   if [ ! -d "$LOG_DIR" ]; then
+      printf "Can't find log dir.  Run sudo $0 setup.\n"
+      exit 1
+   fi
+   if [ ! -f "$OUT_FILE" ]; then touch $OUT_FILE; fi
+   if [ ! -f "$ERR_FILE" ]; then touch $ERR_FILE; fi
+}
+
+function deleteLogFiles {
+     rm -f $PID_FILE
+     printf "Removed the Kafka PID file: $PID_FILE.\n"
+
+     rm -f $OUT_FILE
+     printf "Removed the Kafka OUT file: $OUT_FILE.\n"
+
+     rm -f $ERR_FILE
+     printf "Removed the Kafka ERR file: $ERR_FILE.\n"
+}
+
+#Starting main
+main $KAFKA_LAUNCH_COMMAND
+      ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>is_supported_kafka_ranger</name>
+        <value>true</value>
+        <on-ambari-upgrade add="false"/>
+    </property>
+</configuration>

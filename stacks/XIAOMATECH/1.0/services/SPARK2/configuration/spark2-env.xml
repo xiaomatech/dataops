@@ -1,0 +1,273 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<configuration supports_adding_forbidden="true">
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/spark-2.4.3-bin-hadoop2.7.tgz</value>
+        <description>download url</description>
+    </property>
+
+    <property require-input="true">
+        <name>share_jars</name>
+        <value>spark-authorizer-2.1.1.jar,spark-atlas-connector-assembly.jar,apache-carbondata-1.5.2-bin-spark2.3.2-hadoop2.7.2.jar,spark-cassandra-connector-2.4.0-s_2.11.jar,elasticsearch-spark-20_2.11-7.2.0.jar,delta-core_2.11-0.5.0.jar</value>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <description>spark share jars</description>
+    </property>
+
+    <property>
+        <name>spark_user</name>
+        <display-name>Spark User</display-name>
+        <value>spark</value>
+        <property-type>USER</property-type>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>spark_log_dir</name>
+        <display-name>Spark Log directory</display-name>
+        <value>/var/log/spark</value>
+        <description>Spark Log Dir</description>
+        <value-attributes>
+            <type>directory</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>spark_pid_dir</name>
+        <display-name>Spark PID directory</display-name>
+        <value>/var/run/spark</value>
+        <value-attributes>
+            <type>directory</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>spark_daemon_memory</name>
+        <value>8192</value>
+        <description>Memory for Master, Worker and history server (default: 1G)</description>
+        <value-attributes>
+            <type>int</type>
+            <unit>MB</unit>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>hive_kerberos_keytab</name>
+        <value>{{hive_kerberos_keytab}}</value>
+        <description>hive keytab for spark thirft server</description>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>hive_kerberos_principal</name>
+        <value>{{hive_kerberos_principal}}</value>
+        <description>hive principal for spark thrift server</description>
+        <property-type>KERBEROS_PRINCIPAL</property-type>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <!-- spark-env.sh -->
+    <property>
+        <name>content</name>
+        <description>This is the jinja template for spark-env.sh file</description>
+        <value><![CDATA[
+#!/usr/bin/env bash
+
+# This file is sourced when running various Spark programs.
+# Copy it as spark-env.sh and edit that to configure Spark for your site.
+
+# Options read in YARN client mode
+#SPARK_EXECUTOR_INSTANCES="2" #Number of workers to start (Default: 2)
+#SPARK_EXECUTOR_CORES="1" #Number of cores for the workers (Default: 1).
+#SPARK_EXECUTOR_MEMORY="1G" #Memory per Worker (e.g. 1000M, 2G) (Default: 1G)
+SPARK_DRIVER_MEMORY="4G" #Memory for Master (e.g. 1000M, 2G) (Default: 512 Mb)
+#SPARK_YARN_APP_NAME="spark" #The name of your application (Default: Spark)
+#SPARK_YARN_QUEUE="default" #The hadoop queue to use for allocation requests (Default: default)
+#SPARK_YARN_DIST_FILES="" #Comma separated list of files to be distributed with the job.
+#SPARK_YARN_DIST_ARCHIVES="" #Comma separated list of archives to be distributed with the job.
+
+{% if security_enabled %}
+export SPARK_HISTORY_OPTS='-Dspark.ui.filters=org.apache.hadoop.security.authentication.server.AuthenticationFilter -Dspark.org.apache.hadoop.security.authentication.server.AuthenticationFilter.params="type=kerberos,kerberos.principal={{spnego_principal}},kerberos.keytab={{spnego_keytab}}"'
+{% endif %}
+
+# Generic options for the daemons used in the standalone deploy mode
+
+# Alternate conf dir. (Default: /etc/spark)
+export SPARK_CONF_DIR=${SPARK_CONF_DIR:-/etc/spark}
+
+# Where log files are stored.(Default:${SPARK_HOME}/logs)
+#export SPARK_LOG_DIR=${SPARK_HOME:-{{spark_home}}}/logs
+export SPARK_LOG_DIR={{spark_log_dir}}
+
+# Where the pid file is stored. (Default: /tmp)
+export SPARK_PID_DIR={{spark_pid_dir}}
+
+#Memory for Master, Worker and history server (default: 1024MB)
+export SPARK_DAEMON_MEMORY={{spark_daemon_memory}}m
+
+# A string representing this instance of spark.(Default: $USER)
+SPARK_IDENT_STRING=$USER
+
+# The scheduling priority for daemons. (Default: 0)
+SPARK_NICENESS=0
+
+export HADOOP_HOME=${HADOOP_HOME:-{{hadoop_home}}}
+export HADOOP_CONF_DIR=${HADOOP_CONF_DIR:-{{hadoop_conf_dir}}}
+export LD_LIBRARY_PATH=$HADOOP_HOME/lib/native:/usr/share/java/hadoop/native
+export PYSPARK_PYTHON=/opt/pythonenv/bin/python
+# The java implementation to use.
+export JAVA_HOME={{java_home}}
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>spark_thrift_cmd_opts</name>
+        <description>additional spark thrift server commandline options</description>
+        <value/>
+        <value-attributes>
+            <empty-value-valid>true</empty-value-valid>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>carbondata_content</name>
+        <description>carbon.properties</description>
+        <value><![CDATA[
+#################### System Configuration ##################
+##Optional. Location where CarbonData will create the store, and write the data in its own format.
+##If not specified then it takes spark.sql.warehouse.dir path.
+carbon.storelocation=hdfs:///carbon
+#Base directory for Data files
+#carbon.ddl.base.hdfs.url
+#Path where the bad records are stored
+#carbon.badRecords.location
+
+#################### Performance Configuration ##################
+######## DataLoading Configuration ########
+#File read buffer size used during sorting(in MB) :MIN=1:MAX=100
+carbon.sort.file.buffer.size=10
+#Number of cores to be used while data loading
+carbon.number.of.cores.while.loading=2
+#Record count to sort and write to temp intermediate files
+carbon.sort.size=100000
+#Algorithm for hashmap for hashkey calculation
+carbon.enableXXHash=true
+#enable prefetch of data during merge sort while reading data from sort temp files in data loading
+#carbon.merge.sort.prefetch=true
+
+######## Alter Partition Configuration ########
+#Number of cores to be used while alter partition
+carbon.number.of.cores.while.alterPartition=2
+
+######## Compaction Configuration ########
+#Number of cores to be used while compacting
+carbon.number.of.cores.while.compacting=2
+#For minor compaction, Number of segments to be merged in stage 1, number of compacted segments to be merged in stage 2.
+carbon.compaction.level.threshold=4,3
+#default size (in MB) for major compaction to be triggered
+carbon.major.compaction.size=1024
+
+
+#################### Extra Configuration ##################
+##Timestamp format of input data used for timestamp data type.
+#carbon.timestamp.format=yyyy-MM-dd HH:mm:ss
+
+######## Dataload Configuration ########
+##File write buffer size used during sorting.
+#carbon.sort.file.write.buffer.size=16384
+##Locking mechanism for data loading on a table
+#carbon.lock.type=LOCALLOCK
+##Minimum no of intermediate files after which sort merged to be started.
+#carbon.sort.intermediate.files.limit=20
+##space reserved in percentage for writing block meta data in carbon data file
+#carbon.block.meta.size.reserved.percentage=10
+##csv reading buffer size.
+#carbon.csv.read.buffersize.byte=1048576
+##no of threads used for reading intermediate files for final merging.
+#carbon.merge.sort.reader.thread=3
+##Carbon blocklet size. Note: this configuration cannot be change once store is generated
+#carbon.blocklet.size=120000
+##To disable/enable carbon block distribution
+#carbon.custom.block.distribution=false
+
+######## Compaction Configuration ########
+##to specify number of segments to be preserved from compaction
+#carbon.numberof.preserve.segments=0
+##To determine the loads of number of days to be compacted
+#carbon.allowed.compaction.days=0
+##To enable compaction while data loading
+#carbon.enable.auto.load.merge=false
+
+######## Query Configuration ########
+##Maximum time allowed for one query to be executed.
+#max.query.execution.time=60
+##Min max feature is added to enhance query performance. To disable this feature, make it false.
+#carbon.enableMinMax=true
+
+######## Global Dictionary Configurations ########
+##The property to set the date to be considered as start date for calculating the timestamp.
+#carbon.cutOffTimestamp
+##The property to set the timestamp (ie milis) conversion to the SECOND, MINUTE, HOUR or DAY level.
+#carbon.timegranularity=SECOND
+##the number of prefetched rows in sort step
+#carbon.prefetch.buffersize=1000
+]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>spark.atlas.hook</name>
+        <value>false</value>
+        <display-name>Enable Atlas Hook</display-name>
+        <description>Enable Atlas Hook</description>
+        <value-attributes>
+            <type>boolean</type>
+            <overridable>false</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+        <depends-on>
+            <property>
+                <type>application-properties</type>
+                <name>atlas.rest.address</name>
+            </property>
+        </depends-on>
+    </property>
+
+</configuration>

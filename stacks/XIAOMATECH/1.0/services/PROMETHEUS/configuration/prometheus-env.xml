@@ -1,0 +1,297 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>prometheus_user</name>
+        <value>prometheus</value>
+        <property-type>USER</property-type>
+        <description>Service user for prometheus</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property require-input="true">
+        <name>exporter_lists</name>
+        <value>statsd_exporter,graphite_exporter,node_exporter,blackbox_exporter,snmp_exporter</value>
+        <description>A comma-separated list of prometheus exporter</description>
+    </property>
+
+    <property>
+        <name>alertmanager_content</name>
+        <display-name>alertmanager.yaml</display-name>
+        <description>alertmanager.yaml</description>
+        <value><![CDATA[
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+receivers:
+- name: 'web.hook'
+  webhook_configs:
+  - url: 'http://127.0.0.1:5001/'
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>prometheus_content</name>
+        <display-name>prometheus.yml</display-name>
+        <description>prometheus.yml</description>
+        <value><![CDATA[
+# my global config
+global:
+  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+    - 'prometheus.rules'
+    - 'alert.rules'
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+    - targets: ['localhost:9090']
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+    <property>
+        <name>prometheus_rules_content</name>
+        <display-name>prometheus.rules</display-name>
+        <description>prometheus.rules</description>
+        <value><![CDATA[
+job_service:rpc_durations_seconds_count:avg_rate5m = avg(rate(rpc_durations_seconds_count[5m])) by (job, service)
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+    <property>
+        <name>alert_rules_content</name>
+        <display-name>alert.rules</display-name>
+        <description>alert.rules</description>
+        <value><![CDATA[
+ALERT InstanceDown
+  IF up == 0
+  FOR 1m
+  LABELS { severity = "critical" }
+  ANNOTATIONS {
+    summary = "Instance {{ $labels.instance }} down",
+    description = "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.",
+  }
+
+ALERT high_load
+  IF node_load1 > 0.5
+  FOR 3m
+  ANNOTATIONS {
+    summary = "Instance {{ $labels.instance }} under high load",
+    description = "{{ $labels.instance }} of job {{ $labels.job }} is under high load.",
+  }
+
+
+# calculate filesystem used and free percent
+elasticsearch_filesystem_data_used_percent = 100 * (elasticsearch_filesystem_data_size_bytes - elasticsearch_filesystem_data_free_bytes) / elasticsearch_filesystem_data_size_bytes
+elasticsearch_filesystem_data_free_percent = 100 - elasticsearch_filesystem_data_used_percent
+
+# alert if too few nodes are running
+ALERT ElasticsearchTooFewNodesRunning
+  IF elasticsearch_cluster_health_number_of_nodes < 3
+  FOR 5m
+  LABELS {severity="critical"}
+  ANNOTATIONS {description="There are only {{$value}} < 3 ElasticSearch nodes running", summary="ElasticSearch running on less than 3 nodes"}
+
+# alert if heap usage is over 90%
+ALERT ElasticsearchHeapTooHigh
+  IF elasticsearch_jvm_memory_used_bytes{area="heap"} / elasticsearch_jvm_memory_max_bytes{area="heap"} > 0.9
+  FOR 15m
+  LABELS {severity="critical"}
+  ANNOTATIONS {description="The heap usage is over 90% for 15m", summary="ElasticSearch node {{$labels.node}} heap usage is high"}
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>blackbox_content</name>
+        <display-name>blackbox exporter config</display-name>
+        <description>blackbox exporter config</description>
+        <value><![CDATA[
+modules:
+  http_2xx:
+    prober: http
+    http:
+  http_post_2xx:
+    prober: http
+    http:
+      method: POST
+  tcp_connect:
+    prober: tcp
+  pop3s_banner:
+    prober: tcp
+    tcp:
+      query_response:
+      - expect: "^+OK"
+      tls: true
+      tls_config:
+        insecure_skip_verify: false
+  ssh_banner:
+    prober: tcp
+    tcp:
+      query_response:
+      - expect: "^SSH-2.0-"
+  irc_banner:
+    prober: tcp
+    tcp:
+      query_response:
+      - send: "NICK prober"
+      - send: "USER prober prober prober :prober"
+      - expect: "PING :([^ ]+)"
+        send: "PONG ${1}"
+      - expect: "^:[^ ]+ 001"
+  icmp:
+    prober: icmp
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+    <property>
+        <name>statsd_content</name>
+        <display-name>statsd exporter config</display-name>
+        <description>statsd exporter config</description>
+        <value><![CDATA[
+defaults:
+  timer_type: histogram
+  buckets: [.005, .01, .025, .05, .1, .25, .5, 1, 2.5 ]
+  match_type: glob
+  glob_disable_ordering: false
+mappings:
+- match: test.dispatcher.*.*.*
+  name: "dispatcher_events_total"
+  labels:
+    processor: "$1"
+    action: "$2"
+    outcome: "$3"
+    job: "test_dispatcher"
+- match: *.signup.*.*
+  name: "signup_events_total"
+  labels:
+    provider: "$2"
+    outcome: "$3"
+    job: "${1}_server"
+- match: test.timing.*.*.*
+  timer_type: summary
+  name: "my_timer"
+  labels:
+    provider: "$2"
+    outcome: "$3"
+    job: "${1}_server"
+  quantiles:
+    - quantile: 0.99
+      error: 0.001
+    - quantile: 0.95
+      error: 0.01
+    - quantile: 0.9
+      error: 0.05
+    - quantile: 0.5
+      error: 0.005
+- match: test.timing.*.*.*
+  timer_type: histogram
+  buckets: [ 0.01, 0.025, 0.05, 0.1 ]
+  name: "my_timer"
+  labels:
+    provider: "$2"
+    outcome: "$3"
+    job: "${1}_server"
+- match: (.*)\.(.*)--(.*)\.status\.(.*)\.count
+  match_type: regex
+  name: "request_total"
+  labels:
+    hostname: "$1"
+    exec: "$2"
+    protocol: "$3"
+    code: "$4"
+# This metric would match as normal.
+- match: test.timing.*.*.*
+  name: "my_timer"
+  labels:
+    provider: "$2"
+    outcome: "$3"
+    job: "${1}_server"
+# Any metric not matched will be dropped because "." matches all metrics.
+- match: .
+  match_type: regex
+  action: drop
+  name: "dropped"
+- match: test.foo.*
+  name: "test_foo"
+  match_metric_type: counter
+  labels:
+    provider: "$1"
+         ]]>
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+
+</configuration>

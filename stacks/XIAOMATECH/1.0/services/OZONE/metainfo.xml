@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>OZONE</name>
+            <displayName>Ozone</displayName>
+            <comment>Ozone is a scalable, distributed object store for Hadoop.</comment>
+            <version>0.3.0</version>
+
+            <components>
+                <component>
+                    <name>OZONE_SCM</name>
+                    <displayName>Ozone SCM</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/scm.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1800</timeout>
+                    </commandScript>
+                    <logs>
+                        <log>
+                            <logId>ozone_scm</logId>
+                            <primary>true</primary>
+                        </log>
+                        <log>
+                            <logId>ozone_audit</logId>
+                        </log>
+                    </logs>
+                </component>
+
+                <component>
+                    <name>OZONE_OM</name>
+                    <displayName>Ozone OM</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <reassignAllowed>true</reassignAllowed>
+                    <commandScript>
+                        <script>scripts/om.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1800</timeout>
+                    </commandScript>
+                    <logs>
+                        <log>
+                            <logId>ozone_om</logId>
+                            <primary>true</primary>
+                        </log>
+                    </logs>
+                </component>
+
+
+                <component>
+                    <name>OZONE_DATANODE</name>
+                    <displayName>Ozone Datanode</displayName>
+                    <cardinality>3+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <category>SLAVE</category>
+                    <commandScript>
+                        <script>scripts/datanode.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                    <dependencies>
+                        <dependency>
+                            <name>HDFS/HDFS_CLIENT</name>
+                            <scope>host</scope>
+                            <auto-deploy>
+                                <enabled>true</enabled>
+                            </auto-deploy>
+                        </dependency>
+                    </dependencies>
+                    <logs>
+                        <log>
+                            <logId>ozone_datanode</logId>
+                            <primary>true</primary>
+                        </log>
+                    </logs>
+                </component>
+
+            </components>
+
+
+            <commandScript>
+                <script>scripts/service_check.py</script>
+                <scriptType>PYTHON</scriptType>
+                <timeout>300</timeout>
+            </commandScript>
+
+            <configuration-dependencies>
+                <config-type>ozone-env</config-type>
+                <config-type>ozone-site</config-type>
+            </configuration-dependencies>
+
+        </service>
+    </services>
+</metainfo>

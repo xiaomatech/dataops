@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration supports_adding_forbidden="true">
+
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/elastic-job-lite-console-2.5.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property>
+        <name>conf_dir</name>
+        <value>/etc/elasticjob</value>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+            <editable-only-at-install>true</editable-only-at-install>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>log_dir</name>
+        <display-name>Log Dir</display-name>
+        <value>/var/log/elasticjob</value>
+        <value-attributes>
+            <type>directory</type>
+            <overridable>false</overridable>
+        </value-attributes>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>run_dir</name>
+        <value>/var/run/elasticjob</value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+    <property>
+        <name>elasticjob_user</name>
+        <display-name>elasticjob User</display-name>
+        <value>elasticjob</value>
+        <property-type>USER</property-type>
+        <description>elasticjob User</description>
+
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <!-- doctor-env.sh -->
+    <property>
+        <name>elasticjob_env</name>
+        <display-name>elasticjob-env template</display-name>
+        <description>This is the jinja template for elasticjob-env.sh file</description>
+        <value>
+export JAVA_HOME={{ java_home }}
+export DR_ELEPHANT_HOME={{ install_dir }}
+export HADOOP_HOME={{stack_root}}/hadoop
+export SPARK_HOME={{stack_root}}/spark
+export HADOOP_CONF_DIR==/etc/hadoop
+        </value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>content</name>
+        <display-name>conf template</display-name>
+        <description>This is the jinja template for conf file</description>
+        <value>
+#
+
+        </value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+</configuration>

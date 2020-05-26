@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration supports_final="true" supports_adding_forbidden="true">
+    <property>
+        <name>conf_content</name>
+        <display-name>dnsmasq.conf</display-name>
+        <description>dnsmasq.conf content</description>
+        <value>
+resolv-file=/etc/resolv.conf
+conf-dir=/etc/dnsmasq.d/,*.conf
+strict-order
+expand-hosts
+domain-needed
+bogus-priv
+dhcp-lease-max=86400
+dhcp-leasefile=/var/lib/dnsmasq/dnsmasq.leases
+cache-size=2048
+dhcp-option=option:router,10.4.10.3
+dhcp-option=option:ntp-server,10.10.1.5,10.10.3.6
+dhcp-option=option:dns-server,10.10.1.5,10.10.3.6
+domain=example.internal
+local=/example.internal/
+
+        </value>
+        <value-attributes>
+            <type>content</type>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+</configuration>

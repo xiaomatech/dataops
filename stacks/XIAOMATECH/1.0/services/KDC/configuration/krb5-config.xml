@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+ 
+<configuration>
+
+  <property>
+    <name>kdc.realm</name>
+    <value>example.com</value>
+    <description>Realm name e.g. example.com</description>
+  </property> 
+  <property>
+    <name>kdc.domain</name>
+    <value>example.com</value>
+    <description>Domain name e.g. example.com</description>
+  </property>
+
+  <property>
+    <name>ldap_kerberos_container_dn</name>
+    <value>cn=krbContainer,ou=Kerberos,dc=example,dc=com</value>
+    <description>Admin principal e.g admin/admin</description>
+  </property>
+
+  <property>
+    <name>ldap_kdc_dn</name>
+    <value>cn=kdc-srv,ou=Control,dc=example,dc=com</value>
+    <description>Admin principal e.g admin/admin</description>
+  </property>
+
+  <property>
+    <name>ldap_kadmind_dn</name>
+    <value>cn=manager,ou=Control,dc=example,dc=com</value>
+    <description>Admin principal e.g admin/admin</description>
+  </property>
+
+
+  <property>
+    <name>kdc.admin</name>
+    <value>root/admin</value>
+    <description>Admin principal e.g admin/admin</description>
+  </property> 
+
+  <property require-input="true">
+    <name>kdc.adminpassword</name>
+    <value></value>
+    <property-type>PASSWORD</property-type>
+    <description>Admin password</description>
+    <value-attributes>
+      <type>password</type>
+    </value-attributes>
+  </property>
+  
+</configuration>
+

@@ -1,0 +1,11 @@
+{
+  "general_deps" : {
+    "_comment" : "dependencies for Confluent",
+    "KAFKAREST-START": ["KAFKA-START"],
+    "SCHEMA_REGISTRY-START": ["KAFKA-START"],
+    "KSQL-START": ["KAFKA-START","SCHEMA_REGISTRY-START"],
+    "KAFKACONNECTOR-START": ["KAFKA-START","SCHEMA_REGISTRY-START"],
+    "CONTROLCENTER-START": ["KAFKA-START"],
+    "KAFKAMQTT-START": ["KAFKA-START"]
+  }
+}

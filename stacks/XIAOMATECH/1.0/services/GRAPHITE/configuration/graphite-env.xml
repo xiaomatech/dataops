@@ -1,0 +1,203 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property require-input="true">
+        <name>download_url</name>
+        <value>http://assets.example.com/graphouse-1.1-SNAPSHOT.tar</value>
+        <description>download url</description>
+    </property>
+
+    <property require-input="true">
+        <name>download_url_graphite_api</name>
+        <value>http://assets.example.com/graphite-api.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+    <property require-input="true">
+        <name>download_url_graphite_web</name>
+        <value>http://assets.example.com/graphite.tar.gz</value>
+        <description>download url</description>
+    </property>
+
+
+    <property>
+        <name>graphite_user</name>
+        <value>graphite</value>
+        <property-type>USER</property-type>
+        <description>Service user for Graphite</description>
+        <value-attributes>
+            <type>user</type>
+            <overridable>false</overridable>
+            <user-groups>
+                <property>
+                    <type>cluster-env</type>
+                    <name>user_group</name>
+                </property>
+            </user-groups>
+        </value-attributes>
+        <on-ambari-upgrade add="false"/>
+    </property>
+
+    <property>
+        <name>log_dir</name>
+        <value>/var/log/graphite</value>
+        <description>Log directory</description>
+    </property>
+
+    <property>
+        <name>pid_dir</name>
+        <value>/var/run/graphite</value>
+        <description>The directory for pid files</description>
+    </property>
+
+    <property>
+        <name>graphouse_content</name>
+        <display-name>graphouse.properties</display-name>
+        <description>This is the jinja template for graphouse.properties file</description>
+        <value><![CDATA[
+graphouse.allow-cold-run=false
+
+#Clickhouse
+graphouse.clickhouse.hosts={{graphouse_host}}
+graphouse.clickhouse.port=8123
+graphouse.clickhouse.db=graphite
+graphouse.clickhouse.user=admin
+graphouse.clickhouse.password=admin
+graphouse.clickhouse.compress=false
+graphouse.clickhouse.host-ping-rate-seconds=10
+
+graphouse.clickhouse.data-table=data
+graphouse.clickhouse.data-write-table=${graphouse.clickhouse.data-table}
+graphouse.clickhouse.data-read-table=${graphouse.clickhouse.data-table}
+
+graphouse.clickhouse.metric-tree-table=metrics
+
+graphouse.clickhouse.socket-timeout-seconds=600
+graphouse.clickhouse.query-timeout-seconds=120
+graphouse.clickhouse.connection-timeout-millis=5000
+
+graphouse.clickhouse.retention-config=graphite_rollup
+graphouse.clickhouse.max-query-size.bytes=1048576
+
+#metric server and cacher
+graphouse.cacher.bind-address={{hostname}}
+graphouse.cacher.port=2003
+graphouse.cacher.threads=100
+graphouse.cacher.socket-timeout-millis=42000
+
+graphouse.cacher.cache-size=2000000
+graphouse.cacher.batch-size=1000000
+graphouse.cacher.writers-count=2
+graphouse.cacher.flush-interval-seconds=5
+
+graphouse.cacher.queue-size=10000000
+graphouse.cacher.read-batch-size=1000
+graphouse.cacher.min-batch-size=10000
+graphouse.cacher.max-batch-size=1000000
+graphouse.cacher.min-batch-time-seconds=1
+graphouse.cacher.max-batch-time-seconds=5
+graphouse.cacher.max-output-threads=5
+
+#Http server (metric search, ping, metricData)
+graphouse.http.bind-address=
+graphouse.http.port=2005
+graphouse.http.threads=25
+graphouse.http.max-form-context-size-bytes=500000
+
+#Metric search and tree
+graphouse.search.refresh-seconds=60
+graphouse.tree.in-memory-levels=3
+graphouse.tree.dir-content.cache-time-minutes=60
+graphouse.tree.dir-content.cache-concurrency-level=100
+graphouse.tree.dir-content.batcher.max-parallel-requests=3
+graphouse.tree.dir-content.batcher.max-batch-size=2000
+graphouse.tree.dir-content.batcher.aggregation-time-millis=50
+
+###
+#Metric data service
+###
+#Max metrics per metricData query. Excess will cause 413 HTTP code. -1 for unlimited
+graphouse.metric-data.max-metrics-per-query=-1
+#Max points per metric for metricData query. Excess will cause  decrease of retention. -1 for unlimited
+graphouse.metric-data.max-points-per-metric=-1
+
+#Limit for dir content. Manual statuses cat exceed limit. -1 for unlimited
+graphouse.tree.max-subdirs-per-dir=-1
+graphouse.tree.max-metrics-per-dir=-1
+
+
+#Host metrics redirect
+graphouse.host-metric-redirect.enabled=false
+graphouse.host-metric-redirect.dir=
+graphouse.host-metric-redirect.postfixes=
+
+#Autohide
+graphouse.autohide.enabled=false
+graphouse.autohide.run-delay-minutes=30
+graphouse.autohide.max-values-count=200
+graphouse.autohide.missing-days=7
+graphouse.autohide.step=10000
+graphouse.autohide.retry.count=10
+graphouse.autohide.retry.wait_seconds=10
+graphouse.autohide.clickhouse.query-timeout-seconds=600
+
+#Metric validation
+graphouse.metric-validation.min-length=5
+graphouse.metric-validation.max-length=500
+graphouse.metric-validation.min-levels=2
+graphouse.metric-validation.max-levels=20
+graphouse.metric-validation.regexp=[-_0-9a-zA-Z\\.]*$
+
+      ]]>
+        </value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+    <property>
+        <name>graphouse_vmoptions_content</name>
+        <display-name>graphouse.vmoptions template</display-name>
+        <description>This is the jinja template for graphouse.vmoptions file</description>
+        <value><![CDATA[
+-Xms32g
+-Xmx32g
+-Xss2m
+-XX:StringTableSize=10000000
+-XX:+UseG1GC
+-XX:MaxGCPauseMillis=1000
+      ]]>
+        </value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+
+    <property>
+        <name>log4j_content</name>
+        <display-name>graphouse log4j2.xml template</display-name>
+        <description>This is the jinja template for graphouse log4j2.xml file</description>
+        <value><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info">
+    <Appenders>
+        <Async name="ASYNC">
+            <AppenderRef ref="MAIN"/>
+        </Async>
+        <RollingFile name="MAIN" fileName="${sys:app.home}/log/graphouse.log"
+                     filePattern="${sys:app.home}/log/graphouse-%d{yyyy-MM-dd}.log.gz">
+            <PatternLayout pattern="%d %-5p [%c{1} %t] %m%n"/>
+            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            <DefaultRolloverStrategy max="14"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="ASYNC"/>
+        </Root>
+    </Loggers>
+</Configuration>
+
+      ]]>
+        </value>
+        <on-ambari-upgrade add="true"/>
+    </property>
+
+</configuration>

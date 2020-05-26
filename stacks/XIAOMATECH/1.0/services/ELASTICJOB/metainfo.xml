@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>ELASTICJOB</name>
+            <displayName>elastic job</displayName>
+            <comment>elasticjob is a lightweight, decentralized solution that provides distributed task sharding
+                service
+            </comment>
+            <version>2.5</version>
+            <components>
+                <component>
+                    <name>ELASTICJOB</name>
+                    <displayName>elastic job</displayName>
+                    <category>MASTER</category>
+                    <cardinality>1+</cardinality>
+                    <versionAdvertised>true</versionAdvertised>
+                    <commandScript>
+                        <script>scripts/elasticjob.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>1200</timeout>
+                    </commandScript>
+                    <logs>
+                        <log>
+                            <logId>elasticjob</logId>
+                            <primary>true</primary>
+                        </log>
+                    </logs>
+                </component>
+            </components>
+
+            <configuration-dependencies>
+                <config-type>elasticjob-env</config-type>
+            </configuration-dependencies>
+
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+
+        </service>
+    </services>
+</metainfo>

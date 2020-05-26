@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>CRUISECONTROL</name>
+            <displayName>Cruise Control</displayName>
+            <comment>Cruise Control</comment>
+            <version>2.0</version>
+            <components>
+                <component>
+                    <name>CRUISE_CONTROL</name>
+                    <displayName>Cruise Control</displayName>
+                    <comment>Cruise Control</comment>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/cruisecontrol.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>10000</timeout>
+                    </commandScript>
+                    <recovery_enabled>true</recovery_enabled>
+                </component>
+
+                <component>
+                    <name>CRUISE_CONTROL_UI</name>
+                    <displayName>Cruise Control UI</displayName>
+                    <category>SLAVE</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>scripts/ui.py</script>
+                        <scriptType>PYTHON</scriptType>
+                        <timeout>10000</timeout>
+                    </commandScript>
+                    <recovery_enabled>true</recovery_enabled>
+                </component>
+            </components>
+
+            <configuration-dependencies>
+                <config-type>cruisecontrol-env</config-type>
+            </configuration-dependencies>
+            <restartRequiredAfterChange>true</restartRequiredAfterChange>
+
+            <quickLinksConfigurations>
+                <quickLinksConfiguration>
+                    <fileName>quicklinks.json</fileName>
+                    <default>true</default>
+                </quickLinksConfiguration>
+            </quickLinksConfigurations>
+
+        </service>
+
+    </services>
+</metainfo>
