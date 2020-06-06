@@ -8,7 +8,7 @@
     </property>
     <property require-input="true">
         <name>share_jars</name>
-        <value>spark-2.4.3-yarn-shuffle.jar,tez-aux-services-0.9.2.jar,hadoop-gpl-compression-0.1.0.jar,elasticsearch-hadoop-7.2.0.jar,elasticsearch-hadoop-mr-7.2.0.jar</value>
+        <value>spark-2.4.5-yarn-shuffle.jar,tez-aux-services-0.9.2.jar,hadoop-gpl-compression-0.1.0.jar,elasticsearch-hadoop-7.2.0.jar,elasticsearch-hadoop-mr-7.2.0.jar</value>
         <description>hadoop share jars</description>
         <value-attributes>
             <empty-value-valid>true</empty-value-valid>

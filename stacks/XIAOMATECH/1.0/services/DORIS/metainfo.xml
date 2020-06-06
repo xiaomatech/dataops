@@ -4,7 +4,7 @@
     <services>
         <service>
             <name>DORIS</name>
-            <displayName>Apache Doris(Baidu DORIS)</displayName>
+            <displayName>Apache Doris</displayName>
             <comment>OLAP</comment>
             <version>0.11.0</version>
             <components>

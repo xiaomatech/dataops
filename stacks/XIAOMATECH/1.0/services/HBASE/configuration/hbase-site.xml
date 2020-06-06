@@ -1059,8 +1059,6 @@
     <property>
         <name>hbase.master.hfilecleaner.ttl</name>
         <value>3600000</value>
-        <description>
-          The period (in milliseconds) to keep store files in the archive folder before deleting them from the file system.</description>
     </property>
     <property>
         <name>hbase.meta.replica.count</name>
@@ -1072,52 +1070,31 @@
     <property>
         <name>hbase.region.replica.storefile.refresh.memstore.multiplier</name>
         <value>4</value>
-        <description>
-          The multiplier for a “store file refresh” operation for the secondary region replica. If a region server has memory pressure, the secondary region will refresh it’s store files if the memstore size of the biggest secondary replica is bigger this many times than the memstore size of the biggest primary replica. Set this to a very big value to disable this feature (not recommended).
-        </description>
     </property>
     <property>
-     <name>hbase.region.replica.wait.for.primary.flush</name>
+        <name>hbase.region.replica.wait.for.primary.flush</name>
         <value>true</value>
-        <description>
-          Whether to wait for observing a full flush cycle from the primary before start serving data in a secondary. Disabling this might cause the secondary region replicas to go back in time for reads between region movements.
-        </description>
     </property>
     
     <property>
         <name>hbase.ipc.client.specificThreadForWriting</name>
         <value>true</value>
-        <description>
-          Whether to enable interruption of RPC threads at the client side. This is required for region replicas with fallback RPC’s to secondary regions.
-        </description>
     </property>
     <property>
       <name>hbase.client.primaryCallTimeout.get</name>
       <value>10000</value>
-      <description>
-        The timeout (in microseconds), before secondary fallback RPC’s are submitted for get requests with Consistency.TIMELINE to the secondary replicas of the regions. Defaults to 10ms. Setting this lower will increase the number of RPC’s, but will lower the p99 latencies.
-      </description>
     </property>
     <property>
       <name>hbase.client.primaryCallTimeout.multiget</name>
       <value>10000</value>
-      <description>
-          The timeout (in microseconds), before secondary fallback RPC’s are submitted for multi-get requests (Table.get(List<Get>)) with Consistency.TIMELINE to the secondary replicas of the regions. Defaults to 10ms. Setting this lower will increase the number of RPC’s, but will lower the p99 latencies.
-      </description>
     </property>
     <property>
       <name>hbase.client.replicaCallTimeout.scan</name>
       <value>1000000</value>
-      <description>
-        The timeout (in microseconds), before secondary fallback RPC’s are submitted for scan requests with Consistency.TIMELINE to the secondary replicas of the regions. Defaults to 1 sec. Setting this lower will increase the number of RPC’s, but will lower the p99 latencies.
-      </description>
     </property>
     <property>
         <name>hbase.meta.replicas.use</name>
         <value>true</value>
-        <description>
-          Whether to use meta table replicas or not. Default is false.
-        </description>
     </property>
     <property>
         <name>hbase.wal.regiongrouping.numgroups</name>

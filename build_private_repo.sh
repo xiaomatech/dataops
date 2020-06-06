@@ -237,16 +237,16 @@ wget https://mirrors.aliyun.com/apache/sqoop/1.99.7/sqoop-1.99.7-bin-hadoop200.t
 wget https://mirrors.aliyun.com/apache/storm/apache-storm-2.1.0/apache-storm-2.1.0.tar.gz -P ./
 wget https://mirrors.aliyun.com/apache/zeppelin/zeppelin-0.8.0/zeppelin-0.8.0-bin-all.tgz -P ./
 wget http://mirrors.aliyun.com/apache/zookeeper/zookeeper-3.5.6/apache-zookeeper-3.5.6.tar.gz -P ./
-wget http://central.maven.org/maven2/org/apache/parquet/parquet-tools/1.11.0/parquet-tools-1.11.0.jar -P ./
+wget https://repo1.maven.org/maven2/org/apache/parquet/parquet-tools/1.11.0/parquet-tools-1.11.0.jar -P ./
 
 wget https://github.com/linkedin/cruise-control-ui/releases/download/v0.1.0/cruise-control-ui.tar.gz -P ./
 
-wget http://central.maven.org/maven2/com/hadoop/compression/hadoop-gpl-compression/0.1.0/hadoop-gpl-compression-0.1.0.jar -P ./share/hadoop/
-wget http://central.maven.org/maven2/org/apache/commons/commons-configuration2/2.4/commons-configuration2-2.4.jar -P ./share/hadoop/
+wget https://repo1.maven.org/maven2/com/hadoop/compression/hadoop-gpl-compression/0.1.0/hadoop-gpl-compression-0.1.0.jar -P ./share/hadoop/
+wget https://repo1.maven.org/maven2/org/apache/commons/commons-configuration2/2.4/commons-configuration2-2.4.jar -P ./share/hadoop/
 
 wget https://mirrors.aliyun.com/apache/tez/0.9.2/apache-tez-0.9.2-bin.tar.gz -P ./
-wget http://central.maven.org/maven2/org/apache/tez/tez-ui/0.9.2/tez-ui-0.9.2.war -P ./
-wget http://central.maven.org/maven2/org/apache/tez/tez-aux-services/0.9.2/tez-aux-services-0.9.2.jar -P ./share/hadoop/
+wget https://repo1.maven.org/maven2/org/apache/tez/tez-ui/0.9.2/tez-ui-0.9.2.war -P ./
+wget https://repo1.maven.org/maven2/org/apache/tez/tez-aux-services/0.9.2/tez-aux-services-0.9.2.jar -P ./share/hadoop/
 
 wget https://repo1.maven.org/maven2/io/prestosql/presto-server/325/presto-server-325.tar.gz -P ./
 wget https://repo1.maven.org/maven2/io/prestosql/presto-cli/307/presto-cli-307-executable.jar -P ./
@@ -299,9 +299,9 @@ rm -rf /tmp/hbase-2.2.2/lib/hadoop-*
 tar -czvf $repo_dir_base/hbase-2.2.2.tar.gz hbase-2.2.2
 cd $repo_dir_base
 
-wget https://mirrors.aliyun.com/apache/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz -P ./
-tar -zxvf spark-2.4.3-bin-hadoop2.7.tgz -C /tmp/
-cp /tmp/spark-2.4.3-bin-hadoop2.7/yarn/spark-2.4.3-yarn-shuffle.jar $repo_dir_base/share/spark/
+wget https://mirrors.aliyun.com/apache/spark/spark-2.4.5/spark-2.4.5-bin-hadoop2.7.tgz -P ./
+tar -zxvf spark-2.4.5-bin-hadoop2.7.tgz -C /tmp/
+cp /tmp/spark-2.4.5-bin-hadoop2.7/yarn/spark-2.4.5-yarn-shuffle.jar $repo_dir_base/share/spark/
 rm -rf /tmp/spark-*
 cd $repo_dir_base
 

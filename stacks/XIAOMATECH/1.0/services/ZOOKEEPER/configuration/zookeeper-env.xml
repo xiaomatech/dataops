@@ -126,7 +126,7 @@ export ZOOPIDFILE={{zk_pid_file}}
 export SERVER_JVMFLAGS={{zk_server_heapsize}}
 export JAVA=$JAVA_HOME/bin/java
 export CLASSPATH=$CLASSPATH:{{install_dir}}/*
-
+export SERVER_JVMFLAGS=" -Dzookeeper.admin.enableServer=false"
 {% if security_enabled %}
 export SERVER_JVMFLAGS="$SERVER_JVMFLAGS -Djava.security.auth.login.config={{zk_server_jaas_file}}"
 export CLIENT_JVMFLAGS="$CLIENT_JVMFLAGS -Djava.security.auth.login.config={{zk_client_jaas_file}}"
