@@ -1,3 +1,4 @@
-
-HIVE_CONF_DIR=$4 TEZ_CONF_DIR=$5 {{hive_bin}}/hiveserver2 > $1 2> $2 &
+export HIVE_CONF_DIR=$4
+export TEZ_CONF_DIR=$5
+{{hive_interactive_bin}}/hiveserver2 > $1 2> $2 &
 echo $!|cat>$3

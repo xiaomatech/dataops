@@ -17,11 +17,7 @@ download_url_base = default("/configurations/cluster-env/download_url_base",
 tikv_content = config['configurations']['tidb-env']['tikv_content']
 tidb_content = config['configurations']['tidb-env']['tidb_content']
 pd_content = config['configurations']['tidb-env']['pd_content']
-tikv_import_content = config['configurations']['tidb-env'][
-    'tikv_import_content']
-syncer_content = config['configurations']['tidb-env']['syncer_content']
-drainer_content = config['configurations']['tidb-env']['drainer_content']
-pump_content = config['configurations']['tidb-env']['pump_content']
+
 
 conf_dir = '/etc/tidb'
 log_dir = '/var/log/tidb'
@@ -132,42 +128,6 @@ Wants=network-online.target
 User=tikv
 Group=tikv
 ExecStart=/usr/sbin/syncer --config /etc/tidb/syncer.conf -enable-gtid -auto-fix-gtid
-ExecReload=/bin/kill -HUP $MAINPID
-KillSignal=SIGINT
-LimitNOFILE=1048576
-
-[Install]
-WantedBy=multi-user.target
-'''
-
-pump_systemd = '''
-[Unit]
-Description=TiDB Syncer
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-User=tikv
-Group=tikv
-ExecStart=/usr/sbin/pump --config /etc/tidb/pump.conf
-ExecReload=/bin/kill -HUP $MAINPID
-KillSignal=SIGINT
-LimitNOFILE=1048576
-
-[Install]
-WantedBy=multi-user.target
-'''
-
-drainer_systemd = '''
-[Unit]
-Description=TiDB Syncer
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-User=tikv
-Group=tikv
-ExecStart=/usr/sbin/drainer --config /etc/tidb/drainer.conf
 ExecReload=/bin/kill -HUP $MAINPID
 KillSignal=SIGINT
 LimitNOFILE=1048576

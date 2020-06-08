@@ -260,40 +260,11 @@ stream-channel-window = 128
         <on-ambari-upgrade add="false"/>
     </property>
     <property>
-        <name>tikv_import_content</name>
-        <display-name>tikv importer conf</display-name>
-        <description>tikv importer conf</description>
+        <name>tiflash_content</name>
+        <display-name>TiFlash conf</display-name>
+        <description>tTiFlash conf</description>
         <value><![CDATA[
-# TiKV Importer configuration file template
 
-log-file = "{{log_dir}}/tikv_importer.log"
-log-level = "info"
-
-[server]
-addr = "0.0.0.0:20170"
-grpc-concurrency = 16
-
-[metric]
-job = "tikv-importer"
-interval = "15s"
-address = ""
-
-[rocksdb]
-max-background-jobs = 32
-
-[rocksdb.defaultcf]
-write-buffer-size = "1GB"
-max-write-buffer-number = 16
-compression-per-level = ["lz4", "no", "no", "no", "no", "no", "zstd"]
-
-[import]
-import-dir = "{{data_dir}}/import"
-num-threads = 16
-num-import-jobs = 24
-max-prepare-duration = "5m"
-region-split-size = "96MB"
-stream-channel-window = 128
-max-open-engines = 8
 
             ]]>
         </value>
@@ -304,104 +275,11 @@ max-open-engines = 8
     </property>
 
     <property>
-        <name>syncer_content</name>
-        <display-name>tidb syncer conf</display-name>
-        <description>tidb syncer conf</description>
-        <value><![CDATA[
-log-level = "info"
-log-file = {{log_dir}}/syncer.log
-server-id = {{hostname}}
-meta = "./syncer.meta"
-worker-count = 16
-batch = 10
-status-addr = "{{hostname}}:10086"
-skip-ddls = ["^CREATE\\s+USER"]
-
-[from]
-host = "127.0.0.1"
-user = "root"
-password = ""
-port = 3306
-
-[to]
-host = "127.0.0.1"
-user = "root"
-password = ""
-port = 4000
-
-            ]]>
-        </value>
-        <value-attributes>
-            <type>content</type>
-        </value-attributes>
-        <on-ambari-upgrade add="false"/>
-    </property>
-
-    <property>
-        <name>drainer_content</name>
-        <display-name>tidb drainer conf</display-name>
-        <description>tidb drainer conf</description>
+        <name>ticdc_content</name>
+        <display-name>TiCDC conf</display-name>
+        <description>TiCDC conf</description>
         <value><![CDATA[
 
-addr = "{{hostname}}:8249"
-
-detect-interval = 10
-
-data-dir = "{{data_dir}}/drainer"
-
-zookeeper-addrs = "{{zk_url}}/kafka"
-
-pd-urls = "{{pd_url}}"
-
-log-file = "drainer.log"
-
-metrics-addr = "{{prometheus_pushgateway_addr}}"
-
-[syncer]
-ignore-schemas = "INFORMATION_SCHEMA,PERFORMANCE_SCHEMA,mysql"
-txn-batch = 1
-worker-count = 16
-disable-dispatch = false
-db-type = "mysql"
-
-[syncer.to]
-host = "192.168.0.10"
-user = "root"
-password = ""
-port = 3306
-
-# db-type is pb
-# [syncer.to]
-# dir = "{{data_dir}}/drainer"
-
-            ]]>
-        </value>
-        <value-attributes>
-            <type>content</type>
-        </value-attributes>
-        <on-ambari-upgrade add="false"/>
-    </property>
-
-
-    <property>
-        <name>pump_content</name>
-        <display-name>tidb pump conf</display-name>
-        <description>tidb pump conf</description>
-        <value><![CDATA[
-
-addr = "{{hostname}}:8250"
-
-advertise-addr = "{{hostname}}:8250"
-gc = 7
-data-dir = "{{data_dir}}/pump"
-
-zookeeper-addrs = "{{zk_url}}/kafka"
-heartbeat-interval = 3
-pd-urls = "{{pd_url}}"
-
-metrics-addr = "{{prometheus_pushgateway_addr}}"
-
-socket = "unix:///var/run/pump.sock"
 
             ]]>
         </value>

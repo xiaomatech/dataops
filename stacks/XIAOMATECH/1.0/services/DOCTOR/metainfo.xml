@@ -4,7 +4,7 @@
     <services>
         <service>
             <name>DOCTOR</name>
-            <displayName>dr-elephant</displayName>
+            <displayName>Dr Elephant</displayName>
             <comment>Performance monitoring and tuning tool for Apache Hadoop</comment>
             <version>2.0.13</version>
             <components>
